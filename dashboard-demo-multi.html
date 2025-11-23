@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard - Multi-Month Demo - StatementPro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">StatementPro</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <button class="btn-secondary">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="dashboard-content">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Financial Dashboard</h1>
+                        <p class="dashboard-subtitle">Analysis of <span>3 files (Jan, Feb, Mar 2024)</span></p>
+                    </div>
+                    <a href="dashboard.html" class="btn-outline" style="text-decoration: none; display: inline-block;">Upload Your Files</a>
+                </div>
+
+                <!-- Month Filter -->
+                <div class="month-filter-section">
+                    <h3>Filter by Month</h3>
+                    <div class="month-filter-buttons" id="monthFilterButtons">
+                        <button class="month-btn active" onclick="filterDemoByMonth('all')">All Months</button>
+                        <button class="month-btn" onclick="filterDemoByMonth('2024-03')">March 2024</button>
+                        <button class="month-btn" onclick="filterDemoByMonth('2024-02')">February 2024</button>
+                        <button class="month-btn" onclick="filterDemoByMonth('2024-01')">January 2024</button>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-grid">
+                    <div class="summary-card income-card">
+                        <div class="card-icon">💰</div>
+                        <div class="card-content">
+                            <p class="card-label">Total Income</p>
+                            <h2 class="card-value" id="totalIncome">$19,500.00</h2>
+                            <p class="card-subtitle" id="incomeCount">7 transactions</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card expense-card">
+                        <div class="card-icon">💸</div>
+                        <div class="card-content">
+                            <p class="card-label">Total Expenses</p>
+                            <h2 class="card-value" id="totalExpenses">$6,887.09</h2>
+                            <p class="card-subtitle" id="expenseCount">44 transactions</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card balance-card">
+                        <div class="card-icon">💵</div>
+                        <div class="card-content">
+                            <p class="card-label">Net Balance</p>
+                            <h2 class="card-value" id="netBalance">$12,612.91</h2>
+                            <p class="card-subtitle" id="balanceChange">↑ Positive</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card savings-card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-content">
+                            <p class="card-label">Savings Rate</p>
+                            <h2 class="card-value" id="savingsRate">64.7%</h2>
+                            <p class="card-subtitle">of total income</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Income vs Expenses</h3>
+                        <canvas id="incomeExpenseChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Monthly Trend</h3>
+                        <canvas id="monthlyTrendChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="transactions-section">
+                    <div class="transactions-header">
+                        <h3>Recent Transactions</h3>
+                        <div class="transaction-filters">
+                            <button class="filter-btn active" onclick="filterDemoTransactions('all')">All</button>
+                            <button class="filter-btn" onclick="filterDemoTransactions('income')">Income</button>
+                            <button class="filter-btn" onclick="filterDemoTransactions('expense')">Expenses</button>
+                        </div>
+                    </div>
+                    <div class="transactions-table-container">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody">
+                                <!-- Will be populated by JavaScript -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data for all 3 months
+        const allMonthsData = {
+            income: 19500,
+            expenses: 6887.09,
+            netBalance: 12612.91,
+            savingsRate: 64.7,
+            incomeCount: 7,
+            expenseCount: 44
+        };
+
+        const marchData = {
+            income: 6300,
+            expenses: 2409.19,
+            netBalance: 3890.81,
+            savingsRate: 61.8,
+            incomeCount: 2,
+            expenseCount: 14
+        };
+
+        const februaryData = {
+            income: 6500,
+            expenses: 2252.18,
+            netBalance: 4247.82,
+            savingsRate: 65.4,
+            incomeCount: 2,
+            expenseCount: 14
+        };
+
+        const januaryData = {
+            income: 6700,
+            expenses: 2225.72,
+            netBalance: 4474.28,
+            savingsRate: 66.8,
+            incomeCount: 3,
+            expenseCount: 16
+        };
+
+        const transactions = [
+            { date: 'Mar 31, 2024', desc: 'Supermarket', cat: 'Food', amount: -145.60, balance: 17936.33, type: 'expense' },
+            { date: 'Mar 29, 2024', desc: 'Gaming Subscription', cat: 'Entertainment', amount: -14.99, balance: 18081.93, type: 'expense' },
+            { date: 'Mar 27, 2024', desc: 'Restaurant Dinner', cat: 'Food', amount: -92.00, balance: 18096.92, type: 'expense' },
+            { date: 'Mar 25, 2024', desc: 'Pharmacy', cat: 'Healthcare', amount: -38.90, balance: 18188.92, type: 'expense' },
+            { date: 'Mar 23, 2024', desc: 'Shopping Mall', cat: 'Shopping', amount: -234.50, balance: 18227.82, type: 'expense' },
+            { date: 'Mar 21, 2024', desc: 'Internet Bill', cat: 'Bills', amount: -79.99, balance: 18462.32, type: 'expense' },
+            { date: 'Mar 19, 2024', desc: 'Side Project Payment', cat: 'Salary', amount: 800.00, balance: 18542.31, type: 'income' },
+            { date: 'Mar 17, 2024', desc: 'Coffee Shop', cat: 'Food', amount: -14.25, balance: 17742.31, type: 'expense' },
+            { date: 'Mar 15, 2024', desc: 'Gas Station', cat: 'Transport', amount: -68.00, balance: 17756.56, type: 'expense' },
+            { date: 'Mar 13, 2024', desc: 'Amazon Purchase', cat: 'Shopping', amount: -123.45, balance: 17824.56, type: 'expense' },
+            { date: 'Mar 11, 2024', desc: 'Electricity Bill', cat: 'Bills', amount: -158.00, balance: 17948.01, type: 'expense' },
+            { date: 'Mar 9, 2024', desc: 'Uber Ride', cat: 'Transport', amount: -22.00, balance: 18106.01, type: 'expense' },
+            { date: 'Mar 7, 2024', desc: 'Restaurant', cat: 'Food', amount: -78.50, balance: 18128.01, type: 'expense' },
+            { date: 'Mar 5, 2024', desc: 'Grocery Store', cat: 'Food', amount: -156.75, balance: 18206.51, type: 'expense' },
+            { date: 'Mar 3, 2024', desc: 'Rent Payment', cat: 'Bills', amount: -1500.00, balance: 18363.26, type: 'expense' },
+            { date: 'Mar 1, 2024', desc: 'Salary Deposit', cat: 'Salary', amount: 5500.00, balance: 19863.26, type: 'income' },
+            { date: 'Feb 28, 2024', desc: 'Parking Fee', cat: 'Transport', amount: -25.00, balance: 14363.26, type: 'expense' },
+            { date: 'Feb 26, 2024', desc: 'Movie Streaming', cat: 'Entertainment', amount: -12.99, balance: 14388.26, type: 'expense' },
+            { date: 'Feb 24, 2024', desc: 'Supermarket', cat: 'Food', amount: -178.90, balance: 14401.25, type: 'expense' },
+            { date: 'Feb 22, 2024', desc: 'Phone Bill', cat: 'Bills', amount: -55.00, balance: 14580.15, type: 'expense' },
+        ];
+
+        let currentFilter = 'all';
+        let currentData = allMonthsData;
+
+        function filterDemoByMonth(month) {
+            // Update button states
+            document.querySelectorAll('.month-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update data based on month
+            switch(month) {
+                case '2024-03':
+                    currentData = marchData;
+                    break;
+                case '2024-02':
+                    currentData = februaryData;
+                    break;
+                case '2024-01':
+                    currentData = januaryData;
+                    break;
+                default:
+                    currentData = allMonthsData;
+            }
+
+            updateDemoDisplay();
+        }
+
+        function filterDemoTransactions(type) {
+            currentFilter = type;
+            // Update button states
+            document.querySelectorAll('.filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            updateTransactionTable();
+        }
+
+        function updateDemoDisplay() {
+            document.getElementById('totalIncome').textContent = '$' + currentData.income.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('totalExpenses').textContent = '$' + currentData.expenses.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('netBalance').textContent = '$' + currentData.netBalance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            document.getElementById('savingsRate').textContent = currentData.savingsRate.toFixed(1) + '%';
+            document.getElementById('incomeCount').textContent = currentData.incomeCount + ' transaction' + (currentData.incomeCount !== 1 ? 's' : '');
+            document.getElementById('expenseCount').textContent = currentData.expenseCount + ' transaction' + (currentData.expenseCount !== 1 ? 's' : '');
+
+            // Update charts
+            updateCharts();
+        }
+
+        function updateTransactionTable() {
+            const tbody = document.getElementById('transactionsBody');
+            tbody.innerHTML = '';
+            
+            let filtered = transactions;
+            if (currentFilter === 'income') {
+                filtered = transactions.filter(t => t.type === 'income');
+            } else if (currentFilter === 'expense') {
+                filtered = transactions.filter(t => t.type === 'expense');
+            }
+
+            filtered.forEach(t => {
+                const row = `
+                    <tr>
+                        <td class="transaction-date">${t.date}</td>
+                        <td class="transaction-description">${t.desc}</td>
+                        <td><span class="transaction-category">${t.cat}</span></td>
+                        <td class="transaction-amount ${t.type}">${t.type === 'income' ? '+' : ''}$${Math.abs(t.amount).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td>
+                        <td class="transaction-balance">$${t.balance.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")}</td>
+                    </tr>
+                `;
+                tbody.innerHTML += row;
+            });
+        }
+
+        function updateCharts() {
+            // Income vs Expenses Chart
+            const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+            if (window.incomeExpenseChart) window.incomeExpenseChart.destroy();
+            window.incomeExpenseChart = new Chart(incomeExpenseCtx, {
+                type: 'bar',
+                data: {
+                    labels: ['Income', 'Expenses', 'Net Balance'],
+                    datasets: [{
+                        data: [currentData.income, currentData.expenses, currentData.netBalance],
+                        backgroundColor: ['#22c55e', '#ef4444', '#3b82f6'],
+                        borderRadius: 8,
+                        barThickness: 60
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => '$' + context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => '$' + Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                        }
+                    }
+                }
+            });
+
+            // Monthly Trend Chart
+            const monthlyTrendCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+            if (window.monthlyTrendChart) window.monthlyTrendChart.destroy();
+            window.monthlyTrendChart = new Chart(monthlyTrendCtx, {
+                type: 'line',
+                data: {
+                    labels: ['January', 'February', 'March'],
+                    datasets: [
+                        {
+                            label: 'Income',
+                            data: [6700, 6500, 6300],
+                            borderColor: '#22c55e',
+                            backgroundColor: 'rgba(34, 197, 94, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Expenses',
+                            data: [2225.72, 2252.18, 2409.19],
+                            borderColor: '#ef4444',
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        },
+                        {
+                            label: 'Net Balance',
+                            data: [4474.28, 4247.82, 3890.81],
+                            borderColor: '#3b82f6',
+                            backgroundColor: 'rgba(59, 130, 246, 0.1)',
+                            tension: 0.4,
+                            fill: true
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: true,
+                    plugins: {
+                        legend: {
+                            position: 'bottom'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: (context) => context.dataset.label + ': $' + context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                        }
+                    },
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            ticks: {
+                                callback: (value) => '$' + Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Initialize on load
+        updateTransactionTable();
+        updateCharts();
+    </script>
+</body>
+</html>
+

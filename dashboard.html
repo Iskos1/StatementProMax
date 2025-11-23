@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard - StatementPro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">StatementPro</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html" class="active">Dashboard</a>
+                    <button id="dashSignInBtn" class="btn-secondary">
+                        <span id="dashAuthButtonText">Sign In</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="container">
+            <!-- Upload Section -->
+            <div class="upload-section" id="uploadSection">
+                <div class="upload-card">
+                    <div class="upload-icon">📊</div>
+                    <h2>Upload Your Bank Statement</h2>
+                    <p>Upload an Excel file (.xlsx, .xls, .csv) to analyze your finances</p>
+                    <div class="upload-area" id="uploadArea">
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple hidden>
+                        <div class="upload-content">
+                            <div class="upload-icon-large">📁</div>
+                            <p class="upload-text">Drag and drop your Excel files here</p>
+                            <p class="upload-subtext">or</p>
+                            <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+                                Browse Files
+                            </button>
+                            <p class="upload-note">Supports: .xlsx, .xls, .csv • Max 10MB per file • Multiple files supported</p>
+                        </div>
+                    </div>
+                    <div id="fileList" class="file-list" style="display: none;">
+                        <h4>Selected Files (<span id="fileCount">0</span>):</h4>
+                        <div id="fileListItems"></div>
+                        <div class="file-list-actions">
+                            <button class="btn-outline" onclick="document.getElementById('fileInput').click()">
+                                Add More Files
+                            </button>
+                            <button class="btn-primary" id="processFilesBtn">
+                                Process Files & Analyze
+                            </button>
+                        </div>
+                    </div>
+                    <div class="security-note">
+                        <span class="security-icon">🔒</span>
+                        Your file is processed locally in your browser. We never store your data.
+                    </div>
+                </div>
+            </div>
+
+                <!-- Dashboard Section (Hidden initially) -->
+            <div class="dashboard-content" id="dashboardContent" style="display: none;">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Financial Dashboard</h1>
+                        <p class="dashboard-subtitle">Analysis of <span id="fileName"></span></p>
+                    </div>
+                    <button class="btn-outline" id="uploadNewBtn">Upload New Files</button>
+                </div>
+
+                <!-- Month Filter -->
+                <div class="month-filter-section">
+                    <h3>Filter by Month</h3>
+                    <div class="month-filter-buttons" id="monthFilterButtons">
+                        <button class="month-btn active" data-month="all">All Months</button>
+                    </div>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-grid">
+                    <div class="summary-card income-card">
+                        <div class="card-icon">💰</div>
+                        <div class="card-content">
+                            <p class="card-label">Total Income</p>
+                            <h2 class="card-value" id="totalIncome">$0.00</h2>
+                            <p class="card-subtitle" id="incomeCount">0 transactions</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card expense-card">
+                        <div class="card-icon">💸</div>
+                        <div class="card-content">
+                            <p class="card-label">Total Expenses</p>
+                            <h2 class="card-value" id="totalExpenses">$0.00</h2>
+                            <p class="card-subtitle" id="expenseCount">0 transactions</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card balance-card">
+                        <div class="card-icon">💵</div>
+                        <div class="card-content">
+                            <p class="card-label">Net Balance</p>
+                            <h2 class="card-value" id="netBalance">$0.00</h2>
+                            <p class="card-subtitle" id="balanceChange">0%</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card savings-card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-content">
+                            <p class="card-label">Savings Rate</p>
+                            <h2 class="card-value" id="savingsRate">0%</h2>
+                            <p class="card-subtitle">of total income</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Income vs Expenses</h3>
+                        <canvas id="incomeExpenseChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Category Breakdown</h3>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="transactions-section">
+                    <div class="transactions-header">
+                        <h3>Recent Transactions</h3>
+                        <div class="transaction-filters">
+                            <button class="filter-btn active" data-filter="all">All</button>
+                            <button class="filter-btn" data-filter="income">Income</button>
+                            <button class="filter-btn" data-filter="expense">Expenses</button>
+                        </div>
+                    </div>
+                    <div class="transactions-table-container">
+                        <table class="transactions-table" id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody">
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module" src="dashboard.js"></script>
+</body>
+</html>
+

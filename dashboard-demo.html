@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Financial Dashboard Demo - StatementPro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">StatementPro</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <button class="btn-secondary">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="container">
+            <div class="dashboard-content">
+                <!-- Header -->
+                <div class="dashboard-header">
+                    <div>
+                        <h1>Financial Dashboard</h1>
+                        <p class="dashboard-subtitle">Analysis of <span>sample-bank-statement.csv (Demo)</span></p>
+                    </div>
+                    <a href="dashboard.html" class="btn-outline" style="text-decoration: none; display: inline-block;">Upload Your File</a>
+                </div>
+
+                <!-- Summary Cards -->
+                <div class="summary-grid">
+                    <div class="summary-card income-card">
+                        <div class="card-icon">💰</div>
+                        <div class="card-content">
+                            <p class="card-label">Total Income</p>
+                            <h2 class="card-value">$19,500.00</h2>
+                            <p class="card-subtitle">7 transactions</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card expense-card">
+                        <div class="card-icon">💸</div>
+                        <div class="card-content">
+                            <p class="card-label">Total Expenses</p>
+                            <h2 class="card-value">$4,686.70</h2>
+                            <p class="card-subtitle">18 transactions</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card balance-card">
+                        <div class="card-icon">💵</div>
+                        <div class="card-content">
+                            <p class="card-label">Net Balance</p>
+                            <h2 class="card-value">$14,813.30</h2>
+                            <p class="card-subtitle">↑ Positive</p>
+                        </div>
+                    </div>
+
+                    <div class="summary-card savings-card">
+                        <div class="card-icon">🎯</div>
+                        <div class="card-content">
+                            <p class="card-label">Savings Rate</p>
+                            <h2 class="card-value">76.0%</h2>
+                            <p class="card-subtitle">of total income</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Charts Section -->
+                <div class="charts-grid">
+                    <div class="chart-card">
+                        <h3>Income vs Expenses</h3>
+                        <canvas id="incomeExpenseChart"></canvas>
+                    </div>
+
+                    <div class="chart-card">
+                        <h3>Category Breakdown</h3>
+                        <canvas id="categoryChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Transactions Table -->
+                <div class="transactions-section">
+                    <div class="transactions-header">
+                        <h3>Recent Transactions</h3>
+                        <div class="transaction-filters">
+                            <button class="filter-btn active">All</button>
+                            <button class="filter-btn">Income</button>
+                            <button class="filter-btn">Expenses</button>
+                        </div>
+                    </div>
+                    <div class="transactions-table-container">
+                        <table class="transactions-table">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody">
+                                <tr>
+                                    <td class="transaction-date">Mar 19, 2024</td>
+                                    <td class="transaction-description">Side Project Payment</td>
+                                    <td><span class="transaction-category">Salary</span></td>
+                                    <td class="transaction-amount income">+$800.00</td>
+                                    <td class="transaction-balance">$18,542.31</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Mar 13, 2024</td>
+                                    <td class="transaction-description">Amazon Purchase</td>
+                                    <td><span class="transaction-category">Shopping</span></td>
+                                    <td class="transaction-amount expense">$123.45</td>
+                                    <td class="transaction-balance">$17,824.56</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Mar 11, 2024</td>
+                                    <td class="transaction-description">Electricity Bill</td>
+                                    <td><span class="transaction-category">Bills</span></td>
+                                    <td class="transaction-amount expense">$158.00</td>
+                                    <td class="transaction-balance">$17,948.01</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Mar 7, 2024</td>
+                                    <td class="transaction-description">Restaurant</td>
+                                    <td><span class="transaction-category">Food</span></td>
+                                    <td class="transaction-amount expense">$78.50</td>
+                                    <td class="transaction-balance">$18,128.01</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Mar 5, 2024</td>
+                                    <td class="transaction-description">Grocery Store</td>
+                                    <td><span class="transaction-category">Food</span></td>
+                                    <td class="transaction-amount expense">$156.75</td>
+                                    <td class="transaction-balance">$18,206.51</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Mar 3, 2024</td>
+                                    <td class="transaction-description">Rent Payment</td>
+                                    <td><span class="transaction-category">Bills</span></td>
+                                    <td class="transaction-amount expense">$1,500.00</td>
+                                    <td class="transaction-balance">$18,363.26</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Mar 1, 2024</td>
+                                    <td class="transaction-description">Salary Deposit</td>
+                                    <td><span class="transaction-category">Salary</span></td>
+                                    <td class="transaction-amount income">+$5,500.00</td>
+                                    <td class="transaction-balance">$19,863.26</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Feb 20, 2024</td>
+                                    <td class="transaction-description">Bonus Payment</td>
+                                    <td><span class="transaction-category">Salary</span></td>
+                                    <td class="transaction-amount income">+$1,000.00</td>
+                                    <td class="transaction-balance">$14,635.15</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Feb 14, 2024</td>
+                                    <td class="transaction-description">Valentine's Dinner</td>
+                                    <td><span class="transaction-category">Food</span></td>
+                                    <td class="transaction-amount expense">$125.00</td>
+                                    <td class="transaction-balance">$13,891.40</td>
+                                </tr>
+                                <tr>
+                                    <td class="transaction-date">Feb 10, 2024</td>
+                                    <td class="transaction-description">Uber Eats Order</td>
+                                    <td><span class="transaction-category">Food</span></td>
+                                    <td class="transaction-amount expense">$35.75</td>
+                                    <td class="transaction-balance">$14,078.40</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Initialize charts with demo data
+        const incomeExpenseCtx = document.getElementById('incomeExpenseChart').getContext('2d');
+        new Chart(incomeExpenseCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Income', 'Expenses', 'Net Balance'],
+                datasets: [{
+                    data: [19500, 4686.70, 14813.30],
+                    backgroundColor: ['#22c55e', '#ef4444', '#3b82f6'],
+                    borderRadius: 8,
+                    barThickness: 60
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => '$' + context.parsed.y.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: {
+                            callback: (value) => '$' + Math.round(value).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",")
+                        }
+                    }
+                }
+            }
+        });
+
+        const categoryCtx = document.getElementById('categoryChart').getContext('2d');
+        new Chart(categoryCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Rent/Bills', 'Food', 'Shopping', 'Transport', 'Entertainment', 'Other'],
+                datasets: [{
+                    data: [1837, 521.80, 123.45, 35.75, 59.99, 108.71],
+                    backgroundColor: ['#ef4444', '#f97316', '#f59e0b', '#eab308', '#84cc16', '#22c55e']
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                const label = context.label || '';
+                                const value = '$' + context.parsed.toFixed(2);
+                                const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                                const percentage = ((context.parsed / total) * 100).toFixed(1);
+                                return `${label}: ${value} (${percentage}%)`;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    </script>
+</body>
+</html>
+

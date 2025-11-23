@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload Demo - StatementPro</title>
+    <link rel="stylesheet" href="styles.css">
+    <link rel="stylesheet" href="dashboard-styles.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <div class="logo">StatementPro</div>
+                <div class="nav-links">
+                    <a href="index.html">Home</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <button class="btn-secondary">Sign In</button>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Dashboard Content -->
+    <div class="dashboard-container">
+        <div class="container">
+            <!-- Upload Section -->
+            <div class="upload-section">
+                <div class="upload-card">
+                    <div class="upload-icon">📊</div>
+                    <h2>Upload Your Bank Statement</h2>
+                    <p>Upload an Excel file (.xlsx, .xls, .csv) to analyze your finances</p>
+                    <div class="upload-area">
+                        <div class="upload-content">
+                            <div class="upload-icon-large">📁</div>
+                            <p class="upload-text">Drag and drop your Excel files here</p>
+                            <p class="upload-subtext">or</p>
+                            <button class="btn-primary">
+                                Browse Files
+                            </button>
+                            <p class="upload-note">Supports: .xlsx, .xls, .csv • Max 10MB per file • Multiple files supported</p>
+                        </div>
+                    </div>
+                    
+                    <!-- File List (Showing demo state with 3 files selected) -->
+                    <div class="file-list" style="display: block;">
+                        <h4>Selected Files (<span>3</span>):</h4>
+                        <div id="fileListItems">
+                            <div class="file-item">
+                                <div>
+                                    <div class="file-item-name">sample-january-2024.csv</div>
+                                    <div class="file-item-size">1.2 KB</div>
+                                </div>
+                                <span class="file-item-remove">Remove</span>
+                            </div>
+                            <div class="file-item">
+                                <div>
+                                    <div class="file-item-name">sample-february-2024.csv</div>
+                                    <div class="file-item-size">1.1 KB</div>
+                                </div>
+                                <span class="file-item-remove">Remove</span>
+                            </div>
+                            <div class="file-item">
+                                <div>
+                                    <div class="file-item-name">sample-march-2024.csv</div>
+                                    <div class="file-item-size">1.0 KB</div>
+                                </div>
+                                <span class="file-item-remove">Remove</span>
+                            </div>
+                        </div>
+                        <div class="file-list-actions">
+                            <button class="btn-outline">
+                                Add More Files
+                            </button>
+                            <button class="btn-primary">
+                                Process Files & Analyze
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="security-note">
+                        <span class="security-icon">🔒</span>
+                        Your file is processed locally in your browser. We never store your data.
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
+
