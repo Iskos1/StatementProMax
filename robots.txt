@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Disallow authentication pages
+Disallow: /api/
+Disallow: /auth/
+
+# Sitemap location
+Sitemap: https://statementpro.com/sitemap.xml
+

@@ -1,0 +1,254 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us - StatementProMax Support</title>
+    
+    <!-- SEO Meta Tags -->
+    <meta name="description" content="Get in touch with StatementProMax. Our team is here to help with your PDF conversion and financial analysis needs.">
+    <meta name="keywords" content="contact, support, help, customer service, statementpro">
+    <meta name="author" content="StatementProMax">
+    <meta name="robots" content="index, follow">
+    <link rel="canonical" href="https://statementpro.com/contact.html">
+    
+    <!-- Open Graph Tags -->
+    <meta property="og:title" content="Contact Us - StatementProMax Support">
+    <meta property="og:description" content="Get in touch with StatementProMax. Our team is here to help with your PDF conversion and financial analysis needs.">
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://statementpro.com/contact.html">
+    
+    <!-- Twitter Card Tags -->
+    <meta name="twitter:card" content="summary">
+    <meta name="twitter:title" content="Contact Us - StatementProMax Support">
+    <meta name="twitter:description" content="Get in touch with StatementProMax. Our team is here to help with your PDF conversion and financial analysis needs.">
+    
+    <link rel="stylesheet" href="styles.css">
+    
+    <!-- Structured Data -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "ContactPage",
+        "name": "Contact StatementProMax",
+        "description": "Contact page for StatementProMax support and inquiries",
+        "url": "https://statementpro.com/contact.html"
+    }
+    </script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="nav">
+        <div class="container">
+            <div class="nav-content">
+                <a href="index.html" class="logo-link">
+                    <div class="logo">
+                        <div class="logo-icon-wrapper">
+                            <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#FF6B6B"/>
+                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#FF8A80"/>
+                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#FF6B6B"/>
+                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#FF8A80"/>
+                                <path d="M2 24 L30 24" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
+                    </div>
+                </a>
+                <div class="nav-links">
+                    <a href="index.html">Converter</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="blog.html">Blog</a>
+                    <a href="about.html">About</a>
+                    <a href="contact.html" class="active">Contact</a>
+                </div>
+                <div class="nav-auth">
+                    <button class="btn-auth" id="signInBtn" style="display: none;">
+                        <span id="authButtonText">Sign In</span>
+                    </button>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <button class="user-menu-btn" id="userMenuBtn">
+                            <span id="userEmail"></span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <button class="user-dropdown-btn" id="signOutBtn">Sign Out</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <section class="hero">
+        <div class="container">
+            <div class="hero-content">
+                <h1>Contact Us</h1>
+                <p class="hero-subtitle">Have a question or need help? We're here to assist you.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Form Section -->
+    <section class="converter-main">
+        <div class="container">
+            <div class="upload-section">
+                <div class="upload-card" style="max-width: 700px; margin: 0 auto;">
+                    <h2>Send Us a Message</h2>
+                    <p style="color: #6a6a6a; margin-bottom: 32px;">Fill out the form below and we'll get back to you within 24 hours.</p>
+                    
+                    <form class="auth-form" id="contactForm">
+                        <div class="form-group">
+                            <label for="name">Your Name</label>
+                            <input type="text" id="name" name="name" required placeholder="John Doe">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="email">Email Address</label>
+                            <input type="email" id="email" name="email" required placeholder="john@example.com">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="subject">Subject</label>
+                            <input type="text" id="subject" name="subject" required placeholder="How can we help?">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="message">Message</label>
+                            <textarea id="message" name="message" rows="6" required placeholder="Tell us more about your inquiry..." style="resize: vertical; font-family: inherit; padding: 12px 16px; border: 2px solid #e5e5e5; border-radius: 8px; font-size: 16px; transition: all 0.2s; width: 100%;"></textarea>
+                        </div>
+                        
+                        <button type="submit" class="btn-primary-full">Send Message</button>
+                    </form>
+                </div>
+            </div>
+            
+            <!-- Alternative Contact Methods -->
+            <div class="features-grid" style="margin-top: 60px;">
+                <div class="feature-card">
+                    <div class="feature-icon">📧</div>
+                    <h3>Email Us</h3>
+                    <p>support@statementpro.com</p>
+                    <p style="font-size: 14px; color: #8a8a8a;">Response time: 24 hours</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">💬</div>
+                    <h3>Live Chat</h3>
+                    <p>Available Monday-Friday</p>
+                    <p style="font-size: 14px; color: #8a8a8a;">9 AM - 5 PM EST</p>
+                </div>
+                
+                <div class="feature-card">
+                    <div class="feature-icon">📚</div>
+                    <h3>Help Center</h3>
+                    <p>Browse our documentation</p>
+                    <a href="blog.html" style="font-size: 14px; color: #2d7a5f; font-weight: 600;">Visit Help Center →</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="features">
+        <div class="container">
+            <h2 class="section-title">Frequently Asked Questions</h2>
+            
+            <div class="section-content" style="max-width: 800px; margin: 0 auto; text-align: left;">
+                <div style="margin-bottom: 32px;">
+                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">How long does it take to get a response?</h3>
+                    <p style="color: #6a6a6a; line-height: 1.6;">We typically respond to all inquiries within 24 hours during business days. For urgent matters, please indicate this in your subject line.</p>
+                </div>
+                
+                <div style="margin-bottom: 32px;">
+                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">Is my data secure when I contact you?</h3>
+                    <p style="color: #6a6a6a; line-height: 1.6;">Yes. All communication through our contact form is encrypted. We never share your information with third parties.</p>
+                </div>
+                
+                <div style="margin-bottom: 32px;">
+                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">Can I request a feature?</h3>
+                    <p style="color: #6a6a6a; line-height: 1.6;">Absolutely! We love hearing from our users. Please describe the feature you'd like to see and we'll consider it for future updates.</p>
+                </div>
+                
+                <div>
+                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">Do you offer enterprise support?</h3>
+                    <p style="color: #6a6a6a; line-height: 1.6;">Yes, we offer dedicated support for enterprise customers. Contact us to learn more about our enterprise plans and support options.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer - Compact & Organized -->
+    <footer class="footer">
+        <div class="container">
+            <!-- Links at Top -->
+            <div class="footer-links-row">
+                <div class="footer-links-group">
+                    <h4>Product</h4>
+                    <a href="index.html">Converter</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="blog.html">Blog</a>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Company</h4>
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="security.html">Security</a>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Legal</h4>
+                    <a href="privacy.html">Privacy</a>
+                    <a href="terms.html">Terms</a>
+                </div>
+            </div>
+            
+            <!-- Logo and Brand Below -->
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <svg class="footer-logo-icon" width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="4" height="16" rx="2" fill="#FF6B6B"/>
+                        <rect x="10" y="12" width="4" height="12" rx="2" fill="#FF8A80"/>
+                        <rect x="16" y="6" width="4" height="18" rx="2" fill="#FF6B6B"/>
+                        <rect x="22" y="10" width="4" height="14" rx="2" fill="#FF8A80"/>
+                        <path d="M2 24 L30 24" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="footer-logo-text">Statement<span style="color: #FF6B6B;">ProMax</span></span>
+                </div>
+                <p>Secure bank statement conversion and financial analysis.</p>
+            </div>
+            
+            <!-- Copyright at Bottom -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 StatementProMax • All rights reserved</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+    <script>
+        // Handle contact form submission
+        document.getElementById('contactForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            
+            // Get form data
+            const formData = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                subject: document.getElementById('subject').value,
+                message: document.getElementById('message').value
+            };
+            
+            // In a real application, you would send this to a server
+            // Form submission (console.log removed for production)
+            
+            // Show success message
+            alert('Thank you for your message! We\'ll get back to you within 24 hours.');
+            
+            // Reset form
+            this.reset();
+        });
+    </script>
+</body>
+</html>
+

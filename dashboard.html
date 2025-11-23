@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Financial Dashboard - StatementPro</title>
+    <title>Financial Dashboard - StatementProMax</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard-styles.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -14,25 +14,139 @@
     <nav class="nav">
         <div class="container">
             <div class="nav-content">
-                <div class="logo">StatementPro</div>
+                <a href="index.html" class="logo-link">
+                    <div class="logo">
+                        <div class="logo-icon-wrapper">
+                            <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#FF6B6B"/>
+                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#FF8A80"/>
+                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#FF6B6B"/>
+                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#FF8A80"/>
+                                <path d="M2 24 L30 24" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
+                    </div>
+                </a>
                 <div class="nav-links">
-                    <a href="index.html">Home</a>
-                    <a href="dashboard.html" class="active">Dashboard</a>
-                    <button id="dashSignInBtn" class="btn-secondary">
-                        <span id="dashAuthButtonText">Sign In</span>
+                    <a href="index.html">Converter</a>
+                    <a href="dashboard.html" class="active">Financial Dashboard</a>
+                </div>
+                <div class="nav-auth">
+                    <button class="btn-auth" id="signInBtn" style="display: none;">
+                        <span id="authButtonText">Sign In</span>
                     </button>
+                    <div class="user-menu" id="userMenu" style="display: none;">
+                        <button class="user-menu-btn" id="userMenuBtn">
+                            <span id="userEmail"></span>
+                            <span class="dropdown-arrow">▼</span>
+                        </button>
+                        <div class="user-dropdown" id="userDropdown">
+                            <button class="user-dropdown-btn" id="signOutBtn">Sign Out</button>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </nav>
 
+    <!-- Sign In Modal -->
+    <div class="auth-modal" id="signInModal">
+        <div class="auth-modal-content">
+            <button class="auth-modal-close" id="closeAuthModal">&times;</button>
+            <div class="auth-modal-header">
+                <h2>Welcome to StatementProMax</h2>
+                <p>Sign in to access your financial dashboard and unlock all features</p>
+            </div>
+            
+            <!-- Step 1: Email Entry -->
+            <div class="auth-modal-body" id="emailStep">
+                <div class="auth-input-group">
+                    <label for="emailInput">Email Address</label>
+                    <input type="email" id="emailInput" placeholder="you@example.com" class="auth-input">
+                    <p class="auth-helper-text">We'll send you a magic code to sign in</p>
+                </div>
+                <div id="emailError" class="auth-error" style="display: none;"></div>
+                <button class="btn-primary btn-full" id="sendCodeBtn">Continue with Email</button>
+                
+                <div class="auth-divider">
+                    <span>or</span>
+                </div>
+                
+                <button class="btn-outline btn-full btn-google" id="googleSignIn">
+                    <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.874 2.684-6.615z" fill="#4285F4"/>
+                        <path d="M9.003 18c2.43 0 4.467-.806 5.956-2.184l-2.909-2.258c-.806.54-1.836.86-3.047.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332C2.438 15.983 5.482 18 9.003 18z" fill="#34A853"/>
+                        <path d="M3.964 10.71c-.18-.54-.282-1.117-.282-1.71 0-.593.102-1.17.282-1.71V4.958H.957C.347 6.173 0 7.548 0 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+                        <path d="M9.003 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.464.891 11.426 0 9.003 0 5.482 0 2.438 2.017.957 4.958L3.964 7.29c.708-2.127 2.692-3.71 5.039-3.71z" fill="#EA4335"/>
+                    </svg>
+                    Sign in with Google
+                </button>
+            </div>
+            
+            <!-- Step 2: Code Verification -->
+            <div class="auth-modal-body" id="codeStep" style="display: none;">
+                <div class="auth-back-btn-container">
+                    <button class="auth-back-btn" id="backToEmailBtn">
+                        <span>←</span> Back
+                    </button>
+                </div>
+                <div class="auth-code-sent">
+                    <p>We sent a 6-digit code to</p>
+                    <p class="auth-sent-email" id="sentEmail"></p>
+                </div>
+                <div class="auth-input-group">
+                    <label for="codeInput">Verification Code</label>
+                    <input type="text" id="codeInput" placeholder="000000" maxlength="6" class="auth-input auth-code-input">
+                </div>
+                <div id="codeError" class="auth-error" style="display: none;"></div>
+                <button class="btn-primary btn-full" id="verifyCodeBtn">Verify & Sign In</button>
+                <p class="auth-resend-text">
+                    Didn't receive it? <button class="auth-link-btn" id="resendCodeBtn">Resend code</button>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Year Selection Modal -->
+    <div class="year-modal" id="yearModal">
+        <div class="year-modal-content">
+            <div class="year-modal-header">
+                <h2>Select Transaction Year</h2>
+                <p>What year are these transactions from? This helps organize your financial data correctly.</p>
+            </div>
+            <div class="year-modal-body">
+                <div class="year-selector">
+                    <label for="yearSelect">Select Year:</label>
+                    <select id="yearSelect" class="year-select-dropdown">
+                        <!-- Years will be populated by JavaScript -->
+                    </select>
+                </div>
+                <div class="year-quick-buttons" id="yearQuickButtons">
+                    <!-- Quick year buttons will be populated by JavaScript -->
+                </div>
+            </div>
+            <div class="year-modal-footer">
+                <button class="btn-outline" id="cancelYearBtn">Cancel</button>
+                <button class="btn-primary" id="confirmYearBtn">Confirm & Process</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Dashboard Content -->
     <div class="dashboard-container">
         <div class="container">
+            <!-- Dashboard Hero Section - Buzzoid-inspired -->
+            <div class="dashboard-hero" id="dashboardHero">
+                <h1 class="dashboard-hero-title">
+                    Your Financial Insights <span class="hero-highlight">In Seconds!</span>
+                </h1>
+                <p class="dashboard-hero-subtitle">Upload your bank statements and get instant analytics, spending patterns, and recurring payment detection</p>
+            </div>
+
             <!-- Upload Section -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-card">
-                    <div class="upload-icon">📊</div>
                     <h2>Upload Your Bank Statement</h2>
                     <p>Upload an Excel file (.xlsx, .xls, .csv) to analyze your finances</p>
                     <div class="upload-area" id="uploadArea">
@@ -41,7 +155,7 @@
                             <div class="upload-icon-large">📁</div>
                             <p class="upload-text">Drag and drop your Excel files here</p>
                             <p class="upload-subtext">or</p>
-                            <button class="btn-primary" onclick="document.getElementById('fileInput').click()">
+                            <button class="btn-primary">
                                 Browse Files
                             </button>
                             <p class="upload-note">Supports: .xlsx, .xls, .csv • Max 10MB per file • Multiple files supported</p>
@@ -137,6 +251,56 @@
                     </div>
                 </div>
 
+                <!-- Recurring Payments Section -->
+                <div class="recurring-payments-section" id="recurringPaymentsSection" style="display: none;">
+                    <div class="recurring-header">
+                        <div>
+                            <h3>Recurring Payments Detected</h3>
+                            <p class="recurring-subtitle">Automatic detection of subscriptions and regular bills</p>
+                        </div>
+                        <div class="recurring-summary">
+                            <div class="recurring-stat">
+                                <span class="recurring-stat-label">Found</span>
+                                <span class="recurring-stat-value" id="recurringCount">0</span>
+                            </div>
+                            <div class="recurring-stat">
+                                <span class="recurring-stat-label">Total Spend</span>
+                                <span class="recurring-stat-value recurring-stat-amount" id="recurringSpend">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Search Bar -->
+                    <div class="recurring-search-container">
+                        <div class="recurring-search-wrapper">
+                            <span class="search-icon">🔍</span>
+                            <input 
+                                type="text" 
+                                id="recurringSearchInput" 
+                                class="recurring-search-input" 
+                                placeholder="Search recurring payments by name, category, or frequency..."
+                                autocomplete="off"
+                            >
+                            <button class="search-clear-btn" id="recurringSearchClear" style="display: none;">✕</button>
+                        </div>
+                        <div class="search-results-info" id="recurringSearchInfo" style="display: none;">
+                            Showing <strong id="recurringSearchCount">0</strong> of <strong id="recurringTotalCount">0</strong> payments
+                        </div>
+                    </div>
+                    
+                    <div class="recurring-payments-list" id="recurringPaymentsList">
+                        <!-- Recurring payments will be populated here -->
+                    </div>
+                    
+                    <div class="no-results-message" id="recurringNoResults" style="display: none;">
+                        <div style="text-align: center; padding: 40px; color: #8a8a8a;">
+                            <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
+                            <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No recurring payments found</div>
+                            <div style="font-size: 14px;">Try a different search term or clear the search</div>
+                        </div>
+                    </div>
+                </div>
+
                 <!-- Transactions Table -->
                 <div class="transactions-section">
                     <div class="transactions-header">
@@ -167,6 +331,7 @@
         </div>
     </div>
 
+    <script type="module" src="script.js"></script>
     <script type="module" src="dashboard.js"></script>
 </body>
 </html>

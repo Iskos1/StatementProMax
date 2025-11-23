@@ -1,17 +1,42 @@
-# OS files
+# IDE and Editor files
 .DS_Store
-Thumbs.db
-
-# Editor files
 .vscode/
 .idea/
 *.swp
 *.swo
 *~
 
-# Logs
-*.log
+# System files
+Thumbs.db
+desktop.ini
 
 # Temporary files
 *.tmp
+*.temp
+.cursor/
 
+# Node modules (if added later)
+node_modules/
+package-lock.json
+
+# Build files (if needed)
+dist/
+build/
+
+# Environment files
+.env
+.env.local
+
+# Log files
+*.log
+debug.log
+
+# Demo files (not needed in production)
+*-demo.html
+*-demo-*.html
+sample-*.csv
+
+# Documentation drafts
+*-README.md
+*-GUIDE.md
+*-SUMMARY.md

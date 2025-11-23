@@ -1,0 +1,593 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Blog - Bank Statement Converter Tips & Guides</title>
+    <meta name="description" content="Learn tips, tricks, and best practices for managing your bank statements and financial data.">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        /* Additional blog-specific styles */
+        .blog-hero {
+            padding: 150px 0 80px;
+            background: linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%);
+            text-align: center;
+        }
+
+        .blog-hero h1 {
+            font-size: 3rem;
+            margin-bottom: 1rem;
+        }
+
+        .blog-hero p {
+            font-size: 1.2rem;
+            color: var(--text-light);
+            max-width: 600px;
+            margin: 0 auto 2rem;
+        }
+
+        .blog-categories {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .category-tag {
+            padding: 0.6rem 1.5rem;
+            background: var(--bg-white);
+            border: 2px solid var(--border-color);
+            border-radius: 25px;
+            cursor: pointer;
+            transition: var(--transition);
+            font-weight: 600;
+        }
+
+        .category-tag:hover,
+        .category-tag.active {
+            border-color: var(--primary-color);
+            color: var(--primary-color);
+            background: #FFFBFB;
+        }
+
+        .blog-main {
+            padding: 80px 0;
+        }
+
+        .blog-container {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 3rem;
+        }
+
+        .blog-posts {
+            display: flex;
+            flex-direction: column;
+            gap: 2.5rem;
+        }
+
+        .blog-post-card {
+            background: var(--bg-white);
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: var(--transition);
+        }
+
+        .blog-post-card:hover {
+            transform: translateY(-5px);
+            box-shadow: var(--shadow-md);
+        }
+
+        .post-image {
+            height: 300px;
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            position: relative;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 4rem;
+        }
+
+        .post-meta {
+            display: flex;
+            gap: 1rem;
+            align-items: center;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: var(--text-light);
+        }
+
+        .post-meta span {
+            display: flex;
+            align-items: center;
+            gap: 0.3rem;
+        }
+
+        .post-content {
+            padding: 2rem;
+        }
+
+        .post-title {
+            font-size: 2rem;
+            margin: 1rem 0;
+            color: var(--text-dark);
+        }
+
+        .post-title a {
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .post-title a:hover {
+            color: var(--primary-color);
+        }
+
+        .post-excerpt {
+            color: var(--text-light);
+            line-height: 1.8;
+            margin-bottom: 1.5rem;
+        }
+
+        .read-more {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            color: var(--primary-color);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .read-more:hover {
+            gap: 1rem;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .sidebar-section {
+            background: var(--bg-light);
+            padding: 2rem;
+            border-radius: 16px;
+            margin-bottom: 2rem;
+        }
+
+        .sidebar-section h3 {
+            font-size: 1.3rem;
+            margin-bottom: 1.5rem;
+            color: var(--text-dark);
+        }
+
+        .popular-posts {
+            list-style: none;
+        }
+
+        .popular-posts li {
+            margin-bottom: 1.5rem;
+            padding-bottom: 1.5rem;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .popular-posts li:last-child {
+            border-bottom: none;
+            margin-bottom: 0;
+            padding-bottom: 0;
+        }
+
+        .popular-posts a {
+            color: var(--text-dark);
+            text-decoration: none;
+            font-weight: 600;
+            transition: var(--transition);
+        }
+
+        .popular-posts a:hover {
+            color: var(--primary-color);
+        }
+
+        .popular-posts .post-date {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 0.3rem;
+        }
+
+        .tags-cloud {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.8rem;
+        }
+
+        .tag {
+            padding: 0.5rem 1rem;
+            background: var(--bg-white);
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: var(--text-dark);
+            text-decoration: none;
+            transition: var(--transition);
+        }
+
+        .tag:hover {
+            background: var(--primary-color);
+            color: white;
+        }
+
+        .newsletter-box {
+            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            padding: 2rem;
+            border-radius: 16px;
+            color: white;
+            text-align: center;
+        }
+
+        .newsletter-box h3 {
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .newsletter-box p {
+            margin-bottom: 1.5rem;
+            opacity: 0.9;
+        }
+
+        .newsletter-form {
+            display: flex;
+            gap: 0.5rem;
+        }
+
+        .newsletter-form input {
+            flex: 1;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            font-size: 0.95rem;
+        }
+
+        .newsletter-form button {
+            padding: 0.8rem 1.5rem;
+            background: var(--text-dark);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: var(--transition);
+        }
+
+        .newsletter-form button:hover {
+            background: var(--bg-white);
+            color: var(--text-dark);
+        }
+
+        @media (max-width: 968px) {
+            .blog-container {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: static;
+            }
+
+            .blog-hero h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container">
+            <div class="nav-wrapper">
+                <a href="index.html" class="logo-link">
+                    <div class="logo">
+                        <div class="logo-icon-wrapper">
+                            <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
+                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#FF6B6B"/>
+                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#FF8A80"/>
+                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#FF6B6B"/>
+                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#FF8A80"/>
+                                <path d="M2 24 L30 24" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round"/>
+                            </svg>
+                        </div>
+                        <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
+                    </div>
+                </a>
+                <ul class="nav-menu" id="navMenu">
+                    <li><a href="landing.html#features">Features</a></li>
+                    <li><a href="landing.html#converter">Converter</a></li>
+                    <li><a href="dashboard.html">Dashboard</a></li>
+                    <li><a href="blog.html">Blog</a></li>
+                    <li><a href="landing.html#about">About</a></li>
+                    <li><a href="landing.html#contact">Contact</a></li>
+                    <li><a href="dashboard.html" class="btn-nav">Get Started</a></li>
+                </ul>
+                <button class="hamburger" id="hamburger">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Blog Hero -->
+    <section class="blog-hero">
+        <div class="container">
+            <h1>Financial Tips & <span class="highlight">Insights</span></h1>
+            <p>Learn how to manage your finances better with expert tips, guides, and tutorials.</p>
+            <div class="blog-categories">
+                <button class="category-tag active">All Posts</button>
+                <button class="category-tag">Guides</button>
+                <button class="category-tag">Tips</button>
+                <button class="category-tag">News</button>
+                <button class="category-tag">Tutorials</button>
+            </div>
+        </div>
+    </section>
+
+    <!-- Blog Main Content -->
+    <section class="blog-main">
+        <div class="container">
+            <div class="blog-container">
+                <!-- Blog Posts -->
+                <div class="blog-posts">
+                    <!-- Post 1 -->
+                    <article class="blog-post-card" id="post1">
+                        <div class="post-image">📋</div>
+                        <div class="post-content">
+                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">Guide</div>
+                            <div class="post-meta">
+                                <span>📅 November 20, 2024</span>
+                                <span>👤 Admin</span>
+                                <span>⏱️ 5 min read</span>
+                            </div>
+                            <h2 class="post-title">
+                                <a href="#post1">How to Organize Your Bank Statements for Tax Season</a>
+                            </h2>
+                            <p class="post-excerpt">
+                                Tax season can be stressful, but having well-organized bank statements makes everything easier. 
+                                Learn the best practices for categorizing, storing, and accessing your financial records when you need them most. 
+                                We'll cover digital organization methods, naming conventions, and backup strategies to keep your data safe.
+                            </p>
+                            <a href="#post1" class="read-more">Read Full Article →</a>
+                        </div>
+                    </article>
+
+                    <!-- Post 2 -->
+                    <article class="blog-post-card" id="post2">
+                        <div class="post-image">📊</div>
+                        <div class="post-content">
+                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">Tips</div>
+                            <div class="post-meta">
+                                <span>📅 November 18, 2024</span>
+                                <span>👤 Admin</span>
+                                <span>⏱️ 7 min read</span>
+                            </div>
+                            <h2 class="post-title">
+                                <a href="#post2">5 Excel Formulas Every Budgeter Should Know</a>
+                            </h2>
+                            <p class="post-excerpt">
+                                Master these five essential Excel formulas to transform your bank statement data into powerful budget insights. 
+                                From SUM and AVERAGE to VLOOKUP and IF statements, we'll show you how to automate your budget tracking 
+                                and identify spending patterns without being an Excel expert.
+                            </p>
+                            <a href="#post2" class="read-more">Read Full Article →</a>
+                        </div>
+                    </article>
+
+                    <!-- Post 3 -->
+                    <article class="blog-post-card" id="post3">
+                        <div class="post-image">🚀</div>
+                        <div class="post-content">
+                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">News</div>
+                            <div class="post-meta">
+                                <span>📅 November 15, 2024</span>
+                                <span>👤 Admin</span>
+                                <span>⏱️ 3 min read</span>
+                            </div>
+                            <h2 class="post-title">
+                                <a href="#post3">New Feature: Multi-File Upload and Batch Processing</a>
+                            </h2>
+                            <p class="post-excerpt">
+                                We're excited to announce our latest feature that allows you to upload and convert multiple bank statements 
+                                at once. Perfect for end-of-year financial reviews or when you're catching up on several months of statements. 
+                                Learn how to use this time-saving feature and boost your productivity.
+                            </p>
+                            <a href="#post3" class="read-more">Read Full Article →</a>
+                        </div>
+                    </article>
+
+                    <!-- Post 4 -->
+                    <article class="blog-post-card">
+                        <div class="post-image">🔒</div>
+                        <div class="post-content">
+                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">Guide</div>
+                            <div class="post-meta">
+                                <span>📅 November 12, 2024</span>
+                                <span>👤 Admin</span>
+                                <span>⏱️ 6 min read</span>
+                            </div>
+                            <h2 class="post-title">
+                                <a href="#post4">Understanding Data Privacy: How We Keep Your Statements Secure</a>
+                            </h2>
+                            <p class="post-excerpt">
+                                Your financial data deserves the highest level of protection. In this article, we explain our security 
+                                architecture, why your data never leaves your browser, and what this means for your privacy. 
+                                Plus, learn best practices for protecting your financial information online.
+                            </p>
+                            <a href="#post4" class="read-more">Read Full Article →</a>
+                        </div>
+                    </article>
+
+                    <!-- Post 5 -->
+                    <article class="blog-post-card">
+                        <div class="post-image">💰</div>
+                        <div class="post-content">
+                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">Tips</div>
+                            <div class="post-meta">
+                                <span>📅 November 10, 2024</span>
+                                <span>👤 Admin</span>
+                                <span>⏱️ 8 min read</span>
+                            </div>
+                            <h2 class="post-title">
+                                <a href="#post5">10 Hidden Expenses You Can Find in Your Bank Statements</a>
+                            </h2>
+                            <p class="post-excerpt">
+                                Are you losing money without realizing it? Bank statements reveal subscriptions you forgot about, 
+                                duplicate charges, and fees that add up over time. We'll show you how to identify these hidden expenses 
+                                and potentially save hundreds of dollars per year.
+                            </p>
+                            <a href="#post5" class="read-more">Read Full Article →</a>
+                        </div>
+                    </article>
+                </div>
+
+                <!-- Sidebar -->
+                <aside class="sidebar">
+                    <!-- Newsletter -->
+                    <div class="newsletter-box">
+                        <h3>Get Weekly Tips</h3>
+                        <p>Subscribe to our newsletter for financial tips delivered to your inbox.</p>
+                        <form class="newsletter-form">
+                            <input type="email" placeholder="Your email" required>
+                            <button type="submit">Join</button>
+                        </form>
+                    </div>
+
+                    <!-- Popular Posts -->
+                    <div class="sidebar-section">
+                        <h3>Popular Posts</h3>
+                        <ul class="popular-posts">
+                            <li>
+                                <a href="#post1">How to Organize Your Bank Statements</a>
+                                <div class="post-date">November 20, 2024</div>
+                            </li>
+                            <li>
+                                <a href="#post2">5 Excel Formulas for Budgeting</a>
+                                <div class="post-date">November 18, 2024</div>
+                            </li>
+                            <li>
+                                <a href="#post3">New Multi-File Upload Feature</a>
+                                <div class="post-date">November 15, 2024</div>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <!-- Tags -->
+                    <div class="sidebar-section">
+                        <h3>Popular Tags</h3>
+                        <div class="tags-cloud">
+                            <a href="#" class="tag">Excel</a>
+                            <a href="#" class="tag">Budgeting</a>
+                            <a href="#" class="tag">Tax Tips</a>
+                            <a href="#" class="tag">Security</a>
+                            <a href="#" class="tag">CSV</a>
+                            <a href="#" class="tag">Finance</a>
+                            <a href="#" class="tag">Organization</a>
+                            <a href="#" class="tag">Tutorials</a>
+                        </div>
+                    </div>
+
+                    <!-- CTA Box -->
+                    <div class="sidebar-section" style="background: var(--bg-light); text-align: center;">
+                        <h3>Try Our Converter</h3>
+                        <p style="margin-bottom: 1.5rem;">Convert your bank statements to Excel in seconds.</p>
+                        <a href="landing.html#converter" class="btn btn-primary">Get Started Free</a>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="container">
+            <!-- Links at Top -->
+            <div class="footer-links-row">
+                <div class="footer-links-group">
+                    <h4>Product</h4>
+                    <a href="index.html">Converter</a>
+                    <a href="dashboard.html">Dashboard</a>
+                    <a href="blog.html">Blog</a>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Company</h4>
+                    <a href="about.html">About</a>
+                    <a href="contact.html">Contact</a>
+                    <a href="security.html">Security</a>
+                </div>
+                <div class="footer-links-group">
+                    <h4>Legal</h4>
+                    <a href="privacy.html">Privacy</a>
+                    <a href="terms.html">Terms</a>
+                </div>
+            </div>
+            
+            <!-- Logo and Brand Below -->
+            <div class="footer-brand">
+                <div class="footer-logo">
+                    <svg class="footer-logo-icon" width="28" height="28" viewBox="0 0 32 32" fill="none">
+                        <rect x="4" y="8" width="4" height="16" rx="2" fill="#FF6B6B"/>
+                        <rect x="10" y="12" width="4" height="12" rx="2" fill="#FF8A80"/>
+                        <rect x="16" y="6" width="4" height="18" rx="2" fill="#FF6B6B"/>
+                        <rect x="22" y="10" width="4" height="14" rx="2" fill="#FF8A80"/>
+                        <path d="M2 24 L30 24" stroke="#FF6B6B" stroke-width="2" stroke-linecap="round"/>
+                    </svg>
+                    <span class="footer-logo-text">Statement<span style="color: #FF6B6B;">ProMax</span></span>
+                </div>
+                <p>Secure bank statement conversion and financial analysis.</p>
+            </div>
+            
+            <!-- Copyright at Bottom -->
+            <div class="footer-bottom">
+                <p>&copy; 2025 StatementProMax • All rights reserved</p>
+            </div>
+        </div>
+    </footer>
+
+    <script type="module" src="script.js"></script>
+    <script>
+        // Category filtering
+        const categoryTags = document.querySelectorAll('.category-tag');
+        const blogPosts = document.querySelectorAll('.blog-post-card');
+
+        categoryTags.forEach(tag => {
+            tag.addEventListener('click', () => {
+                // Update active state
+                categoryTags.forEach(t => t.classList.remove('active'));
+                tag.classList.add('active');
+
+                const category = tag.textContent.toLowerCase().trim();
+
+                // Filter posts
+                blogPosts.forEach(post => {
+                    const postCategory = post.querySelector('.blog-category').textContent.toLowerCase().trim();
+                    
+                    if (category === 'all posts' || postCategory === category) {
+                        post.style.display = 'block';
+                    } else {
+                        post.style.display = 'none';
+                    }
+                });
+            });
+        });
+
+        // Newsletter form
+        const newsletterForms = document.querySelectorAll('.newsletter-form');
+        newsletterForms.forEach(form => {
+            form.addEventListener('submit', (e) => {
+                e.preventDefault();
+                alert('Thanks for subscribing! Check your email for confirmation.');
+                form.reset();
+            });
+        });
+    </script>
+</body>
+</html>
+
