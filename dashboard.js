@@ -699,6 +699,11 @@ async function processAllFiles() {
             }
         } catch (error) {
             console.error(`Error processing ${file.name}:`, error);
+            console.error('Full error details:', {
+                message: error.message,
+                stack: error.stack,
+                name: error.name
+            });
             errors.push(`${file.name}: ${error.message || 'Processing failed'}`);
         }
     }
@@ -707,8 +712,11 @@ async function processAllFiles() {
     if (errors.length > 0 && fileNames.length === 0) {
         hideLoading();
         const errorMsg = 'Failed to process files:\n' + errors.join('\n');
+        alert(`Failed to process files:\n\n${errors.join('\n')}\n\nCheck browser console (F12) for details.`);
         showNotification('All files failed to process', 'error');
+        console.error('=== PROCESSING ERRORS ===');
         console.error(errorMsg);
+        console.error('=========================');
         if (dom.uploadSection) dom.uploadSection.style.display = 'block';
         return;
     } else if (errors.length > 0) {
@@ -776,11 +784,22 @@ function processFile(file, providedYear = null) {
                 
                 const data = new Uint8Array(e.target.result);
                 
+                console.log(`Processing file: ${file.name}, Size: ${data.length} bytes`);
+                
                 if (!window.XLSX) {
-                    throw new Error('XLSX library not loaded');
+                    console.error('XLSX library check failed');
+                    throw new Error('XLSX library not loaded. Please refresh the page.');
                 }
                 
-                const workbook = XLSX.read(data, { type: 'array' });
+                console.log('XLSX library loaded, version:', window.XLSX.version);
+                
+                let workbook;
+                try {
+                    workbook = XLSX.read(data, { type: 'array' });
+                } catch (xlsxError) {
+                    console.error('XLSX.read failed:', xlsxError);
+                    throw new Error(`Failed to parse file: ${xlsxError.message}`);
+                }
                 
                 if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
                     throw new Error('No sheets found in file');
@@ -1968,6 +1987,11 @@ function handleFileSelect(e) {
 }
 
 async function parseTransactions(data, providedYear = null) {
+    console.log('parseTransactions called with:', {
+        rowCount: data?.length,
+        providedYear: providedYear,
+        firstRow: data?.[0]
+    });
     
     if (!data || data.length < 2) {
         console.warn('Insufficient data rows for parsing');
@@ -1977,6 +2001,7 @@ async function parseTransactions(data, providedYear = null) {
     const transactions = [];
     let skippedRows = 0;
     const headers = data[0].map(h => String(h || '').toLowerCase());
+    console.log('Parsed headers:', headers);
     
     // Find column indices
     const dateCol = findColumnIndex(headers, ['date', 'transaction date', 'posting date']);
@@ -1988,10 +2013,15 @@ async function parseTransactions(data, providedYear = null) {
     const creditCol = findColumnIndex(headers, ['credit', 'deposit', 'cr']);
     const debitCol = findColumnIndex(headers, ['debit', 'withdrawal', 'dr']);
     
+    // Log detected columns
+    console.log('Column detection:', {
+        dateCol, descCol, amountCol, balanceCol, creditCol, debitCol
+    });
+    
     // Validate required columns
     if (dateCol === -1) {
-        console.error('Date column not found', headers);
-        throw new Error('Could not find date column in file');
+        console.error('Date column not found in headers:', headers);
+        throw new Error('Could not find date column in file. Expected headers: "date", "transaction date", or "posting date"');
     }
     
     if (descCol === -1) {
@@ -1999,8 +2029,8 @@ async function parseTransactions(data, providedYear = null) {
     }
     
     if (amountCol === -1 && (creditCol === -1 || debitCol === -1)) {
-        console.error('Amount columns not found', headers);
-        throw new Error('Could not find amount column in file');
+        console.error('Amount columns not found in headers:', headers);
+        throw new Error('Could not find amount column in file. Expected headers: "amount", "debit/credit", or "value"');
     }
     
     // Process each row (skip header)
