@@ -1,6 +1,3 @@
-// Shared Utilities Module
-// Common utility functions used across multiple pages
-
 // DOM Safety Utilities
 export function safeGetElement(id) {
     try {
@@ -120,9 +117,7 @@ export function escapeHtml(text) {
     return div.innerHTML;
 }
 
-// Generate unique ID
 export function generateId(prefix = 'id') {
-    // Using substring() instead of deprecated substr()
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
 

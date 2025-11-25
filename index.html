@@ -6,6 +6,7 @@
     <title>Bank Statement Converter - StatementProMax</title>
     <link rel="stylesheet" href="styles.css">
     <link rel="stylesheet" href="dashboard-styles.css">
+    <link rel="stylesheet" href="ui-enhancements.css">
 </head>
 <body>
     <!-- Promotional Banner - Sticky Buzzoid-style -->
@@ -36,7 +37,12 @@
                         <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
                     </div>
                 </a>
-                <div class="nav-links">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="nav-links" id="navLinks">
                     <a href="index.html" class="active">Converter</a>
                     <a href="dashboard.html">Financial Dashboard</a>
                 </div>
@@ -57,6 +63,57 @@
             </div>
         </div>
     </nav>
+
+    <!-- File History Modal -->
+    <div class="learned-patterns-modal" id="fileHistoryModal" style="display: none;">
+        <div class="learned-patterns-content">
+            <div class="learned-patterns-header">
+                <div>
+                    <h2>📁 Upload History</h2>
+                    <p>View and reload previously uploaded Excel files. Your files are stored locally in your browser.</p>
+                </div>
+                <button class="modal-close-btn" id="closeFileHistoryModal">&times;</button>
+            </div>
+            
+            <div class="learned-patterns-stats">
+                <div class="learned-stat-card">
+                    <div class="learned-stat-icon">📄</div>
+                    <div class="learned-stat-content">
+                        <div class="learned-stat-label">Total Files</div>
+                        <div class="learned-stat-value" id="totalFilesCount">0</div>
+                    </div>
+                </div>
+                <div class="learned-stat-card">
+                    <div class="learned-stat-icon">📊</div>
+                    <div class="learned-stat-content">
+                        <div class="learned-stat-label">Total Transactions</div>
+                        <div class="learned-stat-value" id="totalTransactionsCount">0</div>
+                    </div>
+                </div>
+                <div class="learned-stat-card">
+                    <div class="learned-stat-icon">💾</div>
+                    <div class="learned-stat-content">
+                        <div class="learned-stat-label">Storage Used</div>
+                        <div class="learned-stat-value" id="storageUsed">0 MB</div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="learned-patterns-actions">
+                <input type="text" id="fileHistorySearch" placeholder="🔍 Search files..." class="learned-search-input">
+                <button class="btn-outline btn-danger" id="clearAllHistoryBtn">Clear All History</button>
+            </div>
+            
+            <div class="learned-patterns-body" id="fileHistoryList">
+                <!-- File history items will be populated here -->
+                <div style="text-align: center; padding: 40px; color: #6a6a6a;">
+                    <div style="font-size: 48px; margin-bottom: 16px;">📁</div>
+                    <div style="font-size: 18px; font-weight: 600; margin-bottom: 8px;">No files uploaded yet</div>
+                    <div style="font-size: 14px;">Upload your first Excel file to see it here</div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <!-- Sign In Modal -->
     <div class="auth-modal" id="signInModal">
@@ -145,11 +202,11 @@
     <section class="converter-main">
         <div class="container">
             <!-- Header -->
-            <div class="converter-header">
+            <div class="converter-header animate-slide-in-up">
                 <div class="trust-badge-row">
-                    <span class="mini-badge">✓ 100% Secure</span>
-                    <span class="mini-badge">✓ Instant Processing</span>
-                    <span class="mini-badge">✓ No Registration</span>
+                    <span class="mini-badge" data-tooltip="Your files are processed locally in your browser">✓ 100% Secure</span>
+                    <span class="mini-badge" data-tooltip="Average conversion time: 3 seconds">✓ Instant Processing</span>
+                    <span class="mini-badge" data-tooltip="Start converting immediately">✓ No Registration</span>
                 </div>
                 <h1>Bank Statement Converter</h1>
                 <p class="converter-subtitle">Convert your bank statement files to Excel format instantly. Fast, secure, and accurate.</p>
@@ -162,14 +219,32 @@
             <!-- Upload Section -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-card">
+                    <!-- Progress Steps Indicator -->
+                    <div class="progress-steps">
+                        <div class="progress-step active">
+                            <div class="progress-step-circle">1</div>
+                            <div class="progress-step-label">Upload Files</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="progress-step-circle">2</div>
+                            <div class="progress-step-label">Convert</div>
+                        </div>
+                        <div class="progress-step">
+                            <div class="progress-step-circle">3</div>
+                            <div class="progress-step-label">Download & Analyze</div>
+                        </div>
+                    </div>
+                    
                     <div class="upload-area" id="uploadArea">
-                        <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple hidden>
+                        <input type="file" id="fileInput" accept=".pdf,application/pdf" multiple hidden aria-label="Select PDF files to convert">
                         <div class="upload-content">
                             <div class="upload-icon-large">📁</div>
                             <h3>Drop PDF files here</h3>
                             <p class="upload-text">or</p>
-                            <button class="btn-primary">
-                                Browse Files
+                            <button class="btn-primary btn-with-icon">
+                                <span class="btn-icon">📂</span>
+                                <span>Browse Files</span>
+                                <span class="kbd" style="margin-left: 8px;">Ctrl+O</span>
                             </button>
                             <p class="upload-note">Supports multiple PDF files • Max 50MB per file</p>
                         </div>
@@ -188,11 +263,18 @@
 
             <!-- File List Container -->
             <div class="file-list-container" id="fileListContainer" style="display: none;">
+                <div class="callout callout-info" style="margin-bottom: 20px;">
+                    <div class="callout-title">💡 Quick Tip</div>
+                    <div>After conversion, you can download the Excel file or analyze it directly in our Financial Dashboard for insights!</div>
+                </div>
                 <div class="file-list-header">
                     <h3>Files (<span id="fileCount">0</span>)</h3>
                     <div class="conversion-controls" id="conversionControls" style="display: none;">
-                        <button class="btn-secondary" id="clearAllBtn">Clear All</button>
-                        <button class="btn-primary" id="convertAllBtn">Convert All</button>
+                        <button class="btn-secondary" id="clearAllBtn" data-tooltip="Remove all files from the list">Clear All</button>
+                        <button class="btn-primary btn-with-icon" id="convertAllBtn">
+                            <span class="btn-icon">⚡</span>
+                            <span>Convert All</span>
+                        </button>
                     </div>
                 </div>
                 <div class="file-items" id="fileItems">
@@ -206,23 +288,23 @@
             </div>
 
             <!-- Features Grid -->
-            <div class="converter-features">
-                <div class="feature-small feature-highlight">
+            <div class="converter-features stagger-fade-in">
+                <div class="feature-small feature-highlight card-highlight">
                     <div class="feature-icon-small feature-icon-accent">⚡</div>
                     <h4>Instant Results</h4>
                     <p><strong>3 seconds</strong> average conversion</p>
                 </div>
-                <div class="feature-small feature-highlight">
+                <div class="feature-small feature-highlight card-highlight">
                     <div class="feature-icon-small feature-icon-accent">🎯</div>
                     <h4>99.9% Accurate</h4>
                     <p>Preserves all data perfectly</p>
                 </div>
-                <div class="feature-small feature-highlight">
+                <div class="feature-small feature-highlight card-highlight">
                     <div class="feature-icon-small feature-icon-accent">🔒</div>
                     <h4>Bank-Level Security</h4>
                     <p>Never touches our servers</p>
                 </div>
-                <div class="feature-small feature-highlight">
+                <div class="feature-small feature-highlight card-highlight">
                     <div class="feature-icon-small feature-icon-accent">📊</div>
                     <h4>Smart Analytics</h4>
                     <p>Instant financial insights</p>
@@ -334,6 +416,8 @@
         </div>
     </footer>
 
+    <script type="module" src="ui-interactions.js"></script>
+    <script type="module" src="quick-start-guide.js"></script>
     <script type="module" src="converter.js"></script>
     <script type="module" src="script.js"></script>
     <script>

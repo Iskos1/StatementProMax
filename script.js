@@ -1,28 +1,19 @@
-// Authentication Module
 import { initSmoothScrolling } from './utils.js';
 
 const APP_ID = '76a8365b-a4b6-48b0-a63b-d7a14d3587ec';
 
-// Dynamic import for InstantDB
 async function initializeApp() {
     try {
         const { init } = await import('https://cdn.jsdelivr.net/npm/@instantdb/core@0.14.30/+esm');
-        const db = init({ appId: APP_ID });
-        return db;
+        return init({ appId: APP_ID });
     } catch (error) {
         console.error('Failed to load InstantDB:', error);
         return null;
     }
 }
 
-// Initialize and setup auth
 initializeApp().then(db => {
-    if (!db) {
-        console.error('Failed to initialize InstantDB');
-        return;
-    }
-    
-    // InstantDB initialized successfully (console.log removed for production)
+    if (!db) return;
     setupAuth(db);
 });
 
@@ -166,11 +157,9 @@ function setupAuth(db) {
         }
     });
 
-    // Email validation - using simple version here (utils.js has more robust version with trim/null checks)
     function validateEmail(email) {
         if (!email || typeof email !== 'string') return false;
-        const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return re.test(email.trim());
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
     }
 
     function showError(errorElement, message) {

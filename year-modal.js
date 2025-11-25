@@ -107,6 +107,7 @@ export function initializeYearModal() {
     // Store ESC handler reference for proper cleanup management
     escKeyHandler = (e) => {
         if (e.key === 'Escape' && yearModal.classList.contains('show')) {
+            e.stopPropagation(); // Prevent other handlers from interfering
             hideYearModal();
             if (yearModalReject) {
                 yearModalReject(new Error('User cancelled year selection'));
@@ -115,7 +116,7 @@ export function initializeYearModal() {
             }
         }
     };
-    document.addEventListener('keydown', escKeyHandler);
+    document.addEventListener('keydown', escKeyHandler, true); // Use capture phase
         
         eventListenersAttached = true;
         return true;
@@ -145,7 +146,6 @@ export function showYearModal() {
             
             yearModalResolve = resolve;
             yearModalReject = reject;
-            isModalOpen = true;
             
             // Reset to current year
             const currentYear = new Date().getFullYear();
@@ -164,8 +164,12 @@ export function showYearModal() {
                 console.warn('Error updating quick buttons:', error);
             }
             
-            yearModal.classList.add('show');
-            document.body.style.overflow = 'hidden';
+            // Use requestAnimationFrame to ensure smooth animation
+            requestAnimationFrame(() => {
+                isModalOpen = true;
+                yearModal.classList.add('show');
+                document.body.style.overflow = 'hidden';
+            });
             
         } catch (error) {
             isModalOpen = false;
@@ -185,6 +189,7 @@ export function hideYearModal() {
         isModalOpen = false;
     } catch (error) {
         console.error('Error hiding year modal:', error);
+        document.body.style.overflow = 'auto';
         isModalOpen = false;
     }
 }

@@ -9,109 +9,145 @@
     <style>
         /* Additional blog-specific styles */
         .blog-hero {
-            padding: 150px 0 80px;
-            background: linear-gradient(135deg, #F8F9FA 0%, #FFFFFF 100%);
+            padding: 120px 0 60px;
+            background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
             text-align: center;
         }
 
         .blog-hero h1 {
-            font-size: 3rem;
-            margin-bottom: 1rem;
+            font-size: 48px;
+            font-weight: 800;
+            margin-bottom: 16px;
+            color: #1a1a1a;
+            letter-spacing: -0.02em;
+        }
+
+        .blog-hero .highlight {
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8A80 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
         }
 
         .blog-hero p {
-            font-size: 1.2rem;
-            color: var(--text-light);
+            font-size: 18px;
+            color: #6a6a6a;
             max-width: 600px;
-            margin: 0 auto 2rem;
+            margin: 0 auto 32px;
+            line-height: 1.7;
         }
 
         .blog-categories {
             display: flex;
-            gap: 1rem;
+            gap: 12px;
             justify-content: center;
             flex-wrap: wrap;
         }
 
         .category-tag {
-            padding: 0.6rem 1.5rem;
-            background: var(--bg-white);
-            border: 2px solid var(--border-color);
-            border-radius: 25px;
+            padding: 10px 24px;
+            background: white;
+            border: 2px solid #e5e5e5;
+            border-radius: 24px;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s;
             font-weight: 600;
+            font-size: 14px;
+            color: #4a4a4a;
         }
 
-        .category-tag:hover,
+        .category-tag:hover {
+            border-color: #FF6B6B;
+            color: #FF6B6B;
+            transform: translateY(-2px);
+        }
+        
         .category-tag.active {
-            border-color: var(--primary-color);
-            color: var(--primary-color);
-            background: #FFFBFB;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8A80 100%);
+            border-color: #FF6B6B;
+            color: white;
         }
 
         .blog-main {
-            padding: 80px 0;
+            padding: 60px 0 80px;
+            background: #fafafa;
         }
 
         .blog-container {
             display: grid;
-            grid-template-columns: 2fr 1fr;
-            gap: 3rem;
+            grid-template-columns: 1fr 380px;
+            gap: 48px;
+            max-width: 1200px;
+            margin: 0 auto;
         }
 
         .blog-posts {
             display: flex;
             flex-direction: column;
-            gap: 2.5rem;
+            gap: 32px;
         }
 
         .blog-post-card {
-            background: var(--bg-white);
-            border-radius: 16px;
+            background: white;
+            border-radius: 12px;
             overflow: hidden;
-            box-shadow: var(--shadow-sm);
-            transition: var(--transition);
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s ease;
+            border: 1px solid #f0f0f0;
         }
 
         .blog-post-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--shadow-md);
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(255, 107, 107, 0.15);
+            border-color: #FF6B6B;
         }
 
         .post-image {
-            height: 300px;
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
+            height: 200px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8A80 100%);
             position: relative;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 4rem;
+            display: none; /* Hide emoji images for cleaner look */
         }
 
         .post-meta {
             display: flex;
-            gap: 1rem;
+            gap: 20px;
             align-items: center;
             flex-wrap: wrap;
-            font-size: 0.9rem;
-            color: var(--text-light);
+            font-size: 14px;
+            color: #999;
+            margin-bottom: 16px;
         }
 
         .post-meta span {
             display: flex;
             align-items: center;
-            gap: 0.3rem;
+            gap: 6px;
         }
 
         .post-content {
-            padding: 2rem;
+            padding: 32px;
+        }
+        
+        .blog-category {
+            display: inline-block;
+            padding: 6px 16px;
+            background: #FFF5F5;
+            color: #FF6B6B;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 600;
+            margin-bottom: 16px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
         }
 
         .post-title {
-            font-size: 2rem;
-            margin: 1rem 0;
-            color: var(--text-dark);
+            font-size: 28px;
+            font-weight: 700;
+            margin: 16px 0;
+            color: #1a1a1a;
+            line-height: 1.3;
         }
 
         .post-title a {
@@ -125,52 +161,60 @@
         }
 
         .post-excerpt {
-            color: var(--text-light);
+            color: #6a6a6a;
             line-height: 1.8;
-            margin-bottom: 1.5rem;
+            margin-bottom: 24px;
+            font-size: 16px;
         }
 
         .read-more {
             display: inline-flex;
             align-items: center;
-            gap: 0.5rem;
-            color: var(--primary-color);
+            gap: 8px;
+            color: #FF6B6B;
             text-decoration: none;
             font-weight: 600;
-            transition: var(--transition);
+            font-size: 15px;
+            transition: all 0.2s;
         }
 
         .read-more:hover {
-            gap: 1rem;
+            gap: 12px;
+            color: #FF8A80;
         }
 
         .sidebar {
             position: sticky;
-            top: 100px;
+            top: 120px;
             height: fit-content;
         }
 
         .sidebar-section {
-            background: var(--bg-light);
-            padding: 2rem;
-            border-radius: 16px;
-            margin-bottom: 2rem;
+            background: white;
+            padding: 28px;
+            border-radius: 12px;
+            margin-bottom: 24px;
+            border: 1px solid #f0f0f0;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
         }
 
         .sidebar-section h3 {
-            font-size: 1.3rem;
-            margin-bottom: 1.5rem;
-            color: var(--text-dark);
+            font-size: 20px;
+            font-weight: 700;
+            margin-bottom: 20px;
+            color: #1a1a1a;
         }
 
         .popular-posts {
             list-style: none;
+            padding: 0;
+            margin: 0;
         }
 
         .popular-posts li {
-            margin-bottom: 1.5rem;
-            padding-bottom: 1.5rem;
-            border-bottom: 1px solid var(--border-color);
+            margin-bottom: 20px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #f0f0f0;
         }
 
         .popular-posts li:last-child {
@@ -180,110 +224,169 @@
         }
 
         .popular-posts a {
-            color: var(--text-dark);
+            color: #1a1a1a;
             text-decoration: none;
             font-weight: 600;
-            transition: var(--transition);
+            font-size: 15px;
+            line-height: 1.5;
+            transition: all 0.2s;
+            display: block;
         }
 
         .popular-posts a:hover {
-            color: var(--primary-color);
+            color: #FF6B6B;
         }
 
         .popular-posts .post-date {
-            font-size: 0.85rem;
-            color: var(--text-light);
-            margin-top: 0.3rem;
+            font-size: 13px;
+            color: #999;
+            margin-top: 6px;
+            display: block;
         }
 
         .tags-cloud {
             display: flex;
             flex-wrap: wrap;
-            gap: 0.8rem;
+            gap: 10px;
         }
 
         .tag {
-            padding: 0.5rem 1rem;
-            background: var(--bg-white);
-            border-radius: 20px;
-            font-size: 0.9rem;
-            color: var(--text-dark);
+            padding: 8px 16px;
+            background: #f8f8f8;
+            border-radius: 16px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #4a4a4a;
             text-decoration: none;
-            transition: var(--transition);
+            transition: all 0.2s;
         }
 
         .tag:hover {
-            background: var(--primary-color);
+            background: #FF6B6B;
             color: white;
+            transform: scale(1.05);
         }
 
         .newsletter-box {
-            background: linear-gradient(135deg, var(--primary-color), var(--secondary-color));
-            padding: 2rem;
-            border-radius: 16px;
+            background: linear-gradient(135deg, #FF6B6B 0%, #FF8A80 100%);
+            padding: 32px;
+            border-radius: 12px;
             color: white;
             text-align: center;
+            box-shadow: 0 4px 16px rgba(255, 107, 107, 0.25);
         }
 
         .newsletter-box h3 {
             color: white;
-            margin-bottom: 1rem;
+            margin-bottom: 12px;
+            font-size: 22px;
+            font-weight: 700;
         }
 
         .newsletter-box p {
-            margin-bottom: 1.5rem;
-            opacity: 0.9;
+            margin-bottom: 20px;
+            opacity: 0.95;
+            font-size: 15px;
+            line-height: 1.6;
         }
 
         .newsletter-form {
             display: flex;
-            gap: 0.5rem;
+            flex-direction: column;
+            gap: 12px;
         }
 
         .newsletter-form input {
-            flex: 1;
-            padding: 0.8rem;
-            border: none;
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
-            font-size: 0.95rem;
+            font-size: 15px;
+            background: rgba(255, 255, 255, 0.95);
+            color: #1a1a1a;
+        }
+        
+        .newsletter-form input:focus {
+            outline: none;
+            border-color: white;
+            background: white;
         }
 
         .newsletter-form button {
-            padding: 0.8rem 1.5rem;
-            background: var(--text-dark);
+            padding: 14px 24px;
+            background: #1a1a1a;
             color: white;
             border: none;
             border-radius: 8px;
-            font-weight: 600;
+            font-weight: 700;
+            font-size: 15px;
             cursor: pointer;
-            transition: var(--transition);
+            transition: all 0.2s;
         }
 
         .newsletter-form button:hover {
-            background: var(--bg-white);
-            color: var(--text-dark);
+            background: white;
+            color: #FF6B6B;
+            transform: scale(1.02);
         }
 
         @media (max-width: 968px) {
             .blog-container {
                 grid-template-columns: 1fr;
+                gap: 32px;
             }
 
             .sidebar {
                 position: static;
+                order: -1;
+            }
+            
+            .sidebar-section {
+                margin-bottom: 20px;
+            }
+
+            .blog-hero {
+                padding: 100px 0 50px;
             }
 
             .blog-hero h1 {
-                font-size: 2rem;
+                font-size: 36px;
+            }
+            
+            .blog-hero p {
+                font-size: 16px;
+            }
+            
+            .post-content {
+                padding: 24px;
+            }
+            
+            .post-title {
+                font-size: 24px;
+            }
+        }
+        
+        @media (max-width: 640px) {
+            .blog-hero h1 {
+                font-size: 32px;
+            }
+            
+            .category-tag {
+                font-size: 13px;
+                padding: 8px 18px;
+            }
+            
+            .blog-categories {
+                gap: 8px;
             }
         }
     </style>
 </head>
 <body>
     <!-- Navigation -->
-    <nav class="navbar">
+    <nav class="nav">
         <div class="container">
-            <div class="nav-wrapper">
+            <div class="nav-content">
                 <a href="index.html" class="logo-link">
                     <div class="logo">
                         <div class="logo-icon-wrapper">
@@ -298,20 +401,11 @@
                         <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
                     </div>
                 </a>
-                <ul class="nav-menu" id="navMenu">
-                    <li><a href="landing.html#features">Features</a></li>
-                    <li><a href="landing.html#converter">Converter</a></li>
-                    <li><a href="dashboard.html">Dashboard</a></li>
-                    <li><a href="blog.html">Blog</a></li>
-                    <li><a href="landing.html#about">About</a></li>
-                    <li><a href="landing.html#contact">Contact</a></li>
-                    <li><a href="dashboard.html" class="btn-nav">Get Started</a></li>
-                </ul>
-                <button class="hamburger" id="hamburger">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+                <div class="nav-links">
+                    <a href="index.html">Converter</a>
+                    <a href="dashboard.html">Financial Dashboard</a>
+                    <a href="blog.html" class="active">Blog</a>
+                </div>
             </div>
         </div>
     </nav>
@@ -385,7 +479,7 @@
                     <article class="blog-post-card" id="post3">
                         <div class="post-image">🚀</div>
                         <div class="post-content">
-                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">News</div>
+                            <div class="blog-category">News</div>
                             <div class="post-meta">
                                 <span>📅 November 15, 2024</span>
                                 <span>👤 Admin</span>
@@ -407,7 +501,7 @@
                     <article class="blog-post-card">
                         <div class="post-image">🔒</div>
                         <div class="post-content">
-                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">Guide</div>
+                            <div class="blog-category">Guide</div>
                             <div class="post-meta">
                                 <span>📅 November 12, 2024</span>
                                 <span>👤 Admin</span>
@@ -429,7 +523,7 @@
                     <article class="blog-post-card">
                         <div class="post-image">💰</div>
                         <div class="post-content">
-                            <div class="blog-category" style="display: inline-block; margin-bottom: 1rem;">Tips</div>
+                            <div class="blog-category">Tips</div>
                             <div class="post-meta">
                                 <span>📅 November 10, 2024</span>
                                 <span>👤 Admin</span>
@@ -495,10 +589,10 @@
                     </div>
 
                     <!-- CTA Box -->
-                    <div class="sidebar-section" style="background: var(--bg-light); text-align: center;">
-                        <h3>Try Our Converter</h3>
-                        <p style="margin-bottom: 1.5rem;">Convert your bank statements to Excel in seconds.</p>
-                        <a href="landing.html#converter" class="btn btn-primary">Get Started Free</a>
+                    <div class="sidebar-section" style="background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEB 100%); text-align: center; border: 2px solid #FFD6D6;">
+                        <h3 style="color: #FF6B6B;">Try Our Converter</h3>
+                        <p style="margin-bottom: 20px; color: #4a4a4a;">Convert your bank statements to Excel in seconds.</p>
+                        <a href="index.html" class="btn-primary" style="display: inline-block; text-decoration: none;">Get Started Free</a>
                     </div>
                 </aside>
             </div>
