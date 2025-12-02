@@ -12,7 +12,7 @@ const CONFIG = {
     // ConvertAPI.com credentials
     sandboxToken: 'ELgjnLbeO8Q8XQjcC6cT8zA4lJEoqRDI',
     productionToken: 'yGOcVvne4JAfBzzLxd45iUzrCCr25kBB',
-    apiToken: 'ELgjnLbeO8Q8XQjcC6cT8zA4lJEoqRDI', // Using sandbox for testing
+    apiToken: 'yGOcVvne4JAfBzzLxd45iUzrCCr25kBB', // Production token
     convertEndpoint: 'https://v2.convertapi.com/convert/pdf/to/xlsx',
     maxFileSize: 50 * 1024 * 1024,
     allowedFileTypes: ['application/pdf', 'pdf']
@@ -396,32 +396,43 @@ async function reformatExcelToBankStatement(xlsxBlob, originalFileName) {
         const arrayBuffer = await xlsxBlob.arrayBuffer();
         const workbook = XLSX.read(arrayBuffer, { type: 'array' });
         
-        // Get the first sheet
-        const firstSheetName = workbook.SheetNames[0];
-        const worksheet = workbook.Sheets[firstSheetName];
+        // Validate workbook structure
+        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
+            console.error('Workbook has no sheets!');
+            throw new Error('Invalid Excel file: No sheets found');
+        }
         
-        // Convert to JSON
-        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        console.log('=== WORKBOOK ANALYSIS ===');
+        console.log('Total sheets:', workbook.SheetNames.length);
+        console.log('Sheet names:', workbook.SheetNames);
         
-        console.log('Raw Excel data from ConvertAPI:');
-        console.log('- Total rows:', rawData.length);
-        console.log('- First 10 rows:', rawData.slice(0, 10));
+        const allTransactions = [];
         
-        // Try to parse as transactions
-        const transactions = parseExcelDataToTransactions(rawData);
+        // Process ALL sheets, not just the first one
+        for (const sheetName of workbook.SheetNames) {
+            console.log(`Processing sheet: "${sheetName}"`);
+            const worksheet = workbook.Sheets[sheetName];
+            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+            
+            console.log(`- Sheet "${sheetName}" has ${rawData.length} rows`);
+            
+            const sheetTransactions = parseExcelDataToTransactions(rawData);
+            console.log(`- Parsed ${sheetTransactions.length} transactions from "${sheetName}"`);
+            
+            allTransactions.push(...sheetTransactions);
+        }
         
-        console.log('Parsed transactions:', transactions.length);
+        console.log(`Total transactions from ALL sheets: ${allTransactions.length}`);
         
-        if (transactions.length === 0) {
-            console.warn('No transactions found in Excel data, returning original file');
-            // If no transactions found, return the original file
+        if (allTransactions.length === 0) {
+            console.warn('No transactions found in any sheet, returning original file');
             return xlsxBlob;
         }
         
-        console.log('Sample transactions:', transactions.slice(0, 5));
+        console.log('Sample transactions:', allTransactions.slice(0, 5));
         
         // Create new workbook with our format
-        return await createSingleSheetExcel(transactions, originalFileName);
+        return await createSingleSheetExcel(allTransactions, originalFileName);
         
     } catch (error) {
         console.error('Error reformatting Excel:', error);
@@ -430,13 +441,11 @@ async function reformatExcelToBankStatement(xlsxBlob, originalFileName) {
     }
 }
 
-// Parse Excel data to transaction format - ENHANCED for multiple categories
+// Parse Excel data to transaction format
 function parseExcelDataToTransactions(data) {
     const transactions = [];
     
-    console.log('Parsing Excel data, total rows:', data.length);
-    
-    // Process ALL rows in the data - don't stop early
+    // Process ALL rows in the data
     for (let i = 0; i < data.length; i++) {
         const row = data[i];
         
@@ -446,11 +455,9 @@ function parseExcelDataToTransactions(data) {
         // Skip rows that are clearly headers or labels
         const rowStr = row.join(' ').toLowerCase();
         if (rowStr.includes('date') && rowStr.includes('description') && rowStr.includes('amount')) {
-            console.log('Skipping header row:', row);
             continue;
         }
         if (rowStr.includes('category:') || rowStr.includes('section:')) {
-            console.log('Skipping category label row:', row);
             continue;
         }
         
@@ -476,7 +483,7 @@ function parseExcelDataToTransactions(data) {
                     hasDateColumn = true;
                 }
             }
-            // Check if it's an amount (look for numbers with decimals or currency)
+            // Check if it's an amount
             else if (isAmount(cell)) {
                 if (amount === null) {
                     const cleanAmount = String(cell).replace(/[$,\s]/g, '');
@@ -520,19 +527,15 @@ function parseExcelDataToTransactions(data) {
                 date, 
                 description, 
                 amount,
-                sourceRow: i // For debugging
+                sourceRow: i
             });
-            
-            console.log(`Found transaction at row ${i}:`, { date, description, amount });
         }
     }
-    
-    console.log(`Successfully parsed ${transactions.length} transactions`);
     
     return transactions;
 }
 
-// Check if value looks like a date - ENHANCED
+// Check if value looks like a date
 function isDate(value) {
     if (!value) return false;
     const str = String(value).trim();
@@ -540,11 +543,11 @@ function isDate(value) {
     
     // Check for common date patterns
     const datePatterns = [
-        /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,     // MM/DD/YY or MM-DD-YYYY
-        /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/,       // YYYY-MM-DD
-        /^\d{1,2}\/\d{1,2}$/,                       // MM/DD
-        /^[A-Za-z]{3}\s+\d{1,2},?\s+\d{4}$/,       // Jan 15, 2024
-        /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/          // 15 Jan 2024
+        /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,
+        /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/,
+        /^\d{1,2}\/\d{1,2}$/,
+        /^[A-Za-z]{3}\s+\d{1,2},?\s+\d{4}$/,
+        /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/
     ];
     
     for (const pattern of datePatterns) {
@@ -555,7 +558,6 @@ function isDate(value) {
     const parsed = Date.parse(str);
     if (!isNaN(parsed)) {
         const date = new Date(parsed);
-        // Make sure it's a reasonable year (1900-2100)
         const year = date.getFullYear();
         return year >= 1900 && year <= 2100;
     }
@@ -563,7 +565,7 @@ function isDate(value) {
     return false;
 }
 
-// Check if value looks like an amount - ENHANCED
+// Check if value looks like an amount
 function isAmount(value) {
     if (!value) return false;
     const str = String(value).trim();
@@ -574,17 +576,17 @@ function isAmount(value) {
     
     // Check for amount patterns (including negative/positive, with/without commas)
     const amountPatterns = [
-        /^-?\d{1,3}(,?\d{3})*(\.\d{1,2})?$/,  // 1,234.56 or -1234.56
-        /^\(\d{1,3}(,?\d{3})*(\.\d{1,2})?\)$/, // (1,234.56) for negative
-        /^-?\d+\.\d{2}$/,                       // 123.45
-        /^-?\d+$/                               // 123 (whole numbers)
+        /^-?\d{1,3}(,?\d{3})*(\.\d{1,2})?$/,
+        /^\(\d{1,3}(,?\d{3})*(\.\d{1,2})?\)$/,
+        /^-?\d+\.\d{2}$/,
+        /^-?\d+$/
     ];
     
     for (const pattern of amountPatterns) {
         if (pattern.test(cleaned)) {
             // Make sure it's not just a year (4 digits)
             if (/^\d{4}$/.test(cleaned)) {
-                return false; // This is likely a year, not an amount
+                return false;
             }
             return true;
         }
@@ -604,13 +606,10 @@ function normalizeExcelDate(value) {
             return `${year}-${month}-${day}`;
         }
     } catch (e) {
-        // Fallback to string parsing
         return normalizeDateFormat(String(value));
     }
     return String(value);
 }
-
-// ConvertAPI doesn't require polling - it's synchronous
 
 // Create a SINGLE Excel sheet with ONLY transaction data
 async function createSingleSheetExcel(transactions, originalFileName) {
@@ -620,7 +619,7 @@ async function createSingleSheetExcel(transactions, originalFileName) {
 
     // Filter and consolidate all transactions into one array
     const consolidatedTransactions = transactions.filter(t => 
-        t.date && t.description && t.amount // Only include rows with all required fields
+        t.date && t.description && t.amount
     );
 
     if (consolidatedTransactions.length === 0) {
@@ -642,16 +641,16 @@ async function createSingleSheetExcel(transactions, originalFileName) {
         // Update running balance
         runningBalance += amount;
         
-        // Normalize date format (API returns MM/DD/YY, we want YYYY-MM-DD)
+        // Normalize date format
         const normalizedDate = normalizeDateFormat(transaction.date);
         
         wsData.push([
-            normalizedDate,                                  // Date
-            '',                                               // Check Number (leave empty for now)
-            transaction.description || '',                    // Description
-            isDeposit ? Math.abs(amount) : '',               // Deposits (positive amounts)
-            !isDeposit ? Math.abs(amount) : '',              // Withdrawals (negative amounts)
-            runningBalance.toFixed(2)                        // Balance
+            normalizedDate,
+            '',
+            transaction.description || '',
+            isDeposit ? Math.abs(amount) : '',
+            !isDeposit ? Math.abs(amount) : '',
+            runningBalance.toFixed(2)
         ]);
     });
 
@@ -661,15 +660,15 @@ async function createSingleSheetExcel(transactions, originalFileName) {
 
     // Format columns for better readability
     ws['!cols'] = [
-        { wch: 12 },  // Date column width
-        { wch: 12 },  // Check Number column width
-        { wch: 40 },  // Description column width
-        { wch: 15 },  // Deposits column width
-        { wch: 15 },  // Withdrawals column width
-        { wch: 15 }   // Balance column width
+        { wch: 12 },
+        { wch: 12 },
+        { wch: 40 },
+        { wch: 15 },
+        { wch: 15 },
+        { wch: 15 }
     ];
 
-    // Format currency columns (Deposits, Withdrawals, Balance)
+    // Format currency columns
     const range = XLSX.utils.decode_range(ws['!ref']);
     for (let row = 1; row <= range.e.r; row++) {
         // Format Deposits (column D)
