@@ -403,15 +403,22 @@ async function reformatExcelToBankStatement(xlsxBlob, originalFileName) {
         // Convert to JSON
         const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
         
-        console.log('Raw Excel data from ConvertAPI:', rawData);
+        console.log('Raw Excel data from ConvertAPI:');
+        console.log('- Total rows:', rawData.length);
+        console.log('- First 10 rows:', rawData.slice(0, 10));
         
         // Try to parse as transactions
         const transactions = parseExcelDataToTransactions(rawData);
         
+        console.log('Parsed transactions:', transactions.length);
+        
         if (transactions.length === 0) {
+            console.warn('No transactions found in Excel data, returning original file');
             // If no transactions found, return the original file
             return xlsxBlob;
         }
+        
+        console.log('Sample transactions:', transactions.slice(0, 5));
         
         // Create new workbook with our format
         return await createSingleSheetExcel(transactions, originalFileName);
@@ -423,60 +430,167 @@ async function reformatExcelToBankStatement(xlsxBlob, originalFileName) {
     }
 }
 
-// Parse Excel data to transaction format
+// Parse Excel data to transaction format - ENHANCED for multiple categories
 function parseExcelDataToTransactions(data) {
     const transactions = [];
     
-    // Skip empty rows and try to find transaction data
+    console.log('Parsing Excel data, total rows:', data.length);
+    
+    // Process ALL rows in the data - don't stop early
     for (let i = 0; i < data.length; i++) {
         const row = data[i];
-        if (!row || row.length < 2) continue;
+        
+        // Skip completely empty rows
+        if (!row || row.length === 0) continue;
+        
+        // Skip rows that are clearly headers or labels
+        const rowStr = row.join(' ').toLowerCase();
+        if (rowStr.includes('date') && rowStr.includes('description') && rowStr.includes('amount')) {
+            console.log('Skipping header row:', row);
+            continue;
+        }
+        if (rowStr.includes('category:') || rowStr.includes('section:')) {
+            console.log('Skipping category label row:', row);
+            continue;
+        }
         
         // Try to identify date, description, and amount
         let date = null;
         let description = '';
         let amount = null;
+        let hasDateColumn = false;
+        let hasAmountColumn = false;
         
+        // First pass: identify what we have
         for (let j = 0; j < row.length; j++) {
             const cell = row[j];
             if (!cell) continue;
             
+            const cellStr = String(cell).trim();
+            if (!cellStr) continue;
+            
             // Check if it's a date
-            if (!date && isDate(cell)) {
-                date = normalizeExcelDate(cell);
+            if (isDate(cell)) {
+                if (!date) {
+                    date = normalizeExcelDate(cell);
+                    hasDateColumn = true;
+                }
             }
-            // Check if it's an amount
-            else if (amount === null && isAmount(cell)) {
-                amount = parseFloat(String(cell).replace(/[^0-9.-]/g, ''));
-            }
-            // Otherwise it's probably description
-            else if (!isAmount(cell) && !isDate(cell)) {
-                description += (description ? ' ' : '') + String(cell);
+            // Check if it's an amount (look for numbers with decimals or currency)
+            else if (isAmount(cell)) {
+                if (amount === null) {
+                    const cleanAmount = String(cell).replace(/[$,\s]/g, '');
+                    amount = parseFloat(cleanAmount);
+                    hasAmountColumn = true;
+                }
             }
         }
         
-        // If we found date and amount, add as transaction
-        if (date && amount !== null && description) {
-            transactions.push({ date, description, amount });
+        // Second pass: build description from non-date, non-amount cells
+        for (let j = 0; j < row.length; j++) {
+            const cell = row[j];
+            if (!cell) continue;
+            
+            const cellStr = String(cell).trim();
+            if (!cellStr) continue;
+            
+            // Skip if it's the date or amount we already captured
+            if (isDate(cell) || isAmount(cell)) continue;
+            
+            // Skip if it's just whitespace or punctuation
+            if (/^[\s\-_,.;:]+$/.test(cellStr)) continue;
+            
+            // Add to description
+            if (description) {
+                description += ' ' + cellStr;
+            } else {
+                description = cellStr;
+            }
+        }
+        
+        // Clean up description
+        description = description.trim();
+        
+        // Only add if we have ALL required fields
+        if (date && hasDateColumn && amount !== null && hasAmountColumn && description) {
+            // Skip if description is too short (likely noise)
+            if (description.length < 2) continue;
+            
+            transactions.push({ 
+                date, 
+                description, 
+                amount,
+                sourceRow: i // For debugging
+            });
+            
+            console.log(`Found transaction at row ${i}:`, { date, description, amount });
         }
     }
+    
+    console.log(`Successfully parsed ${transactions.length} transactions`);
     
     return transactions;
 }
 
-// Check if value looks like a date
+// Check if value looks like a date - ENHANCED
 function isDate(value) {
-    const str = String(value);
-    // Check for date patterns
-    return /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(str) || 
-           /\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/.test(str) ||
-           !isNaN(Date.parse(str));
+    if (!value) return false;
+    const str = String(value).trim();
+    if (!str) return false;
+    
+    // Check for common date patterns
+    const datePatterns = [
+        /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,     // MM/DD/YY or MM-DD-YYYY
+        /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/,       // YYYY-MM-DD
+        /^\d{1,2}\/\d{1,2}$/,                       // MM/DD
+        /^[A-Za-z]{3}\s+\d{1,2},?\s+\d{4}$/,       // Jan 15, 2024
+        /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/          // 15 Jan 2024
+    ];
+    
+    for (const pattern of datePatterns) {
+        if (pattern.test(str)) return true;
+    }
+    
+    // Try parsing as date (be more strict)
+    const parsed = Date.parse(str);
+    if (!isNaN(parsed)) {
+        const date = new Date(parsed);
+        // Make sure it's a reasonable year (1900-2100)
+        const year = date.getFullYear();
+        return year >= 1900 && year <= 2100;
+    }
+    
+    return false;
 }
 
-// Check if value looks like an amount
+// Check if value looks like an amount - ENHANCED
 function isAmount(value) {
-    const str = String(value);
-    return /^[-$]?\d{1,3}(,?\d{3})*(\.\d{2})?$/.test(str.trim());
+    if (!value) return false;
+    const str = String(value).trim();
+    if (!str) return false;
+    
+    // Remove common currency symbols and whitespace
+    const cleaned = str.replace(/[$£€¥\s]/g, '');
+    
+    // Check for amount patterns (including negative/positive, with/without commas)
+    const amountPatterns = [
+        /^-?\d{1,3}(,?\d{3})*(\.\d{1,2})?$/,  // 1,234.56 or -1234.56
+        /^\(\d{1,3}(,?\d{3})*(\.\d{1,2})?\)$/, // (1,234.56) for negative
+        /^-?\d+\.\d{2}$/,                       // 123.45
+        /^-?\d+$/                               // 123 (whole numbers)
+    ];
+    
+    for (const pattern of amountPatterns) {
+        if (pattern.test(cleaned)) {
+            // Make sure it's not just a year (4 digits)
+            if (/^\d{4}$/.test(cleaned)) {
+                return false; // This is likely a year, not an amount
+            }
+            return true;
+        }
+    }
+    
+    return false;
 }
 
 // Normalize Excel date to YYYY-MM-DD
