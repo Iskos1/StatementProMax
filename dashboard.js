@@ -50,6 +50,7 @@ let lastTransactionsHash = null;
 // Track removed transactions from savings optimizer
 let removedOptimizerTransactions = new Set();
 let maxOptimizerRecommendations = 0; // Track initial recommendation count to prevent adding more when removing
+let targetSavingsRate = 50; // Default target savings rate (can be changed by user)
 
 // Categorization Learning System
 let learnedCategorizations = new Map(); // Stores approved categorizations with multiple examples
@@ -504,6 +505,35 @@ window.addEventListener('DOMContentLoaded', () => {
     const historyBtnUpload = document.getElementById('viewHistoryBtnUpload');
     if (historyBtnUpload) {
         historyBtnUpload.addEventListener('click', showFileHistoryModal);
+    }
+    
+    // Target Savings Rate Slider
+    const targetSavingsSlider = document.getElementById('targetSavingsSlider');
+    const targetSavingsSliderValue = document.getElementById('targetSavingsSliderValue');
+    
+    if (targetSavingsSlider && targetSavingsSliderValue) {
+        // Update calculations in real-time as user moves the slider
+        targetSavingsSlider.addEventListener('input', (e) => {
+            const value = parseInt(e.target.value);
+            targetSavingsRate = value;
+            targetSavingsSliderValue.textContent = value;
+            
+            // Recalculate the optimizer with new target rate in real-time
+            if (transactions && transactions.length > 0) {
+                const income = transactions
+                    .filter(t => t.type === 'income')
+                    .reduce((sum, t) => sum + t.amount, 0);
+                const expenses = Math.abs(transactions
+                    .filter(t => t.type === 'expense')
+                    .reduce((sum, t) => sum + t.amount, 0));
+                
+                // Reset removed transactions when changing target
+                removedOptimizerTransactions.clear();
+                maxOptimizerRecommendations = 0;
+                
+                updateSavingsOptimizer(income, expenses);
+            }
+        });
     }
 });
 
@@ -1649,6 +1679,115 @@ function getFrequencyIcon(frequency) {
 }
 
 // === SAVINGS OPTIMIZER ===
+
+// Calculate expense breakdown: essential vs cuttable
+function calculateExpenseBreakdown(totalIncome, totalExpenses) {
+    const expenseTransactions = transactions.filter(t => t.type === 'expense');
+    
+    let essentialExpenses = 0;
+    let cuttableExpenses = 0;
+    
+    expenseTransactions.forEach(t => {
+        const desc = t.description.toLowerCase();
+        const amount = Math.abs(t.amount);
+        
+        // Check if this is an essential/non-cuttable transaction
+        const isEssential = 
+            desc.includes('transfer') ||
+            desc.includes('discover') ||
+            desc.includes('zelle') ||
+            desc.includes('amex') ||
+            desc.includes('american express') ||
+            desc.includes('atm withdrawal') ||
+            desc.includes('atm') ||
+            desc.includes('apple card') ||
+            desc.includes('gsbank');
+        
+        if (isEssential) {
+            essentialExpenses += amount;
+        } else {
+            cuttableExpenses += amount;
+        }
+    });
+    
+    return {
+        essential: essentialExpenses,
+        cuttable: cuttableExpenses,
+        total: totalExpenses
+    };
+}
+
+// Calculate the maximum possible savings rate based on all cuttable expenses
+function calculateMaximumSavingsRate(totalIncome, totalExpenses) {
+    if (totalIncome <= 0) return 0;
+    
+    // Get all cuttable expenses (same logic as optimizer)
+    const cuttableExpenses = transactions
+        .filter(t => {
+            if (t.type !== 'expense') return false;
+            
+            const desc = t.description.toLowerCase();
+            
+            // Exclude essential/non-cuttable transactions
+            if (desc.includes('transfer')) return false;
+            if (desc.includes('discover')) return false;
+            if (desc.includes('zelle')) return false;
+            if (desc.includes('amex')) return false;
+            if (desc.includes('american express')) return false;
+            if (desc.includes('atm withdrawal')) return false;
+            if (desc.includes('atm')) return false;
+            if (desc.includes('apple card')) return false;
+            if (desc.includes('gsbank')) return false;
+            
+            return true;
+        });
+    
+    // Calculate total amount of cuttable expenses
+    const totalCuttableExpenses = cuttableExpenses.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+    
+    // Maximum savings = current savings + all cuttable expenses
+    const currentSavings = totalIncome - totalExpenses;
+    const maxPossibleSavings = currentSavings + totalCuttableExpenses;
+    const maxSavingsRate = (maxPossibleSavings / totalIncome) * 100;
+    
+    // Cap at 100%
+    return Math.min(maxSavingsRate, 100);
+}
+
+// Update slider max indicator position
+function updateSliderMaxIndicator(maxRate) {
+    const indicator = document.getElementById('sliderMaxIndicator');
+    if (!indicator) return;
+    
+    // Convert max rate to slider position (10% to 90% range)
+    const sliderMin = 10;
+    const sliderMax = 90;
+    const clampedMax = Math.min(Math.max(maxRate, sliderMin), sliderMax);
+    const percentage = ((clampedMax - sliderMin) / (sliderMax - sliderMin)) * 100;
+    
+    indicator.style.left = `${percentage}%`;
+}
+
+// Update slider hint text based on target feasibility
+function updateSliderHint(target, maxRate, currentRate) {
+    const hintElement = document.getElementById('sliderHint');
+    const hintText = document.getElementById('sliderHintText');
+    if (!hintElement || !hintText) return;
+    
+    // Remove all classes
+    hintElement.classList.remove('warning', 'success');
+    
+    if (target > maxRate) {
+        hintElement.classList.add('warning');
+        hintText.textContent = `⚠️ Target ${target}% exceeds maximum ${maxRate.toFixed(1)}% - impossible to reach!`;
+    } else if (currentRate >= target) {
+        hintElement.classList.add('success');
+        hintText.textContent = `✓ You're already at ${currentRate.toFixed(1)}% - above your ${target}% target!`;
+    } else {
+        hintText.textContent = `Target ${target}% is achievable. Maximum possible: ${maxRate.toFixed(1)}%`;
+    }
+}
+
 function removeOptimizerTransaction(transactionId) {
     removedOptimizerTransactions.add(transactionId);
     
@@ -1679,7 +1818,15 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
     }
     
     const currentSavingsRate = ((totalIncome - totalExpenses) / totalIncome) * 100;
-    const targetSavingsRate = 50;
+    
+    // Calculate maximum possible savings rate
+    const maxPossibleSavingsRate = calculateMaximumSavingsRate(totalIncome, totalExpenses);
+    
+    // Update target savings rate display in header and subtitle
+    const targetRateDisplay = document.getElementById('targetSavingsRateDisplay');
+    const targetRateSubtitle = document.getElementById('targetSavingsRateSubtitle');
+    if (targetRateDisplay) targetRateDisplay.textContent = targetSavingsRate;
+    if (targetRateSubtitle) targetRateSubtitle.textContent = targetSavingsRate;
     
     // Update current rate display
     const currentRateElement = document.getElementById('currentSavingsRate');
@@ -1687,8 +1834,76 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
         currentRateElement.textContent = currentSavingsRate.toFixed(1) + '%';
     }
     
+    // Update maximum rate display
+    const maxRateElement = document.getElementById('maxSavingsRate');
+    if (maxRateElement) {
+        maxRateElement.textContent = maxPossibleSavingsRate.toFixed(1) + '%';
+    }
+    
+    // Update slider max indicator position
+    updateSliderMaxIndicator(maxPossibleSavingsRate);
+    
+    // Update slider hint based on target vs maximum
+    updateSliderHint(targetSavingsRate, maxPossibleSavingsRate, currentSavingsRate);
+    
+    // Check if target is impossible to reach
+    if (targetSavingsRate > maxPossibleSavingsRate) {
+        savingsOptimizerSection.style.display = 'block';
+        const message = document.getElementById('optimizerMessage');
+        if (message) {
+            // Calculate expense breakdown to explain why it's impossible
+            const expenseBreakdown = calculateExpenseBreakdown(totalIncome, totalExpenses);
+            
+            message.className = 'optimizer-message warning';
+            message.innerHTML = `
+                <div style="margin-bottom: 12px;">
+                    <strong style="font-size: 16px;">⚠️ Target ${targetSavingsRate}% is Impossible to Reach!</strong>
+                </div>
+                <div style="margin-bottom: 12px;">
+                    <strong>Why:</strong> Your maximum achievable savings rate is only <strong>${maxPossibleSavingsRate.toFixed(1)}%</strong>.
+                </div>
+                <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #f59e0b;">
+                    <div style="font-weight: 700; margin-bottom: 8px; font-size: 14px;">📊 Expense Breakdown:</div>
+                    <div style="display: grid; gap: 6px; font-size: 13px;">
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>💰 Total Income:</span>
+                            <strong>${formatCurrency(totalIncome)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between;">
+                            <span>💸 Total Expenses:</span>
+                            <strong>${formatCurrency(totalExpenses)}</strong>
+                        </div>
+                        <hr style="margin: 4px 0; border: none; border-top: 1px solid #e5e5e5;">
+                        <div style="display: flex; justify-content: space-between; color: #ef4444;">
+                            <span>🔒 Essential Expenses (Can't Cut):</span>
+                            <strong>${formatCurrency(expenseBreakdown.essential)}</strong>
+                        </div>
+                        <div style="display: flex; justify-content: space-between; color: #22c55e;">
+                            <span>✂️ Cuttable Expenses (Can Cut):</span>
+                            <strong>${formatCurrency(expenseBreakdown.cuttable)}</strong>
+                        </div>
+                    </div>
+                </div>
+                <div style="font-size: 13px; line-height: 1.6;">
+                    <strong>Explanation:</strong> Even if you eliminate ALL ${formatCurrency(expenseBreakdown.cuttable)} in cuttable expenses, 
+                    you still have ${formatCurrency(expenseBreakdown.essential)} in essential expenses (transfers, account payments, etc.). 
+                    This limits your maximum savings to ${maxPossibleSavingsRate.toFixed(1)}%.
+                </div>
+                <div style="margin-top: 12px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 13px;">
+                    <strong>💡 Suggestions:</strong> Lower your target to ${maxPossibleSavingsRate.toFixed(0)}% or less, OR increase your income to raise the maximum possible savings rate.
+                </div>
+            `;
+        }
+        
+        // Show all cuttable expenses anyway
+        const needToSave = (totalIncome * (targetSavingsRate / 100)) - (totalIncome - totalExpenses);
+        document.getElementById('needToSave').textContent = formatCurrency(needToSave);
+        
+        // Continue to show recommendations for maximum possible
+        // Fall through to show all cuttable transactions
+    }
     // Check if already at or above target
-    if (currentSavingsRate >= targetSavingsRate) {
+    else if (currentSavingsRate >= targetSavingsRate) {
         savingsOptimizerSection.style.display = 'block';
         const message = document.getElementById('optimizerMessage');
         if (message) {
@@ -1701,7 +1916,7 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
         return;
     }
     
-    // Calculate how much needs to be saved to reach 50%
+    // Calculate how much needs to be saved to reach target%
     const targetSavings = totalIncome * (targetSavingsRate / 100);
     const currentSavings = totalIncome - totalExpenses;
     const needToSave = targetSavings - currentSavings;
@@ -1796,7 +2011,7 @@ function displayOptimizerRecommendations(recommendations, needToSave, totalIncom
     // Show message
     if (messageContainer) {
         messageContainer.className = 'optimizer-message warning';
-        let message = `⚠️ You need to reduce expenses by <strong>${formatCurrency(needToSave)}</strong> to reach a 50% savings rate.`;
+        let message = `⚠️ You need to reduce expenses by <strong>${formatCurrency(needToSave)}</strong> to reach a ${targetSavingsRate}% savings rate.`;
         
         if (removedOptimizerTransactions.size > 0) {
             message += ` <em>(${removedOptimizerTransactions.size} transaction${removedOptimizerTransactions.size > 1 ? 's' : ''} hidden)</em>`;

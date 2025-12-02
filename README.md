@@ -15,16 +15,16 @@ That's it! No installation needed.
 
 ## ✨ Features
 
-- **PDF to Excel Conversion** - Convert bank statements instantly using ConvertAPI
-- **Financial Dashboard** - Analyze transactions, track spending, detect recurring payments
+- **📄 PDF to Excel Conversion** - Convert bank statements using [ConvertAPI.com](https://www.convertapi.com/a/api/pdf-to-xlsx)
+- **📊 Financial Dashboard** - Analyze transactions, track spending, detect recurring payments
 - **🎓 Smart Categorization Learning** - System learns from your categorization choices and automatically applies them to future statements
-- **📊 Excel Export with Charts** - Export financial data with chart-ready sheets (Income, Expenses, Net Balance, Savings Rate)
-- **Multi-Month Filtering** - Filter by individual months or use quick presets (Q1-Q4, H1-H2, YTD)
-- **Recurring Payment Detection** - Automatically identify subscription and recurring charges
-- **Savings Optimizer** - Get AI-powered recommendations to reach 50% savings rate
-- **Secure & Private** - All processing happens locally in your browser
-- **No Registration Required** - Use the converter without signing up
-- **Beautiful UI/UX** - Smooth animations, tooltips, keyboard shortcuts, and seamless experience
+- **📈 Excel Export with Charts** - Export financial data with chart-ready sheets (Income, Expenses, Net Balance, Savings Rate)
+- **📅 Multi-Month Filtering** - Filter by individual months or use quick presets (Q1-Q4, H1-H2, YTD)
+- **🔁 Recurring Payment Detection** - Automatically identify subscription and recurring charges
+- **💰 Savings Optimizer** - Get AI-powered recommendations to reach 50% savings rate
+- **🔐 Secure Processing** - Files processed securely via API
+- **⚡ No Registration Required** - Use the converter without signing up
+- **✨ Beautiful UI/UX** - Smooth animations, tooltips, keyboard shortcuts, and seamless experience
 
 ## 🎨 UI/UX Enhancements
 
@@ -40,10 +40,10 @@ That's it! No installation needed.
 ## Tech Stack
 
 - **Frontend**: HTML5, CSS3, Vanilla JavaScript (ES6 modules)
+- **PDF Conversion**: [ConvertAPI.com](https://www.convertapi.com) - PDF to XLSX
 - **Authentication**: InstantDB
 - **Charts**: Chart.js
-- **Excel Processing**: SheetJS (XLSX)
-- **PDF Conversion**: ConvertAPI
+- **Excel Processing**: SheetJS (XLSX) - Reformatting & Analysis
 - **Storage**: Browser LocalStorage & IndexedDB
 
 ## Excel Export Feature 📊
@@ -94,6 +94,23 @@ The dashboard now includes an **intelligent learning system** that remembers you
 - 📈 **Get Smarter**: Categorization improves automatically over time
 - 🔒 **Stay Private**: All data remains on your device
 
+## ✅ API Fully Configured
+
+The converter is integrated with [ConvertAPI.com](https://www.convertapi.com/a/api/pdf-to-xlsx) and ready to use!
+
+**Features:**
+- ✅ Direct PDF to XLSX conversion
+- ✅ Automatic reformatting to 6-column bank statement format
+- ✅ Supports all PDF types (text-based & scanned)
+- ✅ Multi-page statements
+- ✅ Fast synchronous processing
+
+**Tokens:**
+- Sandbox: `ELgjnLbeO8Q8XQjcC6cT8zA4lJEoqRDI` (currently active)
+- Production: `yGOcVvne4JAfBzzLxd45iUzrCCr25kBB`
+
+See `CONVERTAPI_INTEGRATION.md` for complete documentation.
+
 ## Local Development
 
 ```bash
@@ -113,7 +130,7 @@ BankstatementConverter/
 ├── styles.css              # Main styles
 ├── dashboard-styles.css    # Dashboard-specific styles
 ├── ui-enhancements.css     # UI/UX improvements
-├── converter.js            # PDF conversion logic
+├── converter.js            # PDF conversion via API
 ├── dashboard.js            # Dashboard functionality
 ├── script.js               # Authentication & core
 ├── utils.js                # Helper functions

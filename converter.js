@@ -9,8 +9,11 @@ import {
 import { initializeYearModal, showYearModal } from './year-modal.js';
 
 const CONFIG = {
-    apiToken: 'ELgjnLbeO8Q8XQjcC6cT8zA4lJEoqRDI',
-    apiEndpoint: 'https://v2.convertapi.com/convert/pdf/to/xlsx',
+    // ConvertAPI.com credentials
+    sandboxToken: 'ELgjnLbeO8Q8XQjcC6cT8zA4lJEoqRDI',
+    productionToken: 'yGOcVvne4JAfBzzLxd45iUzrCCr25kBB',
+    apiToken: 'ELgjnLbeO8Q8XQjcC6cT8zA4lJEoqRDI', // Using sandbox for testing
+    convertEndpoint: 'https://v2.convertapi.com/convert/pdf/to/xlsx',
     maxFileSize: 50 * 1024 * 1024,
     allowedFileTypes: ['application/pdf', 'pdf']
 };
@@ -159,7 +162,7 @@ function updateFileList() {
         if (removeBtn) removeBtn.onclick = () => removeFile(fileData.id);
 
         const downloadBtn = document.getElementById(`download-${fileData.id}`);
-        if (downloadBtn && fileData.downloadUrl) downloadBtn.onclick = () => downloadFile(fileData);
+        if (downloadBtn && fileData.excelFile) downloadBtn.onclick = () => downloadFile(fileData);
 
         const analyzeBtn = document.getElementById(`analyze-${fileData.id}`);
         if (analyzeBtn && fileData.excelFile) analyzeBtn.onclick = () => analyzeInDashboard(fileData);
@@ -236,63 +239,400 @@ async function convertFile(fileId) {
     fileData.error = null;
     updateFileList();
 
-    let progressInterval = null;
-
     try {
-        const formData = new FormData();
-        formData.append('File', fileData.file);
-        formData.append('StoreFile', 'true');
+        // Step 1: Convert PDF to XLSX using ConvertAPI (0-80%)
+        fileData.progress = 10;
+        updateFileItemProgress(fileId, fileData.progress);
 
-        progressInterval = setInterval(() => {
-            if (fileData.progress < 90) {
-                fileData.progress += 10;
-                updateFileItemProgress(fileId, fileData.progress);
-            }
-        }, 300);
+        showNotification(`🔄 Converting ${fileData.name} to Excel...`, 'info');
 
-        const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 60000);
+        // Read file as base64
+        const base64File = await fileToBase64(fileData.file);
         
-        const response = await fetch(`${CONFIG.apiEndpoint}?Secret=${CONFIG.apiToken}`, {
+        fileData.progress = 30;
+        updateFileItemProgress(fileId, fileData.progress);
+
+        // Call ConvertAPI
+        const convertResponse = await fetch(`${CONFIG.convertEndpoint}?Secret=${CONFIG.apiToken}`, {
             method: 'POST',
-            body: formData,
-            signal: controller.signal
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                Parameters: [
+                    {
+                        Name: 'File',
+                        FileValue: {
+                            Name: fileData.name,
+                            Data: base64File
+                        }
+                    }
+                ]
+            })
         });
-        
-        clearTimeout(timeoutId);
-        clearInterval(progressInterval);
-        progressInterval = null;
 
-        if (!response.ok) {
-            const errorData = await response.json().catch(() => ({}));
-            throw new Error(errorData.Message || `API Error: ${response.status} ${response.statusText}`);
+        if (!convertResponse.ok) {
+            const errorData = await convertResponse.json().catch(() => ({}));
+            throw new Error(errorData.Message || `Conversion failed: ${convertResponse.status}`);
         }
 
-        const result = await response.json();
-        if (!result.Files || result.Files.length === 0) throw new Error('No converted file returned from API');
+        const convertResult = await convertResponse.json();
+        console.log('ConvertAPI result:', convertResult);
+        
+        fileData.progress = 60;
+        updateFileItemProgress(fileId, fileData.progress);
 
-        const excelBlob = await fetch(result.Files[0].Url).then(r => {
-            if (!r.ok) throw new Error('Failed to download converted file');
-            return r.blob();
+        if (!convertResult.Files || convertResult.Files.length === 0) {
+            console.error('Full API response:', convertResult);
+            throw new Error('No Excel file returned from API');
+        }
+
+        // Step 2: Download the converted XLSX file (60-80%)
+        const xlsxFile = convertResult.Files[0];
+        console.log('Excel file info:', {
+            FileName: xlsxFile.FileName,
+            FileSize: xlsxFile.FileSize,
+            Url: xlsxFile.Url
         });
+        
+        showNotification(`📥 Downloading converted file...`, 'info');
+        
+        let xlsxBlob;
+        
+        // Try to get the file - ConvertAPI might return base64 data or URL
+        if (xlsxFile.FileData) {
+            // File data is included in response (base64)
+            console.log('Using FileData from response');
+            const binaryString = atob(xlsxFile.FileData);
+            const bytes = new Uint8Array(binaryString.length);
+            for (let i = 0; i < binaryString.length; i++) {
+                bytes[i] = binaryString.charCodeAt(i);
+            }
+            xlsxBlob = new Blob([bytes], { 
+                type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+            });
+        } else if (xlsxFile.Url) {
+            // Need to fetch from URL
+            console.log('Fetching from URL:', xlsxFile.Url);
+            try {
+                const xlsxResponse = await fetch(xlsxFile.Url, {
+                    mode: 'cors',
+                    credentials: 'omit'
+                });
+                
+                if (!xlsxResponse.ok) {
+                    console.error('Fetch failed:', xlsxResponse.status, xlsxResponse.statusText);
+                    throw new Error(`Failed to download: ${xlsxResponse.status} ${xlsxResponse.statusText}`);
+                }
+                
+                xlsxBlob = await xlsxResponse.blob();
+                console.log('Downloaded blob size:', xlsxBlob.size);
+            } catch (fetchError) {
+                console.error('Fetch error:', fetchError);
+                throw new Error(`Download failed: ${fetchError.message}. Try using a different PDF or contact support.`);
+            }
+        } else {
+            throw new Error('No file data or URL in API response');
+        }
+        
+        fileData.progress = 80;
+        updateFileItemProgress(fileId, fileData.progress);
+
+        // Step 3: Parse Excel and reformat to 6-column format (80-100%)
+        showNotification(`📊 Reformatting to bank statement format...`, 'info');
+        
+        let finalBlob;
+        try {
+            finalBlob = await reformatExcelToBankStatement(xlsxBlob, fileData.name);
+            console.log('Reformatting successful');
+        } catch (reformatError) {
+            console.warn('Reformatting failed, using original Excel:', reformatError);
+            showNotification(`⚠️ Using original Excel format (reformatting failed)`, 'warning');
+            finalBlob = xlsxBlob; // Use original if reformatting fails
+        }
         
         fileData.status = 'completed';
         fileData.progress = 100;
-        fileData.downloadUrl = result.Files[0].Url;
-        fileData.excelFile = excelBlob;
+        fileData.excelFile = finalBlob;
         fileData.excelFileName = fileData.name.replace(/\.pdf$/i, '.xlsx');
 
-        showNotification(`${fileData.name} converted successfully!`, 'success');
+        showNotification(
+            `✅ ${fileData.name} converted successfully!`, 
+            'success'
+        );
+        
     } catch (error) {
-        if (progressInterval) clearInterval(progressInterval);
         fileData.status = 'error';
-        fileData.error = error.name === 'AbortError' ? 'Conversion timed out. File may be too large or complex.' : error.message || 'Conversion failed. Please try again.';
-        showNotification(`Failed to convert ${fileData.name}`, 'error');
-    } finally {
-        if (progressInterval) clearInterval(progressInterval);
+        fileData.error = error.message || 'Conversion failed. Please try again.';
+        showNotification(`❌ Failed to convert ${fileData.name}: ${error.message}`, 'error');
+        console.error('Conversion error:', error);
     }
 
     updateFileList();
+}
+
+// Helper function to convert file to base64
+function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            // Remove the data:application/pdf;base64, prefix
+            const base64 = reader.result.split(',')[1];
+            resolve(base64);
+        };
+        reader.onerror = reject;
+        reader.readAsDataURL(file);
+    });
+}
+
+// Reformat the Excel file from ConvertAPI to our 6-column bank statement format
+async function reformatExcelToBankStatement(xlsxBlob, originalFileName) {
+    if (typeof XLSX === 'undefined') {
+        throw new Error('XLSX library not loaded. Please refresh the page.');
+    }
+
+    try {
+        // Read the Excel file from ConvertAPI
+        const arrayBuffer = await xlsxBlob.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        
+        // Get the first sheet
+        const firstSheetName = workbook.SheetNames[0];
+        const worksheet = workbook.Sheets[firstSheetName];
+        
+        // Convert to JSON
+        const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+        
+        console.log('Raw Excel data from ConvertAPI:', rawData);
+        
+        // Try to parse as transactions
+        const transactions = parseExcelDataToTransactions(rawData);
+        
+        if (transactions.length === 0) {
+            // If no transactions found, return the original file
+            return xlsxBlob;
+        }
+        
+        // Create new workbook with our format
+        return await createSingleSheetExcel(transactions, originalFileName);
+        
+    } catch (error) {
+        console.error('Error reformatting Excel:', error);
+        // If reformatting fails, return original
+        return xlsxBlob;
+    }
+}
+
+// Parse Excel data to transaction format
+function parseExcelDataToTransactions(data) {
+    const transactions = [];
+    
+    // Skip empty rows and try to find transaction data
+    for (let i = 0; i < data.length; i++) {
+        const row = data[i];
+        if (!row || row.length < 2) continue;
+        
+        // Try to identify date, description, and amount
+        let date = null;
+        let description = '';
+        let amount = null;
+        
+        for (let j = 0; j < row.length; j++) {
+            const cell = row[j];
+            if (!cell) continue;
+            
+            // Check if it's a date
+            if (!date && isDate(cell)) {
+                date = normalizeExcelDate(cell);
+            }
+            // Check if it's an amount
+            else if (amount === null && isAmount(cell)) {
+                amount = parseFloat(String(cell).replace(/[^0-9.-]/g, ''));
+            }
+            // Otherwise it's probably description
+            else if (!isAmount(cell) && !isDate(cell)) {
+                description += (description ? ' ' : '') + String(cell);
+            }
+        }
+        
+        // If we found date and amount, add as transaction
+        if (date && amount !== null && description) {
+            transactions.push({ date, description, amount });
+        }
+    }
+    
+    return transactions;
+}
+
+// Check if value looks like a date
+function isDate(value) {
+    const str = String(value);
+    // Check for date patterns
+    return /\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}/.test(str) || 
+           /\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}/.test(str) ||
+           !isNaN(Date.parse(str));
+}
+
+// Check if value looks like an amount
+function isAmount(value) {
+    const str = String(value);
+    return /^[-$]?\d{1,3}(,?\d{3})*(\.\d{2})?$/.test(str.trim());
+}
+
+// Normalize Excel date to YYYY-MM-DD
+function normalizeExcelDate(value) {
+    try {
+        const date = new Date(value);
+        if (!isNaN(date.getTime())) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+    } catch (e) {
+        // Fallback to string parsing
+        return normalizeDateFormat(String(value));
+    }
+    return String(value);
+}
+
+// ConvertAPI doesn't require polling - it's synchronous
+
+// Create a SINGLE Excel sheet with ONLY transaction data
+async function createSingleSheetExcel(transactions, originalFileName) {
+    if (typeof XLSX === 'undefined') {
+        throw new Error('XLSX library not loaded. Please refresh the page.');
+    }
+
+    // Filter and consolidate all transactions into one array
+    const consolidatedTransactions = transactions.filter(t => 
+        t.date && t.description && t.amount // Only include rows with all required fields
+    );
+
+    if (consolidatedTransactions.length === 0) {
+        throw new Error('No valid transactions found in the statement');
+    }
+
+    // Create worksheet data with proper bank statement format
+    const wsData = [
+        ['Date', 'Check Number', 'Description', 'Deposits', 'Withdrawals', 'Balance']
+    ];
+
+    let runningBalance = 0;
+
+    // Add all transactions with proper column mapping
+    consolidatedTransactions.forEach(transaction => {
+        const amount = parseFloat(transaction.amount) || 0;
+        const isDeposit = amount > 0;
+        
+        // Update running balance
+        runningBalance += amount;
+        
+        // Normalize date format (API returns MM/DD/YY, we want YYYY-MM-DD)
+        const normalizedDate = normalizeDateFormat(transaction.date);
+        
+        wsData.push([
+            normalizedDate,                                  // Date
+            '',                                               // Check Number (leave empty for now)
+            transaction.description || '',                    // Description
+            isDeposit ? Math.abs(amount) : '',               // Deposits (positive amounts)
+            !isDeposit ? Math.abs(amount) : '',              // Withdrawals (negative amounts)
+            runningBalance.toFixed(2)                        // Balance
+        ]);
+    });
+
+    // Create workbook with SINGLE sheet
+    const wb = XLSX.utils.book_new();
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+
+    // Format columns for better readability
+    ws['!cols'] = [
+        { wch: 12 },  // Date column width
+        { wch: 12 },  // Check Number column width
+        { wch: 40 },  // Description column width
+        { wch: 15 },  // Deposits column width
+        { wch: 15 },  // Withdrawals column width
+        { wch: 15 }   // Balance column width
+    ];
+
+    // Format currency columns (Deposits, Withdrawals, Balance)
+    const range = XLSX.utils.decode_range(ws['!ref']);
+    for (let row = 1; row <= range.e.r; row++) {
+        // Format Deposits (column D)
+        const depositsCell = XLSX.utils.encode_cell({ r: row, c: 3 });
+        if (ws[depositsCell] && ws[depositsCell].v !== '') {
+            ws[depositsCell].z = '#,##0.00';
+            ws[depositsCell].t = 'n';
+        }
+        
+        // Format Withdrawals (column E)
+        const withdrawalsCell = XLSX.utils.encode_cell({ r: row, c: 4 });
+        if (ws[withdrawalsCell] && ws[withdrawalsCell].v !== '') {
+            ws[withdrawalsCell].z = '#,##0.00';
+            ws[withdrawalsCell].t = 'n';
+        }
+        
+        // Format Balance (column F)
+        const balanceCell = XLSX.utils.encode_cell({ r: row, c: 5 });
+        if (ws[balanceCell] && ws[balanceCell].v !== '') {
+            ws[balanceCell].z = '#,##0.00';
+            ws[balanceCell].t = 'n';
+        }
+    }
+
+    // Add only ONE sheet named "Transactions"
+    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
+
+    // Generate Excel file
+    const excelBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
+    return new Blob([excelBuffer], { 
+        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+    });
+}
+
+// Normalize date format from API (MM/DD/YY) to Excel format (YYYY-MM-DD)
+function normalizeDateFormat(dateStr) {
+    if (!dateStr) return '';
+    
+    try {
+        // Handle MM/DD/YY format from API
+        const match = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
+        if (match) {
+            let [, month, day, year] = match;
+            
+            // Convert 2-digit year to 4-digit
+            if (year.length === 2) {
+                const currentYear = new Date().getFullYear();
+                const currentCentury = Math.floor(currentYear / 100) * 100;
+                const yearNum = parseInt(year);
+                
+                // If year is greater than current year's last 2 digits, assume previous century
+                if (yearNum > (currentYear % 100)) {
+                    year = String(currentCentury - 100 + yearNum);
+                } else {
+                    year = String(currentCentury + yearNum);
+                }
+            }
+            
+            // Pad month and day with leading zeros
+            month = month.padStart(2, '0');
+            day = day.padStart(2, '0');
+            
+            return `${year}-${month}-${day}`;
+        }
+        
+        // If already in YYYY-MM-DD format, return as is
+        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+            return dateStr;
+        }
+        
+        // Fallback: return original
+        return dateStr;
+        
+    } catch (error) {
+        console.error('Date normalization error:', error);
+        return dateStr;
+    }
 }
 
 function updateFileItemProgress(fileId, progress) {
@@ -336,7 +676,8 @@ async function analyzeInDashboard(fileData) {
             name: fileData.excelFileName,
             data: e.target.result,
             year,
-            timestamp: Date.now()
+            timestamp: Date.now(),
+            transactionData: fileData.transactionData || null
         });
         
         if (success) {

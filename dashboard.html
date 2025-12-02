@@ -342,53 +342,20 @@
     <!-- Dashboard Content -->
     <div class="dashboard-container">
         <div class="container">
-            <!-- Scroll Progress Indicator -->
-            <div class="scroll-indicator">
-                <div class="scroll-indicator-bar" id="scrollIndicatorBar"></div>
-            </div>
             
-            <!-- Dashboard Hero Section - Buzzoid-inspired -->
-            <div class="dashboard-hero animate-slide-in-up" id="dashboardHero">
-                <h1 class="dashboard-hero-title">
-                    Your Financial Insights <span class="hero-highlight">In Seconds!</span>
-                </h1>
-                <p class="dashboard-hero-subtitle">Upload your bank statements and get instant analytics, spending patterns, and recurring payment detection</p>
-            </div>
-
             <!-- Upload Section -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-card">
-                    <h2>Upload Your Bank Statement <span class="help-icon" data-tooltip="Upload Excel files exported from your bank">?</span></h2>
-                    <p>Upload an Excel file (.xlsx, .xls, .csv) to analyze your finances</p>
-                    
-                    <!-- Progress Steps -->
-                    <div class="progress-steps">
-                        <div class="progress-step active">
-                            <div class="progress-step-circle">1</div>
-                            <div class="progress-step-label">Upload Files</div>
-                        </div>
-                        <div class="progress-step">
-                            <div class="progress-step-circle">2</div>
-                            <div class="progress-step-label">Process Data</div>
-                        </div>
-                        <div class="progress-step">
-                            <div class="progress-step-circle">3</div>
-                            <div class="progress-step-label">View Insights</div>
-                        </div>
-                    </div>
+                    <h2>Upload Bank Statement</h2>
+                    <p>Upload your Excel or CSV file to analyze your finances</p>
                     
                     <div class="upload-area" id="uploadArea">
                         <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple hidden aria-label="Select Excel files to analyze">
                         <div class="upload-content">
                             <div class="upload-icon-large">📁</div>
-                            <p class="upload-text">Drag and drop your Excel files here</p>
-                            <p class="upload-subtext">or</p>
-                            <button class="btn-primary btn-with-icon" id="browseFilesBtn">
-                                <span class="btn-icon">📂</span>
-                                <span>Browse Files</span>
-                                <span class="kbd" style="margin-left: 8px;">Ctrl+O</span>
-                            </button>
-                            <p class="upload-note">Supports: .xlsx, .xls, .csv • Max 10MB per file • Multiple files supported</p>
+                            <p class="upload-text">Drag and drop files here or click to browse</p>
+                            <button class="btn-primary" id="browseFilesBtn">Browse Files</button>
+                            <p class="upload-note">.xlsx, .xls, .csv files supported</p>
                         </div>
                     </div>
                     <div id="fileList" class="file-list" style="display: none;">
@@ -396,23 +363,17 @@
                         <div id="fileListItems"></div>
                         <div class="file-list-actions">
                             <button class="btn-outline" onclick="document.getElementById('fileInput').click()">
-                                Add More Files
+                                Add More
                             </button>
                             <button class="btn-primary" id="processFilesBtn">
-                                Process Files & Analyze
+                                Analyze Files
                             </button>
                         </div>
                     </div>
-                    <div class="security-note">
-                        <span class="security-icon">🔒</span>
-                        Your file is processed locally in your browser. We never store your data.
-                    </div>
                     
-                    <!-- History Button in Upload Section -->
                     <div class="upload-history-section">
-                        <button class="btn-outline btn-with-icon" id="viewHistoryBtnUpload" data-tooltip="View previously uploaded files">
-                            <span class="btn-icon">📁</span>
-                            <span>View Upload History</span>
+                        <button class="btn-outline" id="viewHistoryBtnUpload">
+                            📁 View History
                         </button>
                     </div>
                 </div>
@@ -423,117 +384,56 @@
                 <!-- Header -->
                 <div class="dashboard-header">
                     <div>
-                        <h1>Financial Dashboard</h1>
-                        <p class="dashboard-subtitle">Analysis of <span id="fileName"></span></p>
+                        <h1>Financial Overview</h1>
+                        <p class="dashboard-subtitle"><span id="fileName"></span></p>
                     </div>
                     <div class="dashboard-header-actions">
-                        <button class="btn-outline" id="viewHistoryBtn" data-tooltip="View previously uploaded files">
-                            📁 History
-                        </button>
-                        <button class="btn-outline" id="manageLearnedBtn" data-tooltip="Manage auto-categorization patterns">
-                            🎓 Learned Patterns
-                        </button>
-                        <button class="btn-primary btn-with-icon" id="exportToExcelBtn" data-tooltip="Download as Excel with charts">
-                            <span class="btn-icon">📊</span>
-                            <span>Export</span>
-                            <span class="kbd">Ctrl+E</span>
-                        </button>
-                        <button class="btn-outline" id="uploadNewBtn" data-tooltip="Upload different files">
-                            <span>Upload New</span>
-                            <span class="kbd">Ctrl+U</span>
-                        </button>
+                        <button class="btn-outline" id="viewHistoryBtn">📁 History</button>
+                        <button class="btn-outline" id="manageLearnedBtn">🎓 Patterns</button>
+                        <button class="btn-primary" id="exportToExcelBtn">📊 Export</button>
+                        <button class="btn-outline" id="uploadNewBtn">Upload New</button>
                     </div>
                 </div>
 
-                <!-- Quick Guide (can be dismissed) -->
-                <div class="dashboard-quick-guide" id="dashboardQuickGuide">
-                    <div class="dashboard-quick-guide-icon">💡</div>
-                    <div class="dashboard-quick-guide-content">
-                        <h4 class="dashboard-quick-guide-title">Your Financial Overview is Ready!</h4>
-                        <p class="dashboard-quick-guide-text">
-                            View your key metrics at the top, explore visual charts, filter by time period, discover savings opportunities, and review all transactions below.
-                        </p>
-                    </div>
-                    <button class="dashboard-quick-guide-close" id="closeQuickGuide" title="Dismiss">×</button>
-                </div>
-
-                <!-- Smart Categorization Feature Banner -->
-                <div class="dashboard-quick-guide" id="smartCategorizationGuide" style="display: none; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-color: #667eea;">
-                    <div class="dashboard-quick-guide-icon">🎓</div>
-                    <div class="dashboard-quick-guide-content">
-                        <h4 class="dashboard-quick-guide-title" style="color: white;">Smart Categorization Learning Enabled!</h4>
-                        <p class="dashboard-quick-guide-text" style="color: rgba(255, 255, 255, 0.95);">
-                            This dashboard now learns from your categorization choices! When you upload statements, review and approve the suggested categories. 
-                            The system remembers your preferences and automatically applies them to similar future transactions. 
-                            Look for the 🎓 icon next to learned categories. Manage your learned patterns using the "Learned Patterns" button.
-                        </p>
-                    </div>
-                    <button class="dashboard-quick-guide-close" id="closeSmartGuide" title="Dismiss" style="color: white;">×</button>
-                </div>
-
-                <!-- Learning Statistics Banner -->
-                <div class="dashboard-quick-guide" id="learningStatsGuide" style="display: none; background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); border-color: #11998e;">
-                    <div class="dashboard-quick-guide-icon">📊</div>
-                    <div class="dashboard-quick-guide-content">
-                        <h4 class="dashboard-quick-guide-title" style="color: white;">Your Categorization Learning Progress</h4>
-                        <div id="learningStatsContent" style="display: flex; gap: 20px; margin-top: 10px; flex-wrap: wrap;">
-                            <div style="color: white; font-size: 14px;">
-                                <strong id="learnedPatternsCount">0</strong> learned patterns
-                            </div>
-                            <div style="color: white; font-size: 14px;">
-                                <strong id="autoCategorizd">0</strong> auto-categorized this session
-                            </div>
-                            <div style="color: white; font-size: 14px;">
-                                Top category: <strong id="topLearnedCategory">-</strong>
-                            </div>
-                        </div>
-                    </div>
-                    <button class="dashboard-quick-guide-close" id="closeLearningStats" title="Dismiss" style="color: white;">×</button>
-                </div>
-
-                <!-- Summary Cards - Top Priority -->
-                <div class="summary-grid stagger-fade-in">
-                    <div class="summary-card income-card card-highlight" data-tooltip="Money received from all sources">
+                <!-- Summary Cards -->
+                <div class="summary-grid">
+                    <div class="summary-card income-card">
                         <div class="card-icon">💰</div>
                         <div class="card-content">
-                            <p class="card-label">Total Income</p>
+                            <p class="card-label">Income</p>
                             <h2 class="card-value" id="totalIncome">$0.00</h2>
                             <p class="card-subtitle" id="incomeCount">0 transactions</p>
                         </div>
                     </div>
 
-                    <div class="summary-card expense-card card-highlight" data-tooltip="Total money spent during this period">
+                    <div class="summary-card expense-card">
                         <div class="card-icon">💸</div>
                         <div class="card-content">
-                            <p class="card-label">Total Expenses</p>
+                            <p class="card-label">Expenses</p>
                             <h2 class="card-value" id="totalExpenses">$0.00</h2>
                             <p class="card-subtitle" id="expenseCount">0 transactions</p>
                         </div>
                     </div>
 
-                    <div class="summary-card balance-card card-highlight" data-tooltip="Income minus expenses">
+                    <div class="summary-card balance-card">
                         <div class="card-icon">💵</div>
                         <div class="card-content">
                             <p class="card-label">Net Balance</p>
                             <h2 class="card-value" id="netBalance">$0.00</h2>
-                            <p class="card-subtitle" id="balanceChange">0%</p>
                         </div>
                     </div>
 
-                    <div class="summary-card savings-card card-highlight" data-tooltip="Percentage of income saved">
+                    <div class="summary-card savings-card">
                         <div class="card-icon">🎯</div>
                         <div class="card-content">
                             <p class="card-label">Savings Rate</p>
                             <h2 class="card-value" id="savingsRate">0%</h2>
-                            <p class="card-subtitle">of total income</p>
                         </div>
                     </div>
                 </div>
 
-                <!-- Charts Section - Visual Overview -->
-                <div class="section-divider">
-                    <h2 class="section-title">📊 Visual Analytics</h2>
-                </div>
+                <!-- Charts Section -->
+                <h2 class="section-title">📊 Charts</h2>
                 <div class="charts-grid">
                     <div class="chart-card">
                         <h3>Income vs Expenses</h3>
@@ -546,11 +446,8 @@
                     </div>
                 </div>
 
-                <!-- Month Filter - For Detailed Analysis -->
-                <div class="section-divider">
-                    <h2 class="section-title">📅 Time Period Selection</h2>
-                    <p class="section-description">Filter your financial data by specific months or use quick presets</p>
-                </div>
+                <!-- Month Filter -->
+                <h2 class="section-title">📅 Filter by Month</h2>
                 <div class="month-filter-section">
                     <div class="month-filter-buttons" id="monthFilterButtons">
                         <button class="month-btn active" data-month="all">All Months</button>
@@ -558,23 +455,62 @@
                 </div>
 
                 <!-- Savings Optimizer Section -->
-                <div class="section-divider">
-                    <h2 class="section-title">💡 Smart Insights</h2>
-                </div>
+                <h2 class="section-title">💡 Savings Optimizer</h2>
                 <div class="savings-optimizer-section" id="savingsOptimizerSection" style="display: none;">
                     <div class="optimizer-header">
                         <div>
-                            <h3>💡 Savings Optimizer: Reach 50% Savings Rate</h3>
-                            <p class="optimizer-subtitle">Cut these transactions to achieve your 50% savings goal</p>
+                            <h3>Target: <span id="targetSavingsRateDisplay">50</span>% Savings Rate</h3>
                         </div>
                         <div class="optimizer-stats">
                             <div class="optimizer-stat">
-                                <span class="optimizer-stat-label">Current Rate</span>
+                                <span class="optimizer-stat-label">Current</span>
                                 <span class="optimizer-stat-value" id="currentSavingsRate">0%</span>
+                            </div>
+                            <div class="optimizer-stat">
+                                <span class="optimizer-stat-label">Maximum</span>
+                                <span class="optimizer-stat-value optimizer-stat-max" id="maxSavingsRate">0%</span>
                             </div>
                             <div class="optimizer-stat">
                                 <span class="optimizer-stat-label">Need to Save</span>
                                 <span class="optimizer-stat-value optimizer-stat-amount" id="needToSave">$0.00</span>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <!-- Target Percentage Slider -->
+                    <div class="optimizer-target-control">
+                        <div class="optimizer-target-header">
+                            <label for="targetSavingsSlider" class="optimizer-target-label">
+                                <span class="optimizer-target-icon">🎯</span>
+                                <span>Target Savings Rate</span>
+                            </label>
+                            <div class="optimizer-target-value-display">
+                                <span id="targetSavingsSliderValue">50</span>%
+                            </div>
+                        </div>
+                        <div class="optimizer-slider-container">
+                            <div class="slider-track-wrapper">
+                                <div class="slider-max-indicator" id="sliderMaxIndicator" style="left: 50%;"></div>
+                                <input 
+                                    type="range" 
+                                    id="targetSavingsSlider" 
+                                    min="10" 
+                                    max="90" 
+                                    step="5" 
+                                    value="50" 
+                                    class="optimizer-slider"
+                                />
+                            </div>
+                            <div class="optimizer-slider-labels">
+                                <span>10%</span>
+                                <span>25%</span>
+                                <span>50%</span>
+                                <span>75%</span>
+                                <span>90%</span>
+                            </div>
+                            <div class="optimizer-slider-hint" id="sliderHint">
+                                <span class="hint-icon">ℹ️</span>
+                                <span id="sliderHintText">Adjust to set your savings goal</span>
                             </div>
                         </div>
                     </div>
@@ -587,19 +523,16 @@
                 </div>
 
                 <!-- Recurring Payments Section -->
+                <h2 class="section-title">🔁 Recurring Payments</h2>
                 <div class="recurring-payments-section" id="recurringPaymentsSection" style="display: none;">
                     <div class="recurring-header">
-                        <div>
-                            <h3>🔁 Recurring Payments Detected</h3>
-                            <p class="recurring-subtitle">Automatic detection of subscriptions and regular bills</p>
-                        </div>
                         <div class="recurring-summary">
                             <div class="recurring-stat">
                                 <span class="recurring-stat-label">Found</span>
                                 <span class="recurring-stat-value" id="recurringCount">0</span>
                             </div>
                             <div class="recurring-stat">
-                                <span class="recurring-stat-label">Total Spend</span>
+                                <span class="recurring-stat-label">Total Monthly</span>
                                 <span class="recurring-stat-value recurring-stat-amount" id="recurringSpend">$0.00</span>
                             </div>
                         </div>
@@ -613,7 +546,7 @@
                                 type="text" 
                                 id="recurringSearchInput" 
                                 class="recurring-search-input" 
-                                placeholder="Search recurring payments by name, category, or frequency..."
+                                placeholder="Search recurring payments..."
                                 autocomplete="off"
                             >
                             <button class="search-clear-btn" id="recurringSearchClear" style="display: none;">✕</button>
@@ -631,21 +564,15 @@
                         <div style="text-align: center; padding: 40px; color: #8a8a8a;">
                             <div style="font-size: 48px; margin-bottom: 16px;">🔍</div>
                             <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No recurring payments found</div>
-                            <div style="font-size: 14px;">Try a different search term or clear the search</div>
+                            <div style="font-size: 14px;">Try a different search term</div>
                         </div>
                     </div>
                 </div>
 
-                <!-- Transactions Table - Detailed Data -->
-                <div class="section-divider">
-                    <h2 class="section-title">📝 Transaction Details</h2>
-                    <p class="section-description">Complete list of all financial transactions</p>
-                </div>
+                <!-- Transactions Table -->
+                <h2 class="section-title">📝 All Transactions</h2>
                 <div class="transactions-section">
                     <div class="transactions-header">
-                        <div>
-                            <p style="font-size: 14px; color: #6a6a6a; margin-top: 4px;">Showing <span id="transactionCount" style="font-weight: 700; color: #FF6B6B;">0</span> transaction(s)</p>
-                        </div>
                         <div class="transaction-filters-container">
                             <div class="transaction-type-filters">
                                 <button class="filter-btn active" data-filter="all">All</button>
@@ -653,21 +580,20 @@
                                 <button class="filter-btn" data-filter="expense">Expenses</button>
                             </div>
                             <div class="transaction-category-filter">
-                                <label for="categoryFilter">Category:</label>
                                 <select id="categoryFilter" class="category-filter-select">
                                     <option value="all">All Categories</option>
                                 </select>
                             </div>
                             <div class="transaction-sort-filter">
-                                <label for="sortFilter">Sort by:</label>
                                 <select id="sortFilter" class="sort-filter-select">
-                                    <option value="date-desc">Date (Newest First)</option>
-                                    <option value="date-asc">Date (Oldest First)</option>
-                                    <option value="amount-high">Amount (Highest First)</option>
-                                    <option value="amount-low">Amount (Lowest First)</option>
+                                    <option value="date-desc">Newest First</option>
+                                    <option value="date-asc">Oldest First</option>
+                                    <option value="amount-high">Highest Amount</option>
+                                    <option value="amount-low">Lowest Amount</option>
                                 </select>
                             </div>
                         </div>
+                        <p class="transaction-count">Showing <span id="transactionCount">0</span> transactions</p>
                     </div>
                     <div class="transactions-table-container">
                         <table class="transactions-table" id="transactionsTable">
