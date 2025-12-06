@@ -56,6 +56,8 @@
     X-XSS-Protection = "1; mode=block"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
+    # Allow XLSX and Chart.js CDN scripts
+    Content-Security-Policy = "default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.google.com https://accounts.google.com https://apis.google.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; connect-src 'self' https://*.instantdb.com https://v2.convertapi.com https://accounts.google.com https://apis.google.com; frame-src https://accounts.google.com https://www.google.com; img-src 'self' data: https:; object-src 'none'"
 
 [[headers]]
   # Cache CSS files

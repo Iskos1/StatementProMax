@@ -1,4 +1,4 @@
-// Dashboard App - Version 2.3.0 (Dec 6, 2025) - Debug logging cleaned up
+// Dashboard App - Version 2.4.0 (Dec 6, 2025) - Enhanced diagnostics for Excel parsing
 
 import { 
     formatFileSize, 
@@ -29,6 +29,59 @@ import {
 window.addEventListener('unhandledrejection', (event) => {
     console.error('Unhandled rejection:', event.reason);
 });
+
+// ========================================
+// DIAGNOSTIC UTILITIES
+// ========================================
+
+// Verify XLSX library is loaded and functional
+function verifyXLSXLibrary() {
+    const diagnostics = {
+        loaded: false,
+        version: null,
+        readFunction: false,
+        utilsAvailable: false,
+        errors: []
+    };
+    
+    try {
+        if (typeof XLSX === 'undefined') {
+            diagnostics.errors.push('XLSX global is undefined');
+            return diagnostics;
+        }
+        
+        diagnostics.loaded = true;
+        diagnostics.version = XLSX.version || 'unknown';
+        diagnostics.readFunction = typeof XLSX.read === 'function';
+        diagnostics.utilsAvailable = typeof XLSX.utils === 'object';
+        
+        if (!diagnostics.readFunction) {
+            diagnostics.errors.push('XLSX.read is not a function');
+        }
+        if (!diagnostics.utilsAvailable) {
+            diagnostics.errors.push('XLSX.utils is not available');
+        }
+        
+    } catch (error) {
+        diagnostics.errors.push(`XLSX verification error: ${error.message}`);
+    }
+    
+    return diagnostics;
+}
+
+// Log diagnostic information about file processing
+function logFileDiagnostics(context, data) {
+    console.group(`📊 [File Diagnostics] ${context}`);
+    console.log('Timestamp:', new Date().toISOString());
+    Object.entries(data).forEach(([key, value]) => {
+        if (typeof value === 'object' && value !== null) {
+            console.log(`${key}:`, JSON.stringify(value, null, 2));
+        } else {
+            console.log(`${key}:`, value);
+        }
+    });
+    console.groupEnd();
+}
 
 let transactions = [];
 let allTransactions = [];
@@ -467,6 +520,24 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     dashboardInitialized = true;
     
+    // Verify XLSX library is available
+    const xlsxCheck = verifyXLSXLibrary();
+    console.log('📚 XLSX Library Status:', xlsxCheck);
+    
+    if (!xlsxCheck.loaded) {
+        console.error('❌ XLSX library failed to load! Excel file processing will not work.');
+        // Try to wait for it
+        setTimeout(() => {
+            const retryCheck = verifyXLSXLibrary();
+            console.log('📚 XLSX Library Retry:', retryCheck);
+            if (!retryCheck.loaded) {
+                showNotification('Excel library failed to load. Please refresh the page.', 'error');
+            }
+        }, 2000);
+    } else {
+        console.log(`✅ XLSX library loaded successfully (v${xlsxCheck.version})`);
+    }
+    
     // Cache DOM elements first, before any other initialization
     cacheDOMElements();
     
@@ -822,10 +893,27 @@ async function processAllFiles() {
 
 function processFile(file, providedYear = null) {
     return new Promise((resolve, reject) => {
+        // Verify XLSX library at the start of processing
+        const xlsxDiagnostics = verifyXLSXLibrary();
+        logFileDiagnostics('XLSX Library Check', xlsxDiagnostics);
+        
+        if (!xlsxDiagnostics.loaded || xlsxDiagnostics.errors.length > 0) {
+            reject(new Error(`XLSX library issue: ${xlsxDiagnostics.errors.join(', ')}`));
+            return;
+        }
+        
         if (!file || (!(file instanceof File) && !(file instanceof Blob))) {
             reject(new Error('Invalid file object'));
             return;
         }
+        
+        logFileDiagnostics('File Info', {
+            name: file.name,
+            size: file.size,
+            type: file.type,
+            lastModified: file.lastModified,
+            providedYear: providedYear
+        });
         
         const reader = new FileReader();
         
@@ -844,6 +932,10 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
+                logFileDiagnostics('File Read Complete', {
+                    dataLength: data.length,
+                    byteLength: e.target.result.byteLength
+                });
                 
                 if (!window.XLSX) {
                     throw new Error('XLSX library not loaded. Please refresh the page.');
@@ -851,8 +943,18 @@ function processFile(file, providedYear = null) {
                 
                 let workbook;
                 try {
+                    logFileDiagnostics('Parsing Excel', { status: 'starting' });
                     workbook = XLSX.read(data, { type: 'array' });
+                    logFileDiagnostics('Parsing Excel', { 
+                        status: 'success',
+                        sheetCount: workbook.SheetNames?.length || 0,
+                        sheetNames: workbook.SheetNames || []
+                    });
                 } catch (xlsxError) {
+                    logFileDiagnostics('Excel Parse Error', {
+                        error: xlsxError.message,
+                        stack: xlsxError.stack
+                    });
                     throw new Error(`Failed to parse file: ${xlsxError.message}`);
                 }
                 
@@ -864,6 +966,14 @@ function processFile(file, providedYear = null) {
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                 
+                // Log sheet data for diagnostics
+                logFileDiagnostics('Sheet Data', {
+                    rowCount: jsonData?.length || 0,
+                    firstFewRows: jsonData?.slice(0, 5).map(row => 
+                        row?.map(cell => String(cell || '').substring(0, 50)) || []
+                    )
+                });
+                
                 if (!jsonData || jsonData.length === 0) {
                     throw new Error('No data found in sheet');
                 }
@@ -871,18 +981,33 @@ function processFile(file, providedYear = null) {
                 // Process transactions with optional year correction
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
                 
+                logFileDiagnostics('Parsing Complete', {
+                    transactionCount: fileTransactions?.length || 0,
+                    sampleTransaction: fileTransactions?.[0] ? {
+                        date: fileTransactions[0].date,
+                        description: fileTransactions[0].description?.substring(0, 50),
+                        amount: fileTransactions[0].amount,
+                        category: fileTransactions[0].category
+                    } : null
+                });
+                
                 if (!fileTransactions || fileTransactions.length === 0) {
                     throw new Error('No valid transactions found');
                 }
                 
                 resolve(fileTransactions);
             } catch (error) {
+                logFileDiagnostics('Processing Error', {
+                    error: error.message,
+                    stack: error.stack
+                });
                 reject(new Error(`File parsing error: ${error.message}`));
             }
         };
         
         reader.onerror = () => {
             clearTimeout(timeout);
+            logFileDiagnostics('FileReader Error', { error: reader.error });
             reject(new Error('Failed to read file'));
         };
         
@@ -895,6 +1020,7 @@ function processFile(file, providedYear = null) {
             reader.readAsArrayBuffer(file);
         } catch (error) {
             clearTimeout(timeout);
+            logFileDiagnostics('Read Start Error', { error: error.message });
             reject(new Error(`Failed to start reading file: ${error.message}`));
         }
     });
@@ -2159,18 +2285,31 @@ async function parseTransactions(data, providedYear = null) {
     
     const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
     
+    // Log headers for debugging
+    logFileDiagnostics('Column Detection', {
+        headerRowIndex: headerRowIndex,
+        dataStartIndex: dataStartIndex,
+        headers: headers,
+        rawHeaders: data[headerRowIndex]
+    });
+    
     // More flexible column detection - supports many bank formats including Wells Fargo
+    // Wells Fargo specific headers: "Date", "Number", "Description", "Credit", "Debit"
     const dateCol = findColumnIndex(headers, [
         'date', 'transaction date', 'posting date', 'posted date', 
         'trans date', 'effective date', 'value date', 'post date',
-        'trans. date', 'post. date', 'stmt date'
+        'trans. date', 'post. date', 'stmt date', 'post',
+        // Wells Fargo specific
+        'effective'
     ]);
     
     const descCol = findColumnIndex(headers, [
         'description', 'memo', 'details', 'transaction', 'narration',
         'transaction description', 'payee', 'merchant', 'name',
         'transaction details', 'particulars', 'reference',
-        'check or description', 'check / description'
+        'check or description', 'check / description',
+        // Wells Fargo specific
+        'number', 'check', 'ref'
     ]);
     
     const amountCol = findColumnIndex(headers, [
@@ -2183,17 +2322,28 @@ async function parseTransactions(data, providedYear = null) {
         'account balance', 'closing balance', 'ledger balance'
     ]);
     
-    // Credit/Deposit columns (money coming IN)
+    // Credit/Deposit columns (money coming IN) - Wells Fargo uses "Credit" column
     const creditCol = findColumnIndex(headers, [
         'credit', 'deposit', 'deposits', 'cr', 'credit amount',
-        'money in', 'additions', 'credits', 'payment', 'incoming'
+        'money in', 'additions', 'credits', 'payment', 'incoming',
+        // Wells Fargo specific
+        'credits', 'credit amt'
     ]);
     
-    // Debit/Withdrawal columns (money going OUT)
+    // Debit/Withdrawal columns (money going OUT) - Wells Fargo uses "Debit" column
     const debitCol = findColumnIndex(headers, [
         'debit', 'withdrawal', 'withdrawals', 'dr', 'debit amount',
-        'money out', 'subtractions', 'debits', 'charge', 'outgoing'
+        'money out', 'subtractions', 'debits', 'charge', 'outgoing',
+        // Wells Fargo specific
+        'debits', 'debit amt'
     ]);
+    
+    // Log detected columns
+    logFileDiagnostics('Detected Columns', {
+        dateCol, descCol, amountCol, balanceCol, creditCol, debitCol,
+        hasAmountColumn: amountCol !== -1,
+        hasSeparateColumns: creditCol !== -1 || debitCol !== -1
+    });
     
     // If we couldn't find columns, try auto-detection from data
     let autoDetected = false;
@@ -2302,6 +2452,27 @@ async function parseTransactions(data, providedYear = null) {
     const autoCategorized = transactions.filter(t => t.isLearned && t.source === 'database').length;
     console.log(`Parsed ${transactions.length} transactions (${autoCategorized} auto-categorized from database), skipped ${skippedRows} invalid rows`);
     
+    // Diagnostic log for parsing completion
+    logFileDiagnostics('Transaction Parsing Complete', {
+        totalParsed: transactions.length,
+        skippedRows: skippedRows,
+        autoCategorized: autoCategorized,
+        dateRange: transactions.length > 0 ? {
+            earliest: transactions[transactions.length - 1]?.date,
+            latest: transactions[0]?.date
+        } : null
+    });
+    
+    // If no transactions were parsed, log detailed error info
+    if (transactions.length === 0) {
+        logFileDiagnostics('No Transactions Parsed - Debug Info', {
+            dataLength: data.length,
+            headerRowIndex: headerRowIndex,
+            dataStartIndex: dataStartIndex,
+            sampleData: data.slice(dataStartIndex, dataStartIndex + 3)
+        });
+    }
+    
     // Update UI counter if element exists
     const autoCategorizd = document.getElementById('autoCategorizd');
     if (autoCategorizd) {
@@ -2312,10 +2483,25 @@ async function parseTransactions(data, providedYear = null) {
 }
 
 function findColumnIndex(headers, possibilities) {
+    // First try exact matches
+    for (let possibility of possibilities) {
+        const index = headers.findIndex(h => h === possibility);
+        if (index !== -1) return index;
+    }
+    
+    // Then try includes (partial matches)
     for (let possibility of possibilities) {
         const index = headers.findIndex(h => h.includes(possibility));
         if (index !== -1) return index;
     }
+    
+    // Finally try if header contains possibility as a word
+    for (let possibility of possibilities) {
+        const regex = new RegExp(`\\b${possibility}\\b`, 'i');
+        const index = headers.findIndex(h => regex.test(h));
+        if (index !== -1) return index;
+    }
+    
     return -1;
 }
 
