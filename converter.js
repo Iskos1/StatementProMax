@@ -336,7 +336,7 @@ async function convertFile(fileId) {
         updateProgress(fileId, 10);
 
         const base64Data = await readFileAsBase64(fileData.file);
-        
+
         fileData.progress = 20;
         updateProgress(fileId, 20);
 
@@ -344,7 +344,7 @@ async function convertFile(fileId) {
         showNotification('🔄 Converting to Excel...', 'info');
         
         const apiUrl = CONFIG.convertEndpoint + '?Secret=' + CONFIG.apiToken;
-        
+
         const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
@@ -380,7 +380,6 @@ async function convertFile(fileId) {
         }
 
         const result = await response.json();
-        console.log('API Response:', result);
         
         fileData.progress = 70;
         updateProgress(fileId, 70);
@@ -391,7 +390,6 @@ async function convertFile(fileId) {
         }
 
         const excelFileInfo = result.Files[0];
-        console.log('Excel file info:', excelFileInfo);
         
         showNotification('📥 Downloading converted file...', 'info');
         

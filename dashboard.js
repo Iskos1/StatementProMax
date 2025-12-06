@@ -1,5 +1,4 @@
-// Dashboard App - Version 2.1.0 (Dec 6, 2025)
-console.log('🚀 Dashboard.js v2.1.0 loaded');
+// Dashboard App - Version 2.3.0 (Dec 6, 2025) - Debug logging cleaned up
 
 import { 
     formatFileSize, 
@@ -185,9 +184,6 @@ async function initializeDashboard() {
         
     } catch (error) {
         console.error('Failed to initialize authentication:', error);
-        // Don't block the dashboard - still allow file uploads even if auth fails
-        console.warn('⚠️ Auth failed, but dashboard features will still work');
-        
         // Initialize dashboard features anyway so users can still upload files
         initializeDashboardFeatures();
     }
@@ -242,7 +238,6 @@ async function initializeDashboardFeatures() {
     // Initialize the persistent transaction database
     try {
         await initializeDB();
-        console.log('✓ Transaction categorization database ready');
         
         // Load and display database statistics
         await loadDatabaseStats();
@@ -271,20 +266,6 @@ async function initializeDashboardFeatures() {
 async function loadDatabaseStats() {
     try {
         const stats = await getDBStats();
-        console.log('📊 Database Statistics:', stats);
-        console.log(`  • ${stats.patterns} learned patterns`);
-        console.log(`  • ${stats.transactions} transactions in history`);
-        console.log(`  • ${stats.dissimilarPairs} dissimilar pairs`);
-        
-        if (Object.keys(stats.categoryBreakdown).length > 0) {
-            console.log('  • Category breakdown:');
-            Object.entries(stats.categoryBreakdown)
-                .sort((a, b) => b[1] - a[1])
-                .slice(0, 5)
-                .forEach(([cat, count]) => {
-                    console.log(`    - ${cat}: ${count} patterns`);
-                });
-        }
         
         // Store stats globally for potential UI display
         window.transactionDBStats = stats;
@@ -486,21 +467,18 @@ window.addEventListener('DOMContentLoaded', () => {
     }
     dashboardInitialized = true;
     
-    // CRITICAL: Cache DOM elements FIRST, before any other initialization
-    // This ensures dom object is available even if auth fails
+    // Cache DOM elements first, before any other initialization
     cacheDOMElements();
-    console.log('✓ DOM elements cached');
     
     initializeDashboard();
     
     // Initialize upload button immediately (don't wait for auth)
     initializeUploadButton();
     
-    // IMPORTANT: Attach file input listener immediately, don't wait for auth
+    // Attach file input listener immediately
     const fileInput = document.getElementById('fileInput');
     if (fileInput) {
         fileInput.addEventListener('change', handleFileSelect);
-        console.log('✓ File input listener attached');
     }
     
     // Also attach drag/drop listeners immediately
@@ -526,7 +504,6 @@ window.addEventListener('DOMContentLoaded', () => {
                 displayFileList();
             }
         });
-        console.log('✓ Upload area drag/drop listeners attached');
     }
     
     // Attach process files button immediately
@@ -535,7 +512,6 @@ window.addEventListener('DOMContentLoaded', () => {
         processFilesBtn.addEventListener('click', () => {
             if (selectedFiles.length > 0) processAllFiles();
         });
-        console.log('✓ Process files button listener attached');
     }
     
     // Initialize back to top button
@@ -727,29 +703,16 @@ function removeFile(index) {
 }
 
 async function processAllFiles() {
-    console.log('🔄 processAllFiles() called');
-    console.log('📁 selectedFiles:', selectedFiles);
-    console.log('📁 selectedFiles.length:', selectedFiles?.length);
-    
     if (!selectedFiles || selectedFiles.length === 0) {
-        console.warn('⚠️ No files in selectedFiles array');
         showNotification('No files selected', 'warning');
         return;
     }
 
-    // Log each file's details
-    selectedFiles.forEach((f, i) => {
-        console.log(`  File ${i}: name=${f?.name}, size=${f?.size}, type=${f?.type}, instanceof File=${f instanceof File}`);
-    });
-
     // Show year selection modal
     let year;
-    console.log('📅 Showing year modal...');
     try {
         year = await showYearModal();
-        console.log('📅 Year selected:', year);
     } catch (error) {
-        console.log('📅 Year modal cancelled or error:', error?.message);
         // User cancelled - ensure upload section is still visible
         return;
     }
@@ -764,19 +727,13 @@ async function processAllFiles() {
         return;
     }
 
-    console.log('⏳ Showing loading indicator...');
     showLoading();
     
     allTransactions = [];
     let fileNames = [];
     let errors = [];
     
-    console.log(`🔄 Starting to process ${selectedFiles.length} file(s)...`);
-    
     for (const file of selectedFiles) {
-        console.log(`\n📄 Processing file: ${file?.name}`);
-        console.log(`   Size: ${file?.size}, Type: ${file?.type}`);
-        console.log(`   Is valid File object: ${file instanceof File}`);
         // Validate file
         const validExtensions = ['.xlsx', '.xls', '.csv'];
         const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
@@ -864,37 +821,12 @@ async function processAllFiles() {
 }
 
 function processFile(file, providedYear = null) {
-    console.log('🔄 processFile called for:', file?.name);
-    console.log('   File details:', {
-        name: file?.name,
-        size: file?.size,
-        type: file?.type,
-        lastModified: file?.lastModified,
-        isFile: file instanceof File,
-        isBlob: file instanceof Blob
-    });
-    
     return new Promise((resolve, reject) => {
-        if (!file) {
-            console.error('❌ File is null or undefined');
-            reject(new Error('File is null or undefined'));
+        if (!file || (!(file instanceof File) && !(file instanceof Blob))) {
+            reject(new Error('Invalid file object'));
             return;
         }
         
-        if (!(file instanceof File) && !(file instanceof Blob)) {
-            console.error('❌ Not a File or Blob object:', typeof file, file);
-            reject(new Error('Invalid file object - not a File or Blob'));
-            return;
-        }
-        
-        // Additional validation - check if file has required properties
-        if (!file.name || file.size === undefined) {
-            console.error('❌ File object is missing required properties');
-            reject(new Error('File object is corrupted or invalid'));
-            return;
-        }
-        
-        console.log('📖 Creating FileReader...');
         const reader = new FileReader();
         
         // Add timeout for file reading
@@ -905,7 +837,6 @@ function processFile(file, providedYear = null) {
         }, 30000); // 30 second timeout
         
         reader.onload = async (e) => {
-            console.log('✅ FileReader.onload fired');
             clearTimeout(timeout);
             try {
                 if (!e.target || !e.target.result) {
@@ -913,22 +844,15 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
-                console.log(`📊 File data: ${file.name}, ${data.length} bytes`);
                 
                 if (!window.XLSX) {
-                    console.error('❌ XLSX library NOT available on window');
                     throw new Error('XLSX library not loaded. Please refresh the page.');
                 }
                 
-                console.log('✅ XLSX library available, version:', window.XLSX.version);
-                
                 let workbook;
                 try {
-                    console.log('📖 Calling XLSX.read...');
                     workbook = XLSX.read(data, { type: 'array' });
-                    console.log('✅ XLSX.read succeeded, sheets:', workbook.SheetNames);
                 } catch (xlsxError) {
-                    console.error('❌ XLSX.read failed:', xlsxError);
                     throw new Error(`Failed to parse file: ${xlsxError.message}`);
                 }
                 
@@ -938,26 +862,14 @@ function processFile(file, providedYear = null) {
                 
                 // Get first sheet
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
-                console.log('📋 Converting sheet to JSON...');
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
-                
-                console.log(`📊 JSON data: ${jsonData?.length || 0} rows`);
-                if (jsonData && jsonData.length > 0) {
-                    console.log('First row:', JSON.stringify(jsonData[0]));
-                    if (jsonData.length > 1) {
-                        console.log('Second row:', JSON.stringify(jsonData[1]));
-                    }
-                }
                 
                 if (!jsonData || jsonData.length === 0) {
                     throw new Error('No data found in sheet');
                 }
                 
-                // Process transactions with optional year correction (now async)
-                console.log('🔄 Calling parseTransactions...');
+                // Process transactions with optional year correction
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
-                
-                console.log(`📊 parseTransactions returned ${fileTransactions?.length || 0} transactions`);
                 
                 if (!fileTransactions || fileTransactions.length === 0) {
                     throw new Error('No valid transactions found');
@@ -965,7 +877,6 @@ function processFile(file, providedYear = null) {
                 
                 resolve(fileTransactions);
             } catch (error) {
-                console.error('❌ Error in processFile:', error);
                 reject(new Error(`File parsing error: ${error.message}`));
             }
         };
@@ -2307,35 +2218,16 @@ function displayOptimizerRecommendations(recommendations, needToSave, totalIncom
 }
 
 function handleFileSelect(e) {
-    console.log('📁 handleFileSelect triggered');
-    console.log('Event:', e);
-    console.log('Files from input:', e.target.files);
-    
     const files = Array.from(e.target.files);
-    console.log('Converted to array:', files.length, 'files');
-    
     if (files.length > 0) {
-        files.forEach((f, i) => {
-            console.log(`  File ${i + 1}: ${f.name}, Size: ${f.size}, Type: ${f.type}`);
-        });
         selectedFiles = [...selectedFiles, ...files];
-        console.log('Total selected files now:', selectedFiles.length);
         displayFileList();
         if (dom.fileInput) dom.fileInput.value = '';
-    } else {
-        console.warn('No files selected');
     }
 }
 
 async function parseTransactions(data, providedYear = null) {
-    console.log('📊 parseTransactions v2.1 called with:', {
-        rowCount: data?.length,
-        providedYear: providedYear,
-        firstRow: data?.[0]
-    });
-    
     if (!data || data.length < 2) {
-        console.warn('Insufficient data rows for parsing');
         return [];
     }
     
@@ -2353,20 +2245,17 @@ async function parseTransactions(data, providedYear = null) {
     
     // If first row doesn't look like headers, try to find header row
     if (!isHeaderRow) {
-        console.log('First row does not appear to be headers, searching...');
         for (let i = 0; i < Math.min(10, data.length); i++) {
             const rowStr = String(data[i].join(' ')).toLowerCase();
             if (/date|description|amount|balance|debit|credit|transaction|posting/i.test(rowStr)) {
                 headerRowIndex = i;
                 dataStartIndex = i + 1;
-                console.log(`Found header row at index ${i}`);
                 break;
             }
         }
     }
     
     const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
-    console.log('Using headers from row', headerRowIndex, ':', headers);
     
     // More flexible column detection - supports many bank formats including Wells Fargo
     const dateCol = findColumnIndex(headers, [
@@ -2404,42 +2293,18 @@ async function parseTransactions(data, providedYear = null) {
         'money out', 'subtractions', 'debits', 'charge', 'outgoing'
     ]);
     
-    // Log detected columns
-    console.log('=== COLUMN DETECTION ===');
-    console.log('Headers found:', headers);
-    console.log('Date column:', dateCol, dateCol !== -1 ? '(' + headers[dateCol] + ')' : '(NOT FOUND)');
-    console.log('Description column:', descCol, descCol !== -1 ? '(' + headers[descCol] + ')' : '(NOT FOUND)');
-    console.log('Amount column:', amountCol, amountCol !== -1 ? '(' + headers[amountCol] + ')' : '(NOT FOUND)');
-    console.log('Balance column:', balanceCol, balanceCol !== -1 ? '(' + headers[balanceCol] + ')' : '(NOT FOUND)');
-    console.log('Credit column:', creditCol, creditCol !== -1 ? '(' + headers[creditCol] + ')' : '(NOT FOUND)');
-    console.log('Debit column:', debitCol, debitCol !== -1 ? '(' + headers[debitCol] + ')' : '(NOT FOUND)');
-    console.log('========================');
-    
-    // Log first few data rows for debugging
-    console.log('First 3 data rows (starting from row', dataStartIndex, '):');
-    for (let i = dataStartIndex; i < Math.min(dataStartIndex + 3, data.length); i++) {
-        console.log('Row', i, ':', data[i]);
-    }
-    
     // If we couldn't find columns, try auto-detection from data
     let autoDetected = false;
     if (dateCol === -1 || (amountCol === -1 && creditCol === -1 && debitCol === -1)) {
-        console.log('Attempting auto-detection from data patterns...');
         const result = autoDetectColumns(data, dataStartIndex);
         if (result) {
             autoDetected = true;
-            console.log('Auto-detected columns:', result);
         }
     }
     
-    // Validate required columns - more helpful error messages
+    // Validate required columns
     if (dateCol === -1 && !autoDetected) {
-        console.error('Date column not found in headers:', headers);
-        throw new Error('Could not find date column. Your file headers are: ' + headers.join(', ') + '. Expected: "Date", "Transaction Date", etc.');
-    }
-    
-    if (descCol === -1) {
-        console.warn('Description column not found, will try to use other columns');
+        throw new Error('Could not find date column. Expected: "Date", "Transaction Date", etc.');
     }
     
     // Check if we have ANY way to get amounts
@@ -2447,8 +2312,7 @@ async function parseTransactions(data, providedYear = null) {
     const hasSeparateColumns = creditCol !== -1 || debitCol !== -1;
     
     if (!hasAmountColumn && !hasSeparateColumns && !autoDetected) {
-        console.error('Amount columns not found in headers:', headers);
-        throw new Error('Could not find amount column. Your file headers are: ' + headers.join(', ') + '. Expected: "Amount", "Deposits/Withdrawals", "Credit/Debit", etc.');
+        throw new Error('Could not find amount column. Expected: "Amount", "Deposits/Withdrawals", "Credit/Debit", etc.');
     }
     
     // Process each row (skip header)
@@ -2629,7 +2493,6 @@ function autoDetectColumns(data, startRow) {
         columnInfo.push({ col, dateCount, numberCount, textCount });
     }
     
-    console.log('Auto-detection column analysis:', columnInfo);
     
     // Find date column (highest date count)
     const dateColumn = columnInfo.reduce((best, curr) => 
@@ -3377,35 +3240,15 @@ function handleCategoryChange(e) {
         const applyBtn = newItem.querySelector('.btn-apply-similar');
         const notSimilarBtns = newItem.querySelectorAll('.btn-not-similar');
         
-        console.log('Re-attaching listeners after category change. Found:', {
-            select: !!select,
-            approveBtn: !!approveBtn,
-            applyBtn: !!applyBtn,
-            notSimilarBtns: notSimilarBtns.length
-        });
-        
-        if (select) {
-            select.addEventListener('change', handleCategoryChange);
-            console.log('✓ Category select listener attached');
-        }
-        if (approveBtn) {
-            approveBtn.addEventListener('click', handleApproveTransaction);
-            console.log('✓ Approve button listener attached for index:', index);
-        }
-        if (applyBtn) {
-            applyBtn.addEventListener('click', handleApplyToSimilar);
-            console.log('✓ Apply to similar listener attached for index:', index);
-        }
-        if (notSimilarBtns.length > 0) {
-            notSimilarBtns.forEach(btn => btn.addEventListener('click', handleMarkNotSimilar));
-            console.log('✓ Not similar listeners attached:', notSimilarBtns.length);
-        }
+        if (select) select.addEventListener('change', handleCategoryChange);
+        if (approveBtn) approveBtn.addEventListener('click', handleApproveTransaction);
+        if (applyBtn) applyBtn.addEventListener('click', handleApplyToSimilar);
+        notSimilarBtns.forEach(btn => btn.addEventListener('click', handleMarkNotSimilar));
         
         // Show more button listener
         const showMoreBtn = newItem.querySelector('.btn-show-more-similar');
         if (showMoreBtn) {
             showMoreBtn.addEventListener('click', handleShowMoreSimilar);
-            console.log('✓ Show more listener attached');
         }
     } else {
         console.error('Could not find item to re-render for index:', index);
@@ -3433,7 +3276,6 @@ function handleShowMoreSimilar(e) {
             hiddenSection.style.display = 'block';
             button.innerHTML = '▲ Show Less';
             button.style.background = '#FFE0B2';
-            console.log('Expanded similar transactions list');
         } else {
             // Hide extra items
             hiddenSection.style.display = 'none';
@@ -3441,7 +3283,6 @@ function handleShowMoreSimilar(e) {
             const similarTransactions = findSimilarTransactions(sourceTransaction, pendingReview);
             button.innerHTML = `▼ Show All ${similarTransactions.length} Transactions`;
             button.style.background = '#FFF5E6';
-            console.log('Collapsed similar transactions list');
         }
     }
 }
@@ -3467,8 +3308,6 @@ async function handleMarkNotSimilar(e) {
     // Mark as dissimilar using the actual descriptions (now async)
     await markAsDissimilar(sourceTransaction.description, targetTransaction.description);
     
-    console.log(`Marked as dissimilar: "${sourceTransaction.description}" and "${targetTransaction.description}"`);
-    
     // Re-render this transaction item to update the similar list
     const itemElement = document.querySelector(`.review-transaction-item[data-index="${sourceIndex}"]`);
     if (itemElement) {
@@ -3481,19 +3320,9 @@ async function handleMarkNotSimilar(e) {
         const applyBtn = newItem.querySelector('.btn-apply-similar');
         const notSimilarBtns = newItem.querySelectorAll('.btn-not-similar');
         
-        console.log('Re-attaching listeners after marking not similar. Found:', {
-            select: !!select,
-            approveBtn: !!approveBtn,
-            applyBtn: !!applyBtn,
-            notSimilarBtns: notSimilarBtns.length
-        });
-        
         if (select) select.addEventListener('change', handleCategoryChange);
         if (approveBtn) approveBtn.addEventListener('click', handleApproveTransaction);
-        if (applyBtn) {
-            applyBtn.addEventListener('click', handleApplyToSimilar);
-            console.log('✓ Apply to similar listener re-attached after marking not similar');
-        }
+        if (applyBtn) applyBtn.addEventListener('click', handleApplyToSimilar);
         notSimilarBtns.forEach(btn => btn.addEventListener('click', handleMarkNotSimilar));
         
         // Show more button listener
@@ -3508,10 +3337,7 @@ async function handleMarkNotSimilar(e) {
 
 // Handle apply to similar transactions
 function handleApplyToSimilar(e) {
-    console.log('Apply to Similar button clicked!', e.target);
-    
     const index = parseInt(e.target.dataset.index);
-    console.log('Parsed index:', index);
     
     if (isNaN(index) || index < 0 || index >= pendingReview.length) {
         console.error('Invalid index for apply to similar:', index);
@@ -3519,10 +3345,7 @@ function handleApplyToSimilar(e) {
     }
     
     const sourceTransaction = pendingReview[index];
-    console.log('Source transaction:', sourceTransaction.description, 'Category:', sourceTransaction.category);
-    
     const similarTransactions = findSimilarTransactions(sourceTransaction, pendingReview);
-    console.log('Found similar transactions:', similarTransactions.length);
     
     if (similarTransactions.length === 0) {
         showNotification('No similar transactions found', 'warning');
@@ -3535,66 +3358,29 @@ function handleApplyToSimilar(e) {
     if (confirm(confirmMsg)) {
         let appliedCount = 0;
         
-        console.log('=== APPLYING TO SIMILAR TRANSACTIONS ===');
-        console.log('Source category:', sourceTransaction.category);
-        console.log('Similar transactions to update:', similarTransactions.length);
-        
         // Apply category to all similar transactions
         similarTransactions.forEach(similar => {
             const targetIndex = similar.index;
-            const targetTx = pendingReview[targetIndex];
-            
-            console.log(`\nBefore - Index ${targetIndex}:`, {
-                description: targetTx.description,
-                category: targetTx.category,
-                status: targetTx.reviewStatus
-            });
             
             if (targetIndex >= 0 && targetIndex < pendingReview.length) {
                 // Update category and status
                 pendingReview[targetIndex].category = sourceTransaction.category;
                 pendingReview[targetIndex].reviewStatus = 'modified';
-                pendingReview[targetIndex].bulkApplied = true; // Mark as bulk applied
+                pendingReview[targetIndex].bulkApplied = true;
                 appliedCount++;
-                
-                console.log(`After - Index ${targetIndex}:`, {
-                    description: pendingReview[targetIndex].description,
-                    category: pendingReview[targetIndex].category,
-                    status: pendingReview[targetIndex].reviewStatus,
-                    bulkApplied: pendingReview[targetIndex].bulkApplied
-                });
             }
         });
         
-        console.log('=== FINISHED APPLYING ===');
-        console.log('Total applied:', appliedCount);
-        
-        console.log('Applied category to', appliedCount, 'transaction(s)');
-        
-        // Also mark source as approved - ensure we update the actual array item
-        console.log('Source transaction status before:', sourceTransaction.reviewStatus);
+        // Also mark source as approved
         sourceTransaction.reviewStatus = 'approved';
         sourceTransaction.bulkApplied = true;
-        pendingReview[index].reviewStatus = 'approved'; // Ensure array is updated
-        pendingReview[index].bulkApplied = true; // Mark source as bulk operation initiator
-        console.log('Source transaction status after:', sourceTransaction.reviewStatus);
-        console.log('Source transaction in array:', pendingReview[index].reviewStatus);
+        pendingReview[index].reviewStatus = 'approved';
+        pendingReview[index].bulkApplied = true;
         
         // Re-render all transactions
-        console.log('Re-rendering all transactions...');
         renderReviewTransactions();
         setupReviewModalListeners();
         updateReviewProgress();
-        
-        console.log('Source transaction after re-render:', pendingReview[index].reviewStatus);
-        
-        // Verify all modified transactions
-        console.log('=== VERIFICATION ===');
-        similarTransactions.forEach(similar => {
-            const tx = pendingReview[similar.index];
-            console.log(`Index ${similar.index}: ${tx.description.substring(0, 30)}... | Category: ${tx.category} | Status: ${tx.reviewStatus}`);
-        });
-        console.log('===================');
         
         // Highlight the source transaction AND all modified transactions
         setTimeout(() => {
@@ -3605,7 +3391,6 @@ function handleApplyToSimilar(e) {
                 sourceItem.style.backgroundColor = '#d1fae5';
                 sourceItem.style.transform = 'scale(1.02)';
                 sourceItem.style.boxShadow = '0 4px 12px rgba(34, 197, 94, 0.3)';
-                console.log('Highlighted source transaction');
                 
                 // Scroll to source transaction
                 sourceItem.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -3638,17 +3423,12 @@ function handleApplyToSimilar(e) {
         }, 100);
         
         showNotification(`✓ Applied "${sourceTransaction.category}" to ${appliedCount} transaction(s)! All updated.`, 'success');
-    } else {
-        console.log('User cancelled bulk apply');
     }
 }
 
 // Handle approve transaction
 function handleApproveTransaction(e) {
-    console.log('Approve button clicked!', e.target);
-    
     const index = parseInt(e.target.dataset.index);
-    console.log('Parsed index:', index);
     
     if (isNaN(index) || index < 0 || index >= pendingReview.length) {
         console.error('Invalid index for approve transaction:', index);
@@ -3656,18 +3436,15 @@ function handleApproveTransaction(e) {
     }
     
     const transaction = pendingReview[index];
-    console.log('Current transaction status:', transaction.reviewStatus);
     
     if (transaction.reviewStatus === 'pending') {
         transaction.reviewStatus = 'approved';
     } else if (transaction.reviewStatus === 'modified') {
-        transaction.reviewStatus = 'approved'; // Changed: modified should become approved when clicked
+        transaction.reviewStatus = 'approved';
     } else {
         // Toggle off if already approved
         transaction.reviewStatus = 'pending';
     }
-    
-    console.log(`Transaction ${index} status changed to:`, transaction.reviewStatus);
     
     // Re-render this item
     const item = document.querySelector(`.review-transaction-item[data-index="${index}"]`);
@@ -3681,19 +3458,9 @@ function handleApproveTransaction(e) {
         const applyBtn = newItem.querySelector('.btn-apply-similar');
         const notSimilarBtns = newItem.querySelectorAll('.btn-not-similar');
         
-        console.log('Re-attaching listeners after approve. Found:', {
-            select: !!select,
-            approveBtn: !!approveBtn,
-            applyBtn: !!applyBtn,
-            notSimilarBtns: notSimilarBtns.length
-        });
-        
         if (select) select.addEventListener('change', handleCategoryChange);
         if (approveBtn) approveBtn.addEventListener('click', handleApproveTransaction);
-        if (applyBtn) {
-            applyBtn.addEventListener('click', handleApplyToSimilar);
-            console.log('✓ Apply to similar listener re-attached after approve');
-        }
+        if (applyBtn) applyBtn.addEventListener('click', handleApplyToSimilar);
         notSimilarBtns.forEach(btn => btn.addEventListener('click', handleMarkNotSimilar));
         
         // Show more button listener
@@ -4122,7 +3889,7 @@ async function processFinalApproval() {
                 }
             );
             
-            console.log('✓ Saved file to history:', fileName);
+            // File saved to history
         } catch (error) {
             console.error('Failed to save file history:', error);
         }
