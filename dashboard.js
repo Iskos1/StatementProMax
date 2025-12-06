@@ -484,6 +484,48 @@ window.addEventListener('DOMContentLoaded', () => {
     // Initialize upload button immediately (don't wait for auth)
     initializeUploadButton();
     
+    // IMPORTANT: Attach file input listener immediately, don't wait for auth
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFileSelect);
+        console.log('✓ File input listener attached');
+    }
+    
+    // Also attach drag/drop listeners immediately
+    const uploadArea = document.getElementById('uploadArea');
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            if (e.target === uploadArea) {
+                uploadArea.classList.remove('drag-over');
+            }
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                selectedFiles = [...selectedFiles, ...files];
+                displayFileList();
+            }
+        });
+        console.log('✓ Upload area drag/drop listeners attached');
+    }
+    
+    // Attach process files button immediately
+    const processFilesBtn = document.getElementById('processFilesBtn');
+    if (processFilesBtn) {
+        processFilesBtn.addEventListener('click', () => {
+            if (selectedFiles.length > 0) processAllFiles();
+        });
+        console.log('✓ Process files button listener attached');
+    }
+    
     // Initialize back to top button
     initializeBackToTop();
     
