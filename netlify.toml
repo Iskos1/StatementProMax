@@ -59,13 +59,13 @@
 
 [[headers]]
   # Cache CSS files
-  for = "/css/*.css"
+  for = "/assets/css/*.css"
   [headers.values]
     Cache-Control = "public, max-age=300, must-revalidate"
 
 [[headers]]
   # No cache for JS files to ensure latest code is served
-  for = "/js/*.js"
+  for = "/assets/js/*.js"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
