@@ -906,9 +906,6 @@ function setupMonthFilter() {
     
     monthFilterButtons.innerHTML = '';
     
-    // Load saved selections from localStorage
-    loadSavedSelections();
-    
     // Get unique months from transactions
     const monthsSet = new Set();
     allTransactions.forEach(t => {
@@ -918,122 +915,13 @@ function setupMonthFilter() {
     
     const months = Array.from(monthsSet).sort().reverse(); // Most recent first
     
-    // === QUICK PRESETS SECTION ===
-    const presetsSection = document.createElement('div');
-    presetsSection.className = 'month-filter-presets';
-    presetsSection.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px;">
-            <h4 style="font-size: 14px; font-weight: 700; color: #1a1a1a; margin: 0;">Quick Presets</h4>
-        </div>
-    `;
-    
-    const presetsContainer = document.createElement('div');
-    presetsContainer.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 20px;';
-    
-    // Define presets
-    const presets = [
-        { label: 'Q1', tooltip: 'Jan-Mar', months: getQuarterMonths(1, months) },
-        { label: 'Q2', tooltip: 'Apr-Jun', months: getQuarterMonths(2, months) },
-        { label: 'Q3', tooltip: 'Jul-Sep', months: getQuarterMonths(3, months) },
-        { label: 'Q4', tooltip: 'Oct-Dec', months: getQuarterMonths(4, months) },
-        { label: 'H1', tooltip: 'First Half', months: getHalfMonths(1, months) },
-        { label: 'H2', tooltip: 'Second Half', months: getHalfMonths(2, months) },
-        { label: 'Last 3M', tooltip: 'Last 3 Months', months: getLastNMonths(3, months) },
-        { label: 'Last 6M', tooltip: 'Last 6 Months', months: getLastNMonths(6, months) },
-        { label: 'YTD', tooltip: 'Year to Date', months: getYTDMonths(months) }
-    ];
-    
-    presets.forEach(preset => {
-        if (preset.months.length > 0) {
-            const btn = document.createElement('button');
-            btn.className = 'preset-btn';
-            btn.textContent = preset.label;
-            btn.title = preset.tooltip;
-            btn.onclick = () => applyPreset(preset.months);
-            presetsContainer.appendChild(btn);
-        }
-    });
-    
-    presetsSection.appendChild(presetsContainer);
-    monthFilterButtons.appendChild(presetsSection);
-    
-    // Separator
-    const separator1 = document.createElement('div');
-    separator1.style.cssText = 'height: 1px; background: #e5e5e5; margin: 20px 0 16px 0;';
-    monthFilterButtons.appendChild(separator1);
-    
-    // === CONTROL BUTTONS SECTION ===
-    const controlsDiv = document.createElement('div');
-    controlsDiv.className = 'month-filter-controls';
-    controlsDiv.style.cssText = 'display: flex; gap: 12px; margin-bottom: 16px; flex-wrap: wrap; align-items: center;';
-    
-    // Add "All Months" button
+    // Add "All" button
     const allBtn = document.createElement('button');
-    allBtn.className = 'month-btn month-btn-all active';
-    allBtn.textContent = 'All Months';
+    allBtn.className = 'month-btn active';
+    allBtn.textContent = 'All';
+    allBtn.dataset.month = 'all';
     allBtn.onclick = () => selectAllMonths();
-    controlsDiv.appendChild(allBtn);
-    
-    // Add "Clear Selection" button
-    const clearBtn = document.createElement('button');
-    clearBtn.className = 'month-btn month-btn-clear';
-    clearBtn.textContent = 'Clear Selection';
-    clearBtn.style.display = 'none';
-    clearBtn.onclick = () => clearMonthSelection();
-    controlsDiv.appendChild(clearBtn);
-    
-    // Add "Save Selection" button
-    const saveBtn = document.createElement('button');
-    saveBtn.className = 'month-btn month-btn-save';
-    saveBtn.innerHTML = '💾 Save';
-    saveBtn.style.display = 'none';
-    saveBtn.onclick = () => saveCurrentSelection();
-    controlsDiv.appendChild(saveBtn);
-    
-    // Add "Load Saved" button
-    const loadBtn = document.createElement('button');
-    loadBtn.className = 'month-btn month-btn-load';
-    loadBtn.innerHTML = '📂 Load';
-    loadBtn.onclick = () => showSavedSelections();
-    if (Object.keys(savedSelections).length === 0) {
-        loadBtn.style.display = 'none';
-    }
-    controlsDiv.appendChild(loadBtn);
-    
-    // Add selection info
-    const selectionInfo = document.createElement('span');
-    selectionInfo.id = 'monthSelectionInfo';
-    selectionInfo.style.cssText = 'display: none; align-items: center; color: #2d7a5f; font-weight: 600; font-size: 14px;';
-    selectionInfo.innerHTML = '<span id="selectedMonthCount">0</span> month(s) selected';
-    controlsDiv.appendChild(selectionInfo);
-    
-    monthFilterButtons.appendChild(controlsDiv);
-    
-    // Add separator
-    const separator = document.createElement('div');
-    separator.style.cssText = 'height: 1px; background: #e5e5e5; margin: 8px 0;';
-    monthFilterButtons.appendChild(separator);
-    
-    // Add instruction text with examples
-    const instruction = document.createElement('div');
-    instruction.style.cssText = 'background: #f0f8f5; padding: 12px 16px; border-radius: 8px; margin-bottom: 16px; border-left: 3px solid #2d7a5f;';
-    instruction.innerHTML = `
-        <p style="font-size: 14px; color: #1a1a1a; margin-bottom: 6px; font-weight: 600;">
-            📌 Multi-Month Selection Guide:
-        </p>
-        <ul style="font-size: 13px; color: #4a4a4a; margin: 0; padding-left: 20px; line-height: 1.7;">
-            <li><strong>Single Click:</strong> Select one month only</li>
-            <li><strong>Ctrl/Cmd + Click:</strong> Select multiple random months (e.g., Jan + Mar + Jun + Dec)</li>
-            <li><strong>Quick Presets:</strong> Use Q1, Q2, H1, H2, etc. buttons above for instant selection</li>
-            <li><strong>Save:</strong> After selecting, click 💾 Save to store your custom selection</li>
-        </ul>
-    `;
-    monthFilterButtons.appendChild(instruction);
-    
-    // Add month buttons container
-    const monthBtnsContainer = document.createElement('div');
-    monthBtnsContainer.style.cssText = 'display: flex; gap: 8px; flex-wrap: wrap;';
-    monthBtnsContainer.id = 'monthButtonsContainer';
+    monthFilterButtons.appendChild(allBtn);
     
     // Add month buttons
     months.forEach(monthKey => {
@@ -1042,25 +930,32 @@ function setupMonthFilter() {
         const monthName = date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
         
         const btn = document.createElement('button');
-        btn.className = 'month-btn month-btn-selectable';
+        btn.className = 'month-btn';
         btn.textContent = monthName;
         btn.dataset.month = monthKey;
-        btn.onclick = (e) => toggleMonthSelection(monthKey, e);
-        monthBtnsContainer.appendChild(btn);
+        btn.onclick = () => selectSingleMonth(monthKey);
+        monthFilterButtons.appendChild(btn);
     });
     
-    monthFilterButtons.appendChild(monthBtnsContainer);
+    // Store reference
+    window.monthFilterElements = { allBtn };
+    window.availableMonths = months;
+}
+
+// Simple single month selection
+function selectSingleMonth(monthKey) {
+    selectedMonths.clear();
+    selectedMonths.add(monthKey);
     
-    // Store reference to buttons for easy access
-    window.monthFilterElements = {
-        allBtn,
-        clearBtn,
-        saveBtn,
-        loadBtn,
-        selectionInfo,
-        countSpan: document.getElementById('selectedMonthCount')
-    };
-    window.availableMonths = months; // Store for preset calculations
+    // Update button states
+    document.querySelectorAll('.month-filter-bar .month-btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.dataset.month === monthKey) {
+            btn.classList.add('active');
+        }
+    });
+    
+    filterBySelectedMonths();
 }
 
 // === PRESET HELPER FUNCTIONS ===
@@ -1125,31 +1020,38 @@ function applyPreset(presetMonths) {
 function selectAllMonths() {
     selectedMonths.clear();
     
-    const allBtn = document.querySelector('.month-btn-all');
-    const clearBtn = document.querySelector('.month-btn-clear');
-    const selectionInfo = document.getElementById('monthSelectionInfo');
-    
-    if (allBtn) allBtn.classList.add('active');
-    if (clearBtn) clearBtn.style.display = 'none';
-    if (selectionInfo) selectionInfo.style.display = 'none';
-    
-    document.querySelectorAll('.month-btn-selectable').forEach(btn => {
+    // Update button states
+    document.querySelectorAll('.month-filter-bar .month-btn').forEach(btn => {
         btn.classList.remove('active');
+        if (btn.dataset.month === 'all') {
+            btn.classList.add('active');
+        }
     });
     
     transactions = allTransactions;
     updateDashboard();
 }
 
+function filterBySelectedMonths() {
+    if (selectedMonths.size === 0) {
+        transactions = allTransactions;
+    } else {
+        transactions = allTransactions.filter(t => {
+            const monthKey = `${t.date.getFullYear()}-${String(t.date.getMonth() + 1).padStart(2, '0')}`;
+            return selectedMonths.has(monthKey);
+        });
+    }
+    updateDashboard();
+}
+
+// Keep these for backwards compatibility but simplified
 function clearMonthSelection() {
-    selectedMonths.clear();
-    updateMonthFilterUI();
     selectAllMonths();
 }
 
 function toggleMonthSelection(monthKey, event) {
     // Check if Ctrl/Cmd key is pressed for multi-select
-    const isMultiSelect = event.ctrlKey || event.metaKey;
+    const isMultiSelect = event && (event.ctrlKey || event.metaKey);
     
     if (!isMultiSelect && selectedMonths.size > 0) {
         // Single click without Ctrl - clear previous and select this one
