@@ -691,16 +691,21 @@ window.loadConvertedFile = async function loadConvertedFile(fileName, base64Data
 }
 
 function displayFileList() {
+    // Get elements directly if dom cache isn't populated yet
+    const fileList = dom.fileList || document.getElementById('fileList');
+    const fileListItems = dom.fileListItems || document.getElementById('fileListItems');
+    const fileCount = dom.fileCount || document.getElementById('fileCount');
+    
     if (selectedFiles.length === 0) {
-        if (dom.fileList) dom.fileList.style.display = 'none';
+        if (fileList) fileList.style.display = 'none';
         return;
     }
     
-    if (dom.fileList) dom.fileList.style.display = 'block';
-    if (dom.fileListItems) dom.fileListItems.innerHTML = '';
+    if (fileList) fileList.style.display = 'block';
+    if (fileListItems) fileListItems.innerHTML = '';
     
     // Update file count
-    if (dom.fileCount) dom.fileCount.textContent = selectedFiles.length;
+    if (fileCount) fileCount.textContent = selectedFiles.length;
     
     selectedFiles.forEach((file, index) => {
         const fileItem = document.createElement('div');
@@ -725,7 +730,7 @@ function displayFileList() {
         
         fileItem.appendChild(fileInfo);
         fileItem.appendChild(removeBtn);
-        if (dom.fileListItems) dom.fileListItems.appendChild(fileItem);
+        if (fileListItems) fileListItems.appendChild(fileItem);
     });
 }
 
@@ -2211,9 +2216,14 @@ function handleFileSelect(e) {
     if (files.length > 0) {
         selectedFiles = [...selectedFiles, ...files];
         displayFileList();
-        if (dom.fileInput) dom.fileInput.value = '';
+        // Reset file input to allow re-selecting same file
+        const fileInput = dom.fileInput || document.getElementById('fileInput');
+        if (fileInput) fileInput.value = '';
     }
 }
+
+// Expose globally for inline onchange handler - must be immediate
+window.handleFileSelectGlobal = handleFileSelect;
 
 async function parseTransactions(data, providedYear = null) {
     if (!data || data.length < 2) {

@@ -379,7 +379,7 @@
                     <p>Upload your Excel or CSV file to analyze your finances</p>
                     
                     <div class="upload-area" id="uploadArea" onclick="if(event.target.id!=='browseFilesBtn')document.getElementById('fileInput').click()">
-                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple hidden aria-label="Select Excel files to analyze">
+                        <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple hidden aria-label="Select Excel files to analyze" onchange="if(window.handleFileSelectGlobal)window.handleFileSelectGlobal(event)">
                         <div class="upload-content">
                             <div class="upload-icon-large">📁</div>
                             <p class="upload-text">Drag and drop files here or click to browse</p>
