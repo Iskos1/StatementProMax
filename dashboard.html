@@ -395,6 +395,14 @@
                     </div>
                 </div>
 
+                <!-- Month Filter - Moved to top for logical flow -->
+                <div class="month-filter-bar">
+                    <span class="filter-label">📅 Period:</span>
+                    <div class="month-filter-buttons" id="monthFilterButtons">
+                        <button class="month-btn active" data-month="all">All Months</button>
+                    </div>
+                </div>
+
                 <!-- Summary Cards -->
                 <div class="summary-grid">
                     <div class="summary-card income-card">
@@ -446,17 +454,56 @@
                     </div>
                 </div>
 
-                <!-- Month Filter -->
-                <h2 class="section-title">📅 Filter by Month</h2>
-                <div class="month-filter-section">
-                    <div class="month-filter-buttons" id="monthFilterButtons">
-                        <button class="month-btn active" data-month="all">All Months</button>
+                <!-- Transactions Table - Moved before insights -->
+                <h2 class="section-title">📝 All Transactions</h2>
+                <div class="transactions-section">
+                    <div class="transactions-header">
+                        <div class="transaction-filters-container">
+                            <div class="transaction-type-filters">
+                                <button class="filter-btn active" data-filter="all">All</button>
+                                <button class="filter-btn" data-filter="income">Income</button>
+                                <button class="filter-btn" data-filter="expense">Expenses</button>
+                            </div>
+                            <div class="transaction-category-filter">
+                                <select id="categoryFilter" class="category-filter-select">
+                                    <option value="all">All Categories</option>
+                                </select>
+                            </div>
+                            <div class="transaction-sort-filter">
+                                <select id="sortFilter" class="sort-filter-select">
+                                    <option value="date-desc">Newest First</option>
+                                    <option value="date-asc">Oldest First</option>
+                                    <option value="amount-high">Highest Amount</option>
+                                    <option value="amount-low">Lowest Amount</option>
+                                </select>
+                            </div>
+                        </div>
+                        <p class="transaction-count">Showing <span id="transactionCount">0</span> transactions</p>
+                    </div>
+                    <div class="transactions-table-container">
+                        <table class="transactions-table" id="transactionsTable">
+                            <thead>
+                                <tr>
+                                    <th>Date</th>
+                                    <th>Description</th>
+                                    <th>Category</th>
+                                    <th>Amount</th>
+                                    <th>% of Income</th>
+                                    <th>Balance</th>
+                                </tr>
+                            </thead>
+                            <tbody id="transactionsBody">
+                            </tbody>
+                        </table>
                     </div>
                 </div>
 
+                <!-- Insights Section Header -->
+                <h2 class="section-title">💡 Insights & Analysis</h2>
+
                 <!-- Savings Optimizer Section -->
-                <h2 class="section-title">💡 Savings Optimizer</h2>
-                <div class="savings-optimizer-section" id="savingsOptimizerSection" style="display: none;">
+                <div class="savings-optimizer-section insight-card" id="savingsOptimizerSection" style="display: none;">
+                    <h3 class="insight-card-title">🎯 Savings Optimizer</h3>
                     <div class="optimizer-header">
                         <div>
                             <h3>Target: <span id="targetSavingsRateDisplay">50</span>% Savings Rate</h3>
@@ -523,8 +570,8 @@
                 </div>
 
                 <!-- Recurring Payments Section -->
-                <h2 class="section-title">🔁 Recurring Payments</h2>
-                <div class="recurring-payments-section" id="recurringPaymentsSection" style="display: none;">
+                <div class="recurring-payments-section insight-card" id="recurringPaymentsSection" style="display: none;">
+                    <h3 class="insight-card-title">🔁 Recurring Payments</h3>
                     <div class="recurring-header">
                         <div class="recurring-summary">
                             <div class="recurring-stat">
@@ -566,50 +613,6 @@
                             <div style="font-size: 16px; font-weight: 600; margin-bottom: 8px;">No recurring payments found</div>
                             <div style="font-size: 14px;">Try a different search term</div>
                         </div>
-                    </div>
-                </div>
-
-                <!-- Transactions Table -->
-                <h2 class="section-title">📝 All Transactions</h2>
-                <div class="transactions-section">
-                    <div class="transactions-header">
-                        <div class="transaction-filters-container">
-                            <div class="transaction-type-filters">
-                                <button class="filter-btn active" data-filter="all">All</button>
-                                <button class="filter-btn" data-filter="income">Income</button>
-                                <button class="filter-btn" data-filter="expense">Expenses</button>
-                            </div>
-                            <div class="transaction-category-filter">
-                                <select id="categoryFilter" class="category-filter-select">
-                                    <option value="all">All Categories</option>
-                                </select>
-                            </div>
-                            <div class="transaction-sort-filter">
-                                <select id="sortFilter" class="sort-filter-select">
-                                    <option value="date-desc">Newest First</option>
-                                    <option value="date-asc">Oldest First</option>
-                                    <option value="amount-high">Highest Amount</option>
-                                    <option value="amount-low">Lowest Amount</option>
-                                </select>
-                            </div>
-                        </div>
-                        <p class="transaction-count">Showing <span id="transactionCount">0</span> transactions</p>
-                    </div>
-                    <div class="transactions-table-container">
-                        <table class="transactions-table" id="transactionsTable">
-                            <thead>
-                                <tr>
-                                    <th>Date</th>
-                                    <th>Description</th>
-                                    <th>Category</th>
-                                    <th>Amount</th>
-                                    <th>% of Income</th>
-                                    <th>Balance</th>
-                                </tr>
-                            </thead>
-                            <tbody id="transactionsBody">
-                            </tbody>
-                        </table>
                     </div>
                 </div>
             </div>
