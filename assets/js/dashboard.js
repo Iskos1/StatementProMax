@@ -69,18 +69,9 @@ function verifyXLSXLibrary() {
     return diagnostics;
 }
 
-// Log diagnostic information about file processing
+// Log diagnostic information (disabled for production)
 function logFileDiagnostics(context, data) {
-    console.group(`📊 [File Diagnostics] ${context}`);
-    console.log('Timestamp:', new Date().toISOString());
-    Object.entries(data).forEach(([key, value]) => {
-        if (typeof value === 'object' && value !== null) {
-            console.log(`${key}:`, JSON.stringify(value, null, 2));
-        } else {
-            console.log(`${key}:`, value);
-        }
-    });
-    console.groupEnd();
+    // Diagnostics disabled for speed
 }
 
 let transactions = [];
@@ -433,10 +424,7 @@ let listenersAttached = false;
 
 // Attach all event listeners
 function attachEventListeners() {
-    if (listenersAttached) {
-        console.warn('Event listeners already attached');
-        return;
-    }
+    if (listenersAttached) return;
     
     // Note: File input listener is attached in DOMContentLoaded, don't duplicate
     // if (dom.fileInput) {
@@ -514,28 +502,20 @@ let dashboardInitialized = false;
 
 // Start authentication check on page load
 window.addEventListener('DOMContentLoaded', () => {
-    if (dashboardInitialized) {
-        console.warn('Dashboard already initialized, skipping');
-        return;
-    }
+    if (dashboardInitialized) return;
     dashboardInitialized = true;
     
     // Verify XLSX library is available
     const xlsxCheck = verifyXLSXLibrary();
-    console.log('📚 XLSX Library Status:', xlsxCheck);
     
     if (!xlsxCheck.loaded) {
-        console.error('❌ XLSX library failed to load! Excel file processing will not work.');
         // Try to wait for it
         setTimeout(() => {
             const retryCheck = verifyXLSXLibrary();
-            console.log('📚 XLSX Library Retry:', retryCheck);
             if (!retryCheck.loaded) {
                 showNotification('Excel library failed to load. Please refresh the page.', 'error');
             }
         }, 2000);
-    } else {
-        console.log(`✅ XLSX library loaded successfully (v${xlsxCheck.version})`);
     }
     
     // Cache DOM elements first, before any other initialization
@@ -2448,9 +2428,8 @@ async function parseTransactions(data, providedYear = null) {
     // Sort by date (newest first)
     transactions.sort((a, b) => b.date - a.date);
     
-    // Log parsing results
+    // Count auto-categorized
     const autoCategorized = transactions.filter(t => t.isLearned && t.source === 'database').length;
-    console.log(`Parsed ${transactions.length} transactions (${autoCategorized} auto-categorized from database), skipped ${skippedRows} invalid rows`);
     
     // Diagnostic log for parsing completion
     logFileDiagnostics('Transaction Parsing Complete', {
@@ -2620,10 +2599,8 @@ function loadLearnedCategorizations() {
         if (saved) {
             const parsed = JSON.parse(saved);
             learnedCategorizations = new Map(Object.entries(parsed));
-            console.log(`Loaded ${learnedCategorizations.size} learned categorization patterns`);
         }
     } catch (error) {
-        console.error('Error loading learned categorizations:', error);
         learnedCategorizations = new Map();
     }
 }
@@ -2633,9 +2610,7 @@ function saveLearnedCategorizations() {
     try {
         const obj = Object.fromEntries(learnedCategorizations);
         localStorage.setItem('learnedCategorizations', JSON.stringify(obj));
-        console.log(`Saved ${learnedCategorizations.size} learned categorization patterns`);
     } catch (error) {
-        console.error('Error saving learned categorizations:', error);
         showNotification('Failed to save categorization patterns', 'error');
     }
 }
@@ -2647,10 +2622,8 @@ function loadDissimilarPairs() {
         if (saved) {
             const parsed = JSON.parse(saved);
             dissimilarPairs = new Set(parsed);
-            console.log(`Loaded ${dissimilarPairs.size} dissimilar transaction pairs`);
         }
     } catch (error) {
-        console.error('Error loading dissimilar pairs:', error);
         dissimilarPairs = new Set();
     }
 }
@@ -2660,9 +2633,7 @@ function saveDissimilarPairs() {
     try {
         const arr = Array.from(dissimilarPairs);
         localStorage.setItem('dissimilarPairs', JSON.stringify(arr));
-        console.log(`Saved ${dissimilarPairs.size} dissimilar transaction pairs`);
     } catch (error) {
-        console.error('Error saving dissimilar pairs:', error);
         showNotification('Failed to save similarity exclusions', 'error');
     }
 }
@@ -2878,7 +2849,6 @@ async function categorizeTransaction(description, amount = 0) {
     
     // Auto-apply high-confidence learned patterns (85%+)
     if (learned && learned.confidence >= 0.85) {
-        console.log(`✓ Auto-applying learned category for "${description}": ${learned.category} (${(learned.confidence * 100).toFixed(0)}% confidence)`);
         return {
             category: learned.category,
             isLearned: true,
@@ -2891,7 +2861,6 @@ async function categorizeTransaction(description, amount = 0) {
     
     // Use medium-confidence learned patterns (70-85%)
     if (learned && learned.confidence >= 0.70) {
-        console.log(`✓ Suggesting learned category for "${description}": ${learned.category} (${(learned.confidence * 100).toFixed(0)}% confidence)`);
         return {
             category: learned.category,
             isLearned: true,
@@ -3004,9 +2973,6 @@ function findSimilarTransactions(transaction, allTransactions) {
         }
     }
     
-    if (skippedReviewed > 0 || skippedDissimilar > 0) {
-        console.log(`findSimilarTransactions for "${transaction.description}": Found ${similar.length}, Skipped ${skippedReviewed} reviewed, ${skippedDissimilar} dissimilar`);
-    }
     
     return similar.sort((a, b) => b.similarity - a.similarity);
 }
@@ -3054,8 +3020,6 @@ function renderReviewTransactions() {
     
     // Only show pending transactions (hide approved and modified)
     const pendingTransactions = pendingReview.filter(t => t.reviewStatus === 'pending');
-    
-    console.log(`Rendering review: ${pendingTransactions.length} pending, ${pendingReview.filter(t => t.reviewStatus === 'approved').length} approved, ${pendingReview.filter(t => t.reviewStatus === 'modified').length} modified`);
     
     if (pendingTransactions.length === 0) {
         // All transactions reviewed - show completion message
@@ -3313,8 +3277,6 @@ function handleCategoryChange(e) {
             transaction.reviewStatus = 'approved';
         }
     }
-    
-    console.log(`Transaction ${index} category changed to:`, newCategory, 'Status:', transaction.reviewStatus);
     
     // Re-render this item
     const item = document.querySelector(`.review-transaction-item[data-index="${index}"]`);
@@ -4004,7 +3966,6 @@ async function processFinalApproval() {
     }
     
     showNotification(message, 'success');
-    console.log(`Learning Summary: ${newPatterns} new patterns, ${updatedPatterns} updated patterns, ${learnedCategorizations.size} total patterns stored`);
 }
 
 // Close review modal

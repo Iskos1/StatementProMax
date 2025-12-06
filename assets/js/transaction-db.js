@@ -29,7 +29,6 @@ export async function initializeDB() {
         
         request.onsuccess = () => {
             dbInstance = request.result;
-            console.log('✓ Transaction database initialized successfully');
             resolve(dbInstance);
         };
         
@@ -44,7 +43,6 @@ export async function initializeDB() {
                 patternStore.createIndex('merchantName', 'merchantName', { unique: false });
                 patternStore.createIndex('category', 'category', { unique: false });
                 patternStore.createIndex('lastUsed', 'lastUsed', { unique: false });
-                console.log('✓ Created categorization patterns store');
             }
             
             // Create transaction history store
@@ -55,14 +53,12 @@ export async function initializeDB() {
                 transactionStore.createIndex('category', 'category', { unique: false });
                 transactionStore.createIndex('date', 'date', { unique: false });
                 transactionStore.createIndex('merchantName', 'merchantName', { unique: false });
-                console.log('✓ Created transaction history store');
             }
             
             // Create dissimilar pairs store
             if (!db.objectStoreNames.contains(STORES.DISSIMILAR)) {
                 const dissimilarStore = db.createObjectStore(STORES.DISSIMILAR, { keyPath: 'pairKey' });
                 dissimilarStore.createIndex('timestamp', 'timestamp', { unique: false });
-                console.log('✓ Created dissimilar pairs store');
             }
             
             // Create file history store
@@ -71,7 +67,6 @@ export async function initializeDB() {
                 fileHistoryStore.createIndex('fileName', 'fileName', { unique: false });
                 fileHistoryStore.createIndex('uploadDate', 'uploadDate', { unique: false });
                 fileHistoryStore.createIndex('fileSize', 'fileSize', { unique: false });
-                console.log('✓ Created file history store');
             }
         };
     });
@@ -160,7 +155,6 @@ export async function saveCategorization(description, category, amount = null) {
         const request = store.add(pattern);
         
         request.onsuccess = () => {
-            console.log('✓ Saved categorization pattern:', merchantName, '→', category);
             resolve(request.result);
         };
         
@@ -242,7 +236,6 @@ async function updatePattern(id, updates) {
             const putRequest = store.put(updatedPattern);
             
             putRequest.onsuccess = () => {
-                console.log('✓ Updated pattern:', pattern.merchantName, '(usage:', newUsageCount, ', confidence:', newConfidence.toFixed(2) + ')');
                 resolve(id);
             };
             
@@ -406,7 +399,6 @@ export async function saveTransactionBatch(transactions) {
         });
         
         tx.oncomplete = () => {
-            console.log(`✓ Saved ${count} transactions to history`);
             resolve(count);
         };
         
@@ -443,7 +435,6 @@ export async function markDissimilar(description1, description2) {
         const request = store.put(record);
         
         request.onsuccess = () => {
-            console.log('✓ Marked as dissimilar:', desc1, '≠', desc2);
             resolve();
         };
         
@@ -553,7 +544,6 @@ export async function clearStore(storeName) {
         const request = store.clear();
         
         request.onsuccess = () => {
-            console.log(`✓ Cleared ${storeName}`);
             resolve();
         };
         
@@ -598,7 +588,6 @@ export async function exportData() {
         };
         
         transaction.oncomplete = () => {
-            console.log('✓ Exported data:', {
                 patterns: data.patterns.length,
                 transactions: data.transactions.length,
                 dissimilarPairs: data.dissimilarPairs.length
@@ -644,7 +633,6 @@ export async function importData(data) {
         });
         
         transaction.oncomplete = () => {
-            console.log('✓ Imported data successfully');
             resolve();
         };
         
@@ -693,7 +681,6 @@ export async function saveFileHistory(fileName, fileData, fileSize, transactionC
         const request = store.add(record);
         
         request.onsuccess = () => {
-            console.log('✓ Saved file to history:', fileName);
             resolve(request.result);
         };
         
@@ -769,7 +756,6 @@ export async function deleteFileHistory(id) {
         const request = store.delete(id);
         
         request.onsuccess = () => {
-            console.log('✓ Deleted file history entry:', id);
             resolve();
         };
         

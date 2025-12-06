@@ -41,7 +41,7 @@
         }
     }
     </script>
-    <!-- Instant auth state check - prevents flash of unauthenticated content -->
+    <!-- Instant auth state -->
     <script>
         (function() {
             try {
@@ -50,25 +50,17 @@
                     var data = JSON.parse(cached);
                     if (data && data.email && (Date.now() - data.timestamp) < 86400000) {
                         window.__authCached = data.email.split('@')[0];
-                        document.documentElement.classList.add('auth-cached');
                     }
                 }
             } catch(e) {}
         })();
     </script>
-    <style>
-        .auth-cached #signInBtn { visibility: hidden !important; opacity: 0 !important; position: absolute !important; pointer-events: none !important; }
-        .auth-cached #userMenu { visibility: visible !important; opacity: 1 !important; position: relative !important; pointer-events: auto !important; }
-        .auth-cached .auth-hidden { visibility: visible !important; opacity: 1 !important; position: relative !important; pointer-events: auto !important; }
-    </style>
+    <style>#signInBtn, #userMenu { transition: none !important; }</style>
 </head>
 <body>
     <script>
         if (window.__authCached) {
-            document.addEventListener('DOMContentLoaded', function() {
-                var el = document.getElementById('userEmail');
-                if (el && !el.textContent) el.textContent = window.__authCached;
-            });
+            document.write('<style>#signInBtn{display:none!important}#userMenu{display:block!important}</style>');
         }
     </script>
     <!-- Promotional Banner - Permanent -->
@@ -109,7 +101,7 @@
                     <button class="btn-auth" id="signInBtn">
                         <span id="authButtonText">Sign In</span>
                     </button>
-                    <div class="user-menu auth-hidden" id="userMenu">
+                    <div class="user-menu" id="userMenu" style="display:none">
                         <button class="user-menu-btn" id="userMenuBtn">
                             <span id="userEmail"></span>
                             <span class="dropdown-arrow">▼</span>

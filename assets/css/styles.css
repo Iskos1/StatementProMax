@@ -2169,14 +2169,6 @@ p {
     white-space: nowrap;
 }
 
-/* Use visibility instead of display to prevent layout shift */
-.btn-auth.auth-hidden {
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    pointer-events: none;
-}
-
 .btn-auth:hover {
     border-color: #2d7a5f;
     color: #2d7a5f;
@@ -2185,14 +2177,6 @@ p {
 /* User Menu */
 .user-menu {
     position: relative;
-}
-
-/* Use visibility instead of display to prevent layout shift */
-.user-menu.auth-hidden {
-    visibility: hidden;
-    opacity: 0;
-    position: absolute;
-    pointer-events: none;
 }
 
 .user-menu-btn {

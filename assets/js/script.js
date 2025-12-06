@@ -86,27 +86,17 @@ function setupAuth(db) {
         }
     }
 
-    // Update UI based on auth state - uses CSS classes to prevent layout shift
+    // Update UI based on auth state - instant, no transitions
     function updateUIForAuthState(user) {
         if (user) {
-            // User is signed in - use CSS classes for smooth transition
-            if (signInBtn) {
-                signInBtn.classList.add('auth-hidden');
-            }
-            if (userMenu) {
-                userMenu.classList.remove('auth-hidden');
-            }
-            if (userEmail) {
-                userEmail.textContent = user.email.split('@')[0];
-            }
+            // User is signed in
+            if (signInBtn) signInBtn.style.display = 'none';
+            if (userMenu) userMenu.style.display = 'block';
+            if (userEmail) userEmail.textContent = user.email.split('@')[0];
         } else {
             // User is signed out
-            if (signInBtn) {
-                signInBtn.classList.remove('auth-hidden');
-            }
-            if (userMenu) {
-                userMenu.classList.add('auth-hidden');
-            }
+            if (signInBtn) signInBtn.style.display = 'block';
+            if (userMenu) userMenu.style.display = 'none';
         }
     }
 
