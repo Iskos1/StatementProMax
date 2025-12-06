@@ -726,16 +726,29 @@ function removeFile(index) {
 }
 
 async function processAllFiles() {
+    console.log('🔄 processAllFiles() called');
+    console.log('📁 selectedFiles:', selectedFiles);
+    console.log('📁 selectedFiles.length:', selectedFiles?.length);
+    
     if (!selectedFiles || selectedFiles.length === 0) {
+        console.warn('⚠️ No files in selectedFiles array');
         showNotification('No files selected', 'warning');
         return;
     }
 
+    // Log each file's details
+    selectedFiles.forEach((f, i) => {
+        console.log(`  File ${i}: name=${f?.name}, size=${f?.size}, type=${f?.type}, instanceof File=${f instanceof File}`);
+    });
+
     // Show year selection modal
     let year;
+    console.log('📅 Showing year modal...');
     try {
         year = await showYearModal();
+        console.log('📅 Year selected:', year);
     } catch (error) {
+        console.log('📅 Year modal cancelled or error:', error?.message);
         // User cancelled - ensure upload section is still visible
         return;
     }
@@ -750,13 +763,19 @@ async function processAllFiles() {
         return;
     }
 
+    console.log('⏳ Showing loading indicator...');
     showLoading();
     
     allTransactions = [];
     let fileNames = [];
     let errors = [];
     
+    console.log(`🔄 Starting to process ${selectedFiles.length} file(s)...`);
+    
     for (const file of selectedFiles) {
+        console.log(`\n📄 Processing file: ${file?.name}`);
+        console.log(`   Size: ${file?.size}, Type: ${file?.type}`);
+        console.log(`   Is valid File object: ${file instanceof File}`);
         // Validate file
         const validExtensions = ['.xlsx', '.xls', '.csv'];
         const fileExtension = file.name.substring(file.name.lastIndexOf('.')).toLowerCase();
