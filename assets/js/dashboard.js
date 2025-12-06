@@ -70,7 +70,6 @@ function verifyXLSXLibrary() {
 }
 
 // Log diagnostic information (disabled for production)
-function logFileDiagnostics(context, data) {
     // Diagnostics disabled for speed
 }
 
@@ -105,13 +104,6 @@ let isReviewMode = false; // Track if we're in review mode
 
 // DOM Elements - cached for performance
 let dom = {};
-
-// Initialize upload button - REMOVED: now using inline onclick handlers in HTML
-// This prevents duplicate event listeners that cause double-click issues
-function initializeUploadButton() {
-    // Inline handlers in dashboard.html handle the click events
-    // This function is kept for backward compatibility but does nothing
-}
 
 // Show optional sign-in banner (non-blocking)
 function showOptionalSignInBanner() {
@@ -408,11 +400,7 @@ function attachEventListeners() {
     if (listenersAttached) return;
     
     // Note: File input listener is attached in DOMContentLoaded, don't duplicate
-    // if (dom.fileInput) {
-    //     dom.fileInput.addEventListener('change', handleFileSelect);
-    // }
-    
-    // Browse Files button handler is now in initializeUploadButton() - called on page load
+    // Browse Files button uses inline onclick handler in dashboard.html
     
     if (dom.uploadArea) {
         dom.uploadArea.addEventListener('dragover', (e) => {
@@ -503,9 +491,6 @@ window.addEventListener('DOMContentLoaded', () => {
     cacheDOMElements();
     
     initializeDashboard();
-    
-    // Initialize upload button immediately (don't wait for auth)
-    initializeUploadButton();
     
     // Attach file input listener immediately
     const fileInput = document.getElementById('fileInput');
@@ -861,7 +846,6 @@ function processFile(file, providedYear = null) {
     return new Promise((resolve, reject) => {
         // Verify XLSX library at the start of processing
         const xlsxDiagnostics = verifyXLSXLibrary();
-        logFileDiagnostics('XLSX Library Check', xlsxDiagnostics);
         
         if (!xlsxDiagnostics.loaded || xlsxDiagnostics.errors.length > 0) {
             reject(new Error(`XLSX library issue: ${xlsxDiagnostics.errors.join(', ')}`));
@@ -873,7 +857,6 @@ function processFile(file, providedYear = null) {
             return;
         }
         
-        logFileDiagnostics('File Info', {
             name: file.name,
             size: file.size,
             type: file.type,
@@ -898,7 +881,6 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
-                logFileDiagnostics('File Read Complete', {
                     dataLength: data.length,
                     byteLength: e.target.result.byteLength
                 });
@@ -909,15 +891,12 @@ function processFile(file, providedYear = null) {
                 
                 let workbook;
                 try {
-                    logFileDiagnostics('Parsing Excel', { status: 'starting' });
                     workbook = XLSX.read(data, { type: 'array' });
-                    logFileDiagnostics('Parsing Excel', { 
                         status: 'success',
                         sheetCount: workbook.SheetNames?.length || 0,
                         sheetNames: workbook.SheetNames || []
                     });
                 } catch (xlsxError) {
-                    logFileDiagnostics('Excel Parse Error', {
                         error: xlsxError.message,
                         stack: xlsxError.stack
                     });
@@ -933,7 +912,6 @@ function processFile(file, providedYear = null) {
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                 
                 // Log sheet data for diagnostics
-                logFileDiagnostics('Sheet Data', {
                     rowCount: jsonData?.length || 0,
                     firstFewRows: jsonData?.slice(0, 5).map(row => 
                         row?.map(cell => String(cell || '').substring(0, 50)) || []
@@ -947,7 +925,6 @@ function processFile(file, providedYear = null) {
                 // Process transactions with optional year correction
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
                 
-                logFileDiagnostics('Parsing Complete', {
                     transactionCount: fileTransactions?.length || 0,
                     sampleTransaction: fileTransactions?.[0] ? {
                         date: fileTransactions[0].date,
@@ -963,7 +940,6 @@ function processFile(file, providedYear = null) {
                 
                 resolve(fileTransactions);
             } catch (error) {
-                logFileDiagnostics('Processing Error', {
                     error: error.message,
                     stack: error.stack
                 });
@@ -973,7 +949,6 @@ function processFile(file, providedYear = null) {
         
         reader.onerror = () => {
             clearTimeout(timeout);
-            logFileDiagnostics('FileReader Error', { error: reader.error });
             reject(new Error('Failed to read file'));
         };
         
@@ -986,7 +961,6 @@ function processFile(file, providedYear = null) {
             reader.readAsArrayBuffer(file);
         } catch (error) {
             clearTimeout(timeout);
-            logFileDiagnostics('Read Start Error', { error: error.message });
             reject(new Error(`Failed to start reading file: ${error.message}`));
         }
     });
@@ -2257,7 +2231,6 @@ async function parseTransactions(data, providedYear = null) {
     const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
     
     // Log headers for debugging
-    logFileDiagnostics('Column Detection', {
         headerRowIndex: headerRowIndex,
         dataStartIndex: dataStartIndex,
         headers: headers,
@@ -2310,7 +2283,6 @@ async function parseTransactions(data, providedYear = null) {
     ]);
     
     // Log detected columns
-    logFileDiagnostics('Detected Columns', {
         dateCol, descCol, amountCol, balanceCol, creditCol, debitCol,
         hasAmountColumn: amountCol !== -1,
         hasSeparateColumns: creditCol !== -1 || debitCol !== -1
@@ -2423,7 +2395,6 @@ async function parseTransactions(data, providedYear = null) {
     const autoCategorized = transactions.filter(t => t.isLearned && t.source === 'database').length;
     
     // Diagnostic log for parsing completion
-    logFileDiagnostics('Transaction Parsing Complete', {
         totalParsed: transactions.length,
         skippedRows: skippedRows,
         autoCategorized: autoCategorized,
@@ -2435,7 +2406,6 @@ async function parseTransactions(data, providedYear = null) {
     
     // If no transactions were parsed, log detailed error info
     if (transactions.length === 0) {
-        logFileDiagnostics('No Transactions Parsed - Debug Info', {
             dataLength: data.length,
             headerRowIndex: headerRowIndex,
             dataStartIndex: dataStartIndex,

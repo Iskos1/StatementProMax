@@ -195,14 +195,6 @@ function initEnhancedDropZone() {
     });
 }
 
-// Smooth Scroll to Section - uses utils.js initSmoothScrolling() instead
-// REMOVED: smoothScrollTo() and initSmoothScrollAnchors() - duplicated utils.js functionality
-
-// Auto-hide elements on scroll disabled for performance
-function initScrollAutoHide() {
-    // Disabled for performance optimization
-}
-
 // Toast Notifications Enhancement (replaces basic notifications)
 function showToast(message, type = 'info', duration = 3000) {
     const toast = document.createElement('div');
@@ -338,21 +330,9 @@ function initUIEnhancements() {
     initScrollProgress();
     initKeyboardShortcuts();
     initEnhancedDropZone();
-    initScrollAutoHide();
     enhanceFormValidation();
     initCopyButtons();
     initMobileMenu();
-    
-    // Add keyboard shortcut hint to footer
-    addKeyboardShortcutHint();
-    
-    console.log('✨ UI Enhancements loaded');
-}
-
-// Add keyboard shortcut hint (DISABLED - removed from footer)
-function addKeyboardShortcutHint() {
-    // Disabled: User requested removal of keyboard shortcut hint from footer
-    return;
 }
 
 // Initialize on DOM ready
