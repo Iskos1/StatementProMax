@@ -27,13 +27,14 @@
     Permissions-Policy = "geolocation=(), microphone=(), camera=()"
 
 [[headers]]
-  # Cache static assets - Reduced for faster updates
-  for = "/*.css"
+  # Cache CSS files
+  for = "/css/*.css"
   [headers.values]
     Cache-Control = "public, max-age=300, must-revalidate"
 
 [[headers]]
-  for = "/*.js"
+  # No cache for JS files to ensure latest code is served
+  for = "/js/*.js"
   [headers.values]
     Cache-Control = "no-cache, no-store, must-revalidate"
 
