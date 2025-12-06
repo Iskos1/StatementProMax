@@ -23,8 +23,8 @@ const state = { files: [] };
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
     try {
-        initializeConverter();
-        initializeYearModal();
+    initializeConverter();
+    initializeYearModal();
     } catch (error) {
         handleError(error, 'Converter initialization', true);
     }
@@ -58,7 +58,7 @@ function initializeConverter() {
     
     if (clearAllBtn) {
         clearAllBtn.addEventListener('click', clearAllFiles);
-    }
+}
 }
 
 // Drag and drop handlers
@@ -129,7 +129,7 @@ function addFiles(files) {
         showNotification('No valid PDF files selected', 'error');
         return;
     }
-    
+
     // Add valid files to state
     for (let i = 0; i < validFiles.length; i++) {
         const file = validFiles[i];
@@ -145,7 +145,7 @@ function addFiles(files) {
             error: null
         });
     }
-    
+
     updateFileList();
     showConversionControls();
 }
@@ -171,7 +171,7 @@ function updateFileList() {
     fileListContainer.style.display = 'block';
     if (uploadSection) uploadSection.style.display = 'block';
     if (fileCount) fileCount.textContent = state.files.length;
-
+    
     // Scroll to file list if just appeared
     if (wasHidden && state.files.length > 0) {
         setTimeout(function() {
@@ -214,7 +214,7 @@ function updateFileList() {
             analyzeBtn.onclick = function() {
                 analyzeInDashboard(fileData);
             };
-        }
+}
     }
 }
 
@@ -282,7 +282,7 @@ function showConversionControls() {
             controls.style.display = 'flex';
         } else {
             controls.style.display = 'none';
-        }
+}
     }
 }
 
@@ -334,7 +334,7 @@ async function convertFile(fileId) {
         showNotification('🔄 Reading file: ' + fileData.name, 'info');
         fileData.progress = 10;
         updateProgress(fileId, 10);
-        
+
         const base64Data = await readFileAsBase64(fileData.file);
         
         fileData.progress = 20;
@@ -413,12 +413,12 @@ async function convertFile(fileId) {
             const downloadResponse = await fetch(excelFileInfo.Url);
             if (!downloadResponse.ok) {
                 throw new Error('Failed to download converted file');
-            }
+                }
             excelBlob = await downloadResponse.blob();
         } else {
             throw new Error('No file data or URL in API response');
         }
-
+        
         fileData.progress = 100;
         updateProgress(fileId, 100);
 
@@ -426,9 +426,9 @@ async function convertFile(fileId) {
         fileData.status = 'completed';
         fileData.excelFile = excelBlob;
         fileData.excelFileName = fileData.name.replace(/\.pdf$/i, '.xlsx');
-        
-        showNotification('✅ ' + fileData.name + ' converted successfully!', 'success');
 
+        showNotification('✅ ' + fileData.name + ' converted successfully!', 'success');
+        
     } catch (error) {
         console.error('Conversion error:', error);
         fileData.status = 'error';

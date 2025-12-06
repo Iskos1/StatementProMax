@@ -1,4 +1,6 @@
-// Dashboard App
+// Dashboard App - Version 2.1.0 (Dec 6, 2025)
+console.log('🚀 Dashboard.js v2.1.0 loaded');
+
 import { 
     formatFileSize, 
     formatCurrency, 
@@ -483,6 +485,48 @@ window.addEventListener('DOMContentLoaded', () => {
     
     // Initialize upload button immediately (don't wait for auth)
     initializeUploadButton();
+    
+    // IMPORTANT: Attach file input listener immediately, don't wait for auth
+    const fileInput = document.getElementById('fileInput');
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFileSelect);
+        console.log('✓ File input listener attached');
+    }
+    
+    // Also attach drag/drop listeners immediately
+    const uploadArea = document.getElementById('uploadArea');
+    if (uploadArea) {
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+        
+        uploadArea.addEventListener('dragleave', (e) => {
+            if (e.target === uploadArea) {
+                uploadArea.classList.remove('drag-over');
+            }
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const files = Array.from(e.dataTransfer.files);
+            if (files.length > 0) {
+                selectedFiles = [...selectedFiles, ...files];
+                displayFileList();
+            }
+        });
+        console.log('✓ Upload area drag/drop listeners attached');
+    }
+    
+    // Attach process files button immediately
+    const processFilesBtn = document.getElementById('processFilesBtn');
+    if (processFilesBtn) {
+        processFilesBtn.addEventListener('click', () => {
+            if (selectedFiles.length > 0) processAllFiles();
+        });
+        console.log('✓ Process files button listener attached');
+    }
     
     // Initialize back to top button
     initializeBackToTop();
@@ -2202,7 +2246,7 @@ function handleFileSelect(e) {
 }
 
 async function parseTransactions(data, providedYear = null) {
-    console.log('parseTransactions called with:', {
+    console.log('📊 parseTransactions v2.1 called with:', {
         rowCount: data?.length,
         providedYear: providedYear,
         firstRow: data?.[0]
@@ -2215,59 +2259,151 @@ async function parseTransactions(data, providedYear = null) {
     
     const transactions = [];
     let skippedRows = 0;
-    const headers = data[0].map(h => String(h || '').toLowerCase());
-    console.log('Parsed headers:', headers);
     
-    // Find column indices
-    const dateCol = findColumnIndex(headers, ['date', 'transaction date', 'posting date']);
-    const descCol = findColumnIndex(headers, ['description', 'memo', 'details', 'transaction', 'narration']);
-    const amountCol = findColumnIndex(headers, ['amount', 'debit', 'credit', 'value']);
-    const balanceCol = findColumnIndex(headers, ['balance', 'running balance', 'available balance']);
+    // Try to detect if the first row is a header or data
+    const firstRow = data[0];
+    let headerRowIndex = 0;
+    let dataStartIndex = 1;
     
-    // Alternative: look for credit/debit columns separately
-    const creditCol = findColumnIndex(headers, ['credit', 'deposit', 'cr']);
-    const debitCol = findColumnIndex(headers, ['debit', 'withdrawal', 'dr']);
+    // Check if first row looks like headers (contains common header words)
+    const firstRowStr = String(firstRow.join(' ')).toLowerCase();
+    const isHeaderRow = /date|description|amount|balance|debit|credit|transaction|posting/i.test(firstRowStr);
+    
+    // If first row doesn't look like headers, try to find header row
+    if (!isHeaderRow) {
+        console.log('First row does not appear to be headers, searching...');
+        for (let i = 0; i < Math.min(10, data.length); i++) {
+            const rowStr = String(data[i].join(' ')).toLowerCase();
+            if (/date|description|amount|balance|debit|credit|transaction|posting/i.test(rowStr)) {
+                headerRowIndex = i;
+                dataStartIndex = i + 1;
+                console.log(`Found header row at index ${i}`);
+                break;
+            }
+        }
+    }
+    
+    const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
+    console.log('Using headers from row', headerRowIndex, ':', headers);
+    
+    // More flexible column detection - supports many bank formats including Wells Fargo
+    const dateCol = findColumnIndex(headers, [
+        'date', 'transaction date', 'posting date', 'posted date', 
+        'trans date', 'effective date', 'value date', 'post date',
+        'trans. date', 'post. date', 'stmt date'
+    ]);
+    
+    const descCol = findColumnIndex(headers, [
+        'description', 'memo', 'details', 'transaction', 'narration',
+        'transaction description', 'payee', 'merchant', 'name',
+        'transaction details', 'particulars', 'reference',
+        'check or description', 'check / description'
+    ]);
+    
+    const amountCol = findColumnIndex(headers, [
+        'amount', 'value', 'sum', 'total', 'net amount', 'transaction amount',
+        'debit/credit', 'credit/debit'
+    ]);
+    
+    const balanceCol = findColumnIndex(headers, [
+        'balance', 'running balance', 'available balance', 'current balance',
+        'account balance', 'closing balance', 'ledger balance'
+    ]);
+    
+    // Credit/Deposit columns (money coming IN)
+    const creditCol = findColumnIndex(headers, [
+        'credit', 'deposit', 'deposits', 'cr', 'credit amount',
+        'money in', 'additions', 'credits', 'payment', 'incoming'
+    ]);
+    
+    // Debit/Withdrawal columns (money going OUT)
+    const debitCol = findColumnIndex(headers, [
+        'debit', 'withdrawal', 'withdrawals', 'dr', 'debit amount',
+        'money out', 'subtractions', 'debits', 'charge', 'outgoing'
+    ]);
     
     // Log detected columns
-    console.log('Column detection:', {
-        dateCol, descCol, amountCol, balanceCol, creditCol, debitCol
-    });
+    console.log('=== COLUMN DETECTION ===');
+    console.log('Headers found:', headers);
+    console.log('Date column:', dateCol, dateCol !== -1 ? '(' + headers[dateCol] + ')' : '(NOT FOUND)');
+    console.log('Description column:', descCol, descCol !== -1 ? '(' + headers[descCol] + ')' : '(NOT FOUND)');
+    console.log('Amount column:', amountCol, amountCol !== -1 ? '(' + headers[amountCol] + ')' : '(NOT FOUND)');
+    console.log('Balance column:', balanceCol, balanceCol !== -1 ? '(' + headers[balanceCol] + ')' : '(NOT FOUND)');
+    console.log('Credit column:', creditCol, creditCol !== -1 ? '(' + headers[creditCol] + ')' : '(NOT FOUND)');
+    console.log('Debit column:', debitCol, debitCol !== -1 ? '(' + headers[debitCol] + ')' : '(NOT FOUND)');
+    console.log('========================');
     
-    // Validate required columns
-    if (dateCol === -1) {
+    // Log first few data rows for debugging
+    console.log('First 3 data rows (starting from row', dataStartIndex, '):');
+    for (let i = dataStartIndex; i < Math.min(dataStartIndex + 3, data.length); i++) {
+        console.log('Row', i, ':', data[i]);
+    }
+    
+    // If we couldn't find columns, try auto-detection from data
+    let autoDetected = false;
+    if (dateCol === -1 || (amountCol === -1 && creditCol === -1 && debitCol === -1)) {
+        console.log('Attempting auto-detection from data patterns...');
+        const result = autoDetectColumns(data, dataStartIndex);
+        if (result) {
+            autoDetected = true;
+            console.log('Auto-detected columns:', result);
+        }
+    }
+    
+    // Validate required columns - more helpful error messages
+    if (dateCol === -1 && !autoDetected) {
         console.error('Date column not found in headers:', headers);
-        throw new Error('Could not find date column in file. Expected headers: "date", "transaction date", or "posting date"');
+        throw new Error('Could not find date column. Your file headers are: ' + headers.join(', ') + '. Expected: "Date", "Transaction Date", etc.');
     }
     
     if (descCol === -1) {
-        console.warn('Description column not found, using default');
+        console.warn('Description column not found, will try to use other columns');
     }
     
-    if (amountCol === -1 && (creditCol === -1 || debitCol === -1)) {
+    // Check if we have ANY way to get amounts
+    const hasAmountColumn = amountCol !== -1;
+    const hasSeparateColumns = creditCol !== -1 || debitCol !== -1;
+    
+    if (!hasAmountColumn && !hasSeparateColumns && !autoDetected) {
         console.error('Amount columns not found in headers:', headers);
-        throw new Error('Could not find amount column in file. Expected headers: "amount", "debit/credit", or "value"');
+        throw new Error('Could not find amount column. Your file headers are: ' + headers.join(', ') + '. Expected: "Amount", "Deposits/Withdrawals", "Credit/Debit", etc.');
     }
     
     // Process each row (skip header)
-    for (let i = 1; i < data.length; i++) {
+    for (let i = dataStartIndex; i < data.length; i++) {
         const row = data[i];
         if (!row || row.length === 0) continue;
         
-        let date = row[dateCol] || '';
-        let description = row[descCol] || 'Unknown Transaction';
-        let amount = 0;
-        let balance = row[balanceCol] || 0;
+        // Skip rows that are completely empty
+        const hasData = row.some(cell => cell !== null && cell !== undefined && cell !== '');
+        if (!hasData) continue;
         
-        // Parse amount
-        if (creditCol !== -1 && debitCol !== -1) {
-            const credit = parseAmount(row[creditCol]);
-            const debit = parseAmount(row[debitCol]);
-            amount = credit - debit;
-        } else if (amountCol !== -1) {
+        let date = row[dateCol] || '';
+        let description = descCol !== -1 ? (row[descCol] || 'Unknown Transaction') : 'Unknown Transaction';
+        let amount = 0;
+        let balance = balanceCol !== -1 ? row[balanceCol] : 0;
+        
+        // Parse amount - try multiple methods
+        // Method 1: Separate credit/debit columns
+        if (creditCol !== -1 || debitCol !== -1) {
+            const credit = creditCol !== -1 ? parseAmount(row[creditCol]) : 0;
+            const debit = debitCol !== -1 ? parseAmount(row[debitCol]) : 0;
+            
+            // If we have values in either column, use them
+            if (credit !== 0 || debit !== 0) {
+                amount = credit - debit;
+            }
+        }
+        
+        // Method 2: Single amount column (if no amount from credit/debit)
+        if (amount === 0 && amountCol !== -1) {
             amount = parseAmount(row[amountCol]);
         }
         
-        // Skip if no valid amount
+        // Method 3: If still no amount, try balance difference (last resort)
+        // Skip this for now as it's unreliable
+        
+        // Skip if no valid amount found
         if (amount === 0) {
             skippedRows++;
             continue;
@@ -2338,12 +2474,28 @@ function findColumnIndex(headers, possibilities) {
 function parseAmount(value) {
     if (value === null || value === undefined || value === '') return 0;
     
-    // Remove currency symbols and commas
-    const cleaned = String(value).replace(/[$,₹€£]/g, '').trim();
+    // If it's already a number, return it
+    if (typeof value === 'number') return value;
     
-    // Handle parentheses (negative numbers)
+    let cleaned = String(value).trim();
+    
+    // Remove currency symbols and spaces
+    cleaned = cleaned.replace(/[$,₹€£\s]/g, '');
+    
+    // Handle empty string after cleaning
+    if (cleaned === '' || cleaned === '-') return 0;
+    
+    // Handle parentheses (negative numbers in accounting format)
     if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
         return -parseFloat(cleaned.replace(/[()]/g, '')) || 0;
+    }
+    
+    // Handle CR/DR suffixes (some banks use this)
+    if (cleaned.toUpperCase().endsWith('CR')) {
+        return Math.abs(parseFloat(cleaned.replace(/CR$/i, ''))) || 0;
+    }
+    if (cleaned.toUpperCase().endsWith('DR')) {
+        return -Math.abs(parseFloat(cleaned.replace(/DR$/i, ''))) || 0;
     }
     
     return parseFloat(cleaned) || 0;
@@ -2352,6 +2504,76 @@ function parseAmount(value) {
 function excelDateToJSDate(excelDate) {
     const date = new Date((excelDate - 25569) * 86400 * 1000);
     return date;
+}
+
+// Auto-detect columns by analyzing data patterns
+function autoDetectColumns(data, startRow) {
+    if (data.length <= startRow) return null;
+    
+    const columnInfo = [];
+    const numCols = data[startRow].length;
+    
+    // Analyze each column
+    for (let col = 0; col < numCols; col++) {
+        let dateCount = 0;
+        let numberCount = 0;
+        let textCount = 0;
+        
+        for (let row = startRow; row < Math.min(startRow + 10, data.length); row++) {
+            const val = data[row][col];
+            if (val === null || val === undefined || val === '') continue;
+            
+            // Check if it's a date
+            if (typeof val === 'number' && val > 30000 && val < 60000) {
+                dateCount++; // Excel date serial number
+            } else if (/^\d{1,2}[\/\-\.]\d{1,2}[\/\-\.]\d{2,4}$/.test(String(val).trim())) {
+                dateCount++;
+            } else if (!isNaN(Date.parse(val))) {
+                dateCount++;
+            }
+            
+            // Check if it's a number/amount
+            const numVal = parseAmount(val);
+            if (numVal !== 0 && !isNaN(numVal)) {
+                numberCount++;
+            }
+            
+            // Otherwise it's text
+            if (typeof val === 'string' && val.length > 5) {
+                textCount++;
+            }
+        }
+        
+        columnInfo.push({ col, dateCount, numberCount, textCount });
+    }
+    
+    console.log('Auto-detection column analysis:', columnInfo);
+    
+    // Find date column (highest date count)
+    const dateColumn = columnInfo.reduce((best, curr) => 
+        curr.dateCount > (best?.dateCount || 0) ? curr : best, null);
+    
+    // Find amount column (highest number count, excluding date column)
+    const amountColumn = columnInfo
+        .filter(c => c.col !== dateColumn?.col)
+        .reduce((best, curr) => 
+            curr.numberCount > (best?.numberCount || 0) ? curr : best, null);
+    
+    // Find description column (highest text count)
+    const descColumn = columnInfo
+        .filter(c => c.col !== dateColumn?.col && c.col !== amountColumn?.col)
+        .reduce((best, curr) => 
+            curr.textCount > (best?.textCount || 0) ? curr : best, null);
+    
+    if (dateColumn?.dateCount > 3 && amountColumn?.numberCount > 3) {
+        return {
+            dateCol: dateColumn.col,
+            amountCol: amountColumn.col,
+            descCol: descColumn?.col ?? -1
+        };
+    }
+    
+    return null;
 }
 
 // ========================================
