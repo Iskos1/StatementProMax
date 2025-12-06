@@ -1403,13 +1403,14 @@ html {
 
 .month-filter-bar .month-btn:hover {
     background: #f0f0f0;
-    border-color: #d0d0d0;
+    border-color: #2d7a5f;
 }
 
 .month-filter-bar .month-btn.active {
-    background: #2d7a5f;
-    color: white;
-    border-color: #2d7a5f;
+    background: white;
+    color: #2d7a5f;
+    border: 2px solid #2d7a5f;
+    font-weight: 600;
 }
 
 /* Insight Cards */
