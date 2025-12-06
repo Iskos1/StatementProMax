@@ -4384,12 +4384,12 @@ function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
     
     // Use DocumentFragment for better performance
     const fragment = document.createDocumentFragment();
-    const INITIAL_ROWS_TO_SHOW = 15;
+    const INITIAL_ROWS_TO_SHOW = 5;
     
     filteredTransactions.forEach((transaction, index) => {
         const row = document.createElement('tr');
         
-        // Hide rows after the 15th one initially
+        // Hide rows after the 5th one initially
         if (index >= INITIAL_ROWS_TO_SHOW) {
             row.classList.add('transaction-row-hidden');
         }
@@ -4495,7 +4495,7 @@ function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
                     showMoreBtn.innerHTML = '📕 Show Less';
                     isExpanded = true;
                 } else {
-                    // Collapse - hide rows after 15th
+                    // Collapse - hide rows after 5th
                     const allRows = transactionsBody.querySelectorAll('tr');
                     allRows.forEach((row, index) => {
                         if (index >= INITIAL_ROWS_TO_SHOW) {
