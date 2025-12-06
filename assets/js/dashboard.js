@@ -69,8 +69,18 @@ function verifyXLSXLibrary() {
     return diagnostics;
 }
 
-// Log diagnostic information (disabled for production)
-    // Diagnostics disabled for speed
+// Log diagnostic information about file processing
+function logFileDiagnostics(context, data) {
+    console.group(`📊 [File Diagnostics] ${context}`);
+    console.log('Timestamp:', new Date().toISOString());
+    Object.entries(data).forEach(([key, value]) => {
+        if (typeof value === 'object' && value !== null) {
+            console.log(`${key}:`, JSON.stringify(value, null, 2));
+        } else {
+            console.log(`${key}:`, value);
+        }
+    });
+    console.groupEnd();
 }
 
 let transactions = [];
@@ -104,6 +114,32 @@ let isReviewMode = false; // Track if we're in review mode
 
 // DOM Elements - cached for performance
 let dom = {};
+
+// Initialize upload button (works without authentication)
+function initializeUploadButton() {
+    const browseFilesBtn = document.getElementById('browseFilesBtn');
+    const fileInput = document.getElementById('fileInput');
+    const uploadArea = document.getElementById('uploadArea');
+    
+    // Browse Files button click handler
+    if (browseFilesBtn && fileInput) {
+        browseFilesBtn.addEventListener('click', (e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            fileInput.click();
+        });
+    }
+    
+    // Upload area click handler
+    if (uploadArea && fileInput) {
+        uploadArea.addEventListener('click', (e) => {
+            // Don't trigger if clicking the button (button has its own handler)
+            if (!e.target.closest('#browseFilesBtn')) {
+                fileInput.click();
+            }
+        });
+    }
+}
 
 // Show optional sign-in banner (non-blocking)
 function showOptionalSignInBanner() {
@@ -397,10 +433,17 @@ let listenersAttached = false;
 
 // Attach all event listeners
 function attachEventListeners() {
-    if (listenersAttached) return;
+    if (listenersAttached) {
+        console.warn('Event listeners already attached');
+        return;
+    }
     
     // Note: File input listener is attached in DOMContentLoaded, don't duplicate
-    // Browse Files button uses inline onclick handler in dashboard.html
+    // if (dom.fileInput) {
+    //     dom.fileInput.addEventListener('change', handleFileSelect);
+    // }
+    
+    // Browse Files button handler is now in initializeUploadButton() - called on page load
     
     if (dom.uploadArea) {
         dom.uploadArea.addEventListener('dragover', (e) => {
@@ -471,26 +514,37 @@ let dashboardInitialized = false;
 
 // Start authentication check on page load
 window.addEventListener('DOMContentLoaded', () => {
-    if (dashboardInitialized) return;
+    if (dashboardInitialized) {
+        console.warn('Dashboard already initialized, skipping');
+        return;
+    }
     dashboardInitialized = true;
     
     // Verify XLSX library is available
     const xlsxCheck = verifyXLSXLibrary();
+    console.log('📚 XLSX Library Status:', xlsxCheck);
     
     if (!xlsxCheck.loaded) {
+        console.error('❌ XLSX library failed to load! Excel file processing will not work.');
         // Try to wait for it
         setTimeout(() => {
             const retryCheck = verifyXLSXLibrary();
+            console.log('📚 XLSX Library Retry:', retryCheck);
             if (!retryCheck.loaded) {
                 showNotification('Excel library failed to load. Please refresh the page.', 'error');
             }
         }, 2000);
+    } else {
+        console.log(`✅ XLSX library loaded successfully (v${xlsxCheck.version})`);
     }
     
     // Cache DOM elements first, before any other initialization
     cacheDOMElements();
     
     initializeDashboard();
+    
+    // Initialize upload button immediately (don't wait for auth)
+    initializeUploadButton();
     
     // Attach file input listener immediately
     const fileInput = document.getElementById('fileInput');
@@ -676,21 +730,16 @@ window.loadConvertedFile = async function loadConvertedFile(fileName, base64Data
 }
 
 function displayFileList() {
-    // Get elements directly if dom cache isn't populated yet
-    const fileList = dom.fileList || document.getElementById('fileList');
-    const fileListItems = dom.fileListItems || document.getElementById('fileListItems');
-    const fileCount = dom.fileCount || document.getElementById('fileCount');
-    
     if (selectedFiles.length === 0) {
-        if (fileList) fileList.style.display = 'none';
+        if (dom.fileList) dom.fileList.style.display = 'none';
         return;
     }
     
-    if (fileList) fileList.style.display = 'block';
-    if (fileListItems) fileListItems.innerHTML = '';
+    if (dom.fileList) dom.fileList.style.display = 'block';
+    if (dom.fileListItems) dom.fileListItems.innerHTML = '';
     
     // Update file count
-    if (fileCount) fileCount.textContent = selectedFiles.length;
+    if (dom.fileCount) dom.fileCount.textContent = selectedFiles.length;
     
     selectedFiles.forEach((file, index) => {
         const fileItem = document.createElement('div');
@@ -715,7 +764,7 @@ function displayFileList() {
         
         fileItem.appendChild(fileInfo);
         fileItem.appendChild(removeBtn);
-        if (fileListItems) fileListItems.appendChild(fileItem);
+        if (dom.fileListItems) dom.fileListItems.appendChild(fileItem);
     });
 }
 
@@ -846,6 +895,7 @@ function processFile(file, providedYear = null) {
     return new Promise((resolve, reject) => {
         // Verify XLSX library at the start of processing
         const xlsxDiagnostics = verifyXLSXLibrary();
+        logFileDiagnostics('XLSX Library Check', xlsxDiagnostics);
         
         if (!xlsxDiagnostics.loaded || xlsxDiagnostics.errors.length > 0) {
             reject(new Error(`XLSX library issue: ${xlsxDiagnostics.errors.join(', ')}`));
@@ -857,6 +907,7 @@ function processFile(file, providedYear = null) {
             return;
         }
         
+        logFileDiagnostics('File Info', {
             name: file.name,
             size: file.size,
             type: file.type,
@@ -881,6 +932,7 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
+                logFileDiagnostics('File Read Complete', {
                     dataLength: data.length,
                     byteLength: e.target.result.byteLength
                 });
@@ -891,12 +943,15 @@ function processFile(file, providedYear = null) {
                 
                 let workbook;
                 try {
+                    logFileDiagnostics('Parsing Excel', { status: 'starting' });
                     workbook = XLSX.read(data, { type: 'array' });
+                    logFileDiagnostics('Parsing Excel', { 
                         status: 'success',
                         sheetCount: workbook.SheetNames?.length || 0,
                         sheetNames: workbook.SheetNames || []
                     });
                 } catch (xlsxError) {
+                    logFileDiagnostics('Excel Parse Error', {
                         error: xlsxError.message,
                         stack: xlsxError.stack
                     });
@@ -912,6 +967,7 @@ function processFile(file, providedYear = null) {
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                 
                 // Log sheet data for diagnostics
+                logFileDiagnostics('Sheet Data', {
                     rowCount: jsonData?.length || 0,
                     firstFewRows: jsonData?.slice(0, 5).map(row => 
                         row?.map(cell => String(cell || '').substring(0, 50)) || []
@@ -925,6 +981,7 @@ function processFile(file, providedYear = null) {
                 // Process transactions with optional year correction
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
                 
+                logFileDiagnostics('Parsing Complete', {
                     transactionCount: fileTransactions?.length || 0,
                     sampleTransaction: fileTransactions?.[0] ? {
                         date: fileTransactions[0].date,
@@ -940,6 +997,7 @@ function processFile(file, providedYear = null) {
                 
                 resolve(fileTransactions);
             } catch (error) {
+                logFileDiagnostics('Processing Error', {
                     error: error.message,
                     stack: error.stack
                 });
@@ -949,6 +1007,7 @@ function processFile(file, providedYear = null) {
         
         reader.onerror = () => {
             clearTimeout(timeout);
+            logFileDiagnostics('FileReader Error', { error: reader.error });
             reject(new Error('Failed to read file'));
         };
         
@@ -961,6 +1020,7 @@ function processFile(file, providedYear = null) {
             reader.readAsArrayBuffer(file);
         } catch (error) {
             clearTimeout(timeout);
+            logFileDiagnostics('Read Start Error', { error: error.message });
             reject(new Error(`Failed to start reading file: ${error.message}`));
         }
     });
@@ -2190,14 +2250,9 @@ function handleFileSelect(e) {
     if (files.length > 0) {
         selectedFiles = [...selectedFiles, ...files];
         displayFileList();
-        // Reset file input to allow re-selecting same file
-        const fileInput = dom.fileInput || document.getElementById('fileInput');
-        if (fileInput) fileInput.value = '';
+        if (dom.fileInput) dom.fileInput.value = '';
     }
 }
-
-// Expose globally for inline onchange handler - must be immediate
-window.handleFileSelectGlobal = handleFileSelect;
 
 async function parseTransactions(data, providedYear = null) {
     if (!data || data.length < 2) {
@@ -2231,6 +2286,7 @@ async function parseTransactions(data, providedYear = null) {
     const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
     
     // Log headers for debugging
+    logFileDiagnostics('Column Detection', {
         headerRowIndex: headerRowIndex,
         dataStartIndex: dataStartIndex,
         headers: headers,
@@ -2283,6 +2339,7 @@ async function parseTransactions(data, providedYear = null) {
     ]);
     
     // Log detected columns
+    logFileDiagnostics('Detected Columns', {
         dateCol, descCol, amountCol, balanceCol, creditCol, debitCol,
         hasAmountColumn: amountCol !== -1,
         hasSeparateColumns: creditCol !== -1 || debitCol !== -1
@@ -2391,10 +2448,12 @@ async function parseTransactions(data, providedYear = null) {
     // Sort by date (newest first)
     transactions.sort((a, b) => b.date - a.date);
     
-    // Count auto-categorized
+    // Log parsing results
     const autoCategorized = transactions.filter(t => t.isLearned && t.source === 'database').length;
+    console.log(`Parsed ${transactions.length} transactions (${autoCategorized} auto-categorized from database), skipped ${skippedRows} invalid rows`);
     
     // Diagnostic log for parsing completion
+    logFileDiagnostics('Transaction Parsing Complete', {
         totalParsed: transactions.length,
         skippedRows: skippedRows,
         autoCategorized: autoCategorized,
@@ -2406,6 +2465,7 @@ async function parseTransactions(data, providedYear = null) {
     
     // If no transactions were parsed, log detailed error info
     if (transactions.length === 0) {
+        logFileDiagnostics('No Transactions Parsed - Debug Info', {
             dataLength: data.length,
             headerRowIndex: headerRowIndex,
             dataStartIndex: dataStartIndex,
@@ -2560,8 +2620,10 @@ function loadLearnedCategorizations() {
         if (saved) {
             const parsed = JSON.parse(saved);
             learnedCategorizations = new Map(Object.entries(parsed));
+            console.log(`Loaded ${learnedCategorizations.size} learned categorization patterns`);
         }
     } catch (error) {
+        console.error('Error loading learned categorizations:', error);
         learnedCategorizations = new Map();
     }
 }
@@ -2571,7 +2633,9 @@ function saveLearnedCategorizations() {
     try {
         const obj = Object.fromEntries(learnedCategorizations);
         localStorage.setItem('learnedCategorizations', JSON.stringify(obj));
+        console.log(`Saved ${learnedCategorizations.size} learned categorization patterns`);
     } catch (error) {
+        console.error('Error saving learned categorizations:', error);
         showNotification('Failed to save categorization patterns', 'error');
     }
 }
@@ -2583,8 +2647,10 @@ function loadDissimilarPairs() {
         if (saved) {
             const parsed = JSON.parse(saved);
             dissimilarPairs = new Set(parsed);
+            console.log(`Loaded ${dissimilarPairs.size} dissimilar transaction pairs`);
         }
     } catch (error) {
+        console.error('Error loading dissimilar pairs:', error);
         dissimilarPairs = new Set();
     }
 }
@@ -2594,7 +2660,9 @@ function saveDissimilarPairs() {
     try {
         const arr = Array.from(dissimilarPairs);
         localStorage.setItem('dissimilarPairs', JSON.stringify(arr));
+        console.log(`Saved ${dissimilarPairs.size} dissimilar transaction pairs`);
     } catch (error) {
+        console.error('Error saving dissimilar pairs:', error);
         showNotification('Failed to save similarity exclusions', 'error');
     }
 }
@@ -2810,6 +2878,7 @@ async function categorizeTransaction(description, amount = 0) {
     
     // Auto-apply high-confidence learned patterns (85%+)
     if (learned && learned.confidence >= 0.85) {
+        console.log(`✓ Auto-applying learned category for "${description}": ${learned.category} (${(learned.confidence * 100).toFixed(0)}% confidence)`);
         return {
             category: learned.category,
             isLearned: true,
@@ -2822,6 +2891,7 @@ async function categorizeTransaction(description, amount = 0) {
     
     // Use medium-confidence learned patterns (70-85%)
     if (learned && learned.confidence >= 0.70) {
+        console.log(`✓ Suggesting learned category for "${description}": ${learned.category} (${(learned.confidence * 100).toFixed(0)}% confidence)`);
         return {
             category: learned.category,
             isLearned: true,
@@ -2934,6 +3004,9 @@ function findSimilarTransactions(transaction, allTransactions) {
         }
     }
     
+    if (skippedReviewed > 0 || skippedDissimilar > 0) {
+        console.log(`findSimilarTransactions for "${transaction.description}": Found ${similar.length}, Skipped ${skippedReviewed} reviewed, ${skippedDissimilar} dissimilar`);
+    }
     
     return similar.sort((a, b) => b.similarity - a.similarity);
 }
@@ -2981,6 +3054,8 @@ function renderReviewTransactions() {
     
     // Only show pending transactions (hide approved and modified)
     const pendingTransactions = pendingReview.filter(t => t.reviewStatus === 'pending');
+    
+    console.log(`Rendering review: ${pendingTransactions.length} pending, ${pendingReview.filter(t => t.reviewStatus === 'approved').length} approved, ${pendingReview.filter(t => t.reviewStatus === 'modified').length} modified`);
     
     if (pendingTransactions.length === 0) {
         // All transactions reviewed - show completion message
@@ -3238,6 +3313,8 @@ function handleCategoryChange(e) {
             transaction.reviewStatus = 'approved';
         }
     }
+    
+    console.log(`Transaction ${index} category changed to:`, newCategory, 'Status:', transaction.reviewStatus);
     
     // Re-render this item
     const item = document.querySelector(`.review-transaction-item[data-index="${index}"]`);
@@ -3927,6 +4004,7 @@ async function processFinalApproval() {
     }
     
     showNotification(message, 'success');
+    console.log(`Learning Summary: ${newPatterns} new patterns, ${updatedPatterns} updated patterns, ${learnedCategorizations.size} total patterns stored`);
 }
 
 // Close review modal
