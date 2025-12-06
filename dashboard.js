@@ -404,9 +404,10 @@ function attachEventListeners() {
         return;
     }
     
-    if (dom.fileInput) {
-        dom.fileInput.addEventListener('change', handleFileSelect);
-    }
+    // Note: File input listener is attached in DOMContentLoaded, don't duplicate
+    // if (dom.fileInput) {
+    //     dom.fileInput.addEventListener('change', handleFileSelect);
+    // }
     
     // Browse Files button handler is now in initializeUploadButton() - called on page load
     
@@ -864,11 +865,32 @@ async function processAllFiles() {
 
 function processFile(file, providedYear = null) {
     console.log('🔄 processFile called for:', file?.name);
+    console.log('   File details:', {
+        name: file?.name,
+        size: file?.size,
+        type: file?.type,
+        lastModified: file?.lastModified,
+        isFile: file instanceof File,
+        isBlob: file instanceof Blob
+    });
     
     return new Promise((resolve, reject) => {
-        if (!file || !(file instanceof File)) {
-            console.error('❌ Invalid file object:', file);
-            reject(new Error('Invalid file object'));
+        if (!file) {
+            console.error('❌ File is null or undefined');
+            reject(new Error('File is null or undefined'));
+            return;
+        }
+        
+        if (!(file instanceof File) && !(file instanceof Blob)) {
+            console.error('❌ Not a File or Blob object:', typeof file, file);
+            reject(new Error('Invalid file object - not a File or Blob'));
+            return;
+        }
+        
+        // Additional validation - check if file has required properties
+        if (!file.name || file.size === undefined) {
+            console.error('❌ File object is missing required properties');
+            reject(new Error('File object is corrupted or invalid'));
             return;
         }
         
