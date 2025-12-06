@@ -16,6 +16,37 @@
   to = "/index.html"
   status = 200
 
+# Redirects for reorganized pages (backwards compatibility)
+[[redirects]]
+  from = "/about.html"
+  to = "/pages/about.html"
+  status = 301
+
+[[redirects]]
+  from = "/contact.html"
+  to = "/pages/contact.html"
+  status = 301
+
+[[redirects]]
+  from = "/privacy.html"
+  to = "/pages/privacy.html"
+  status = 301
+
+[[redirects]]
+  from = "/security.html"
+  to = "/pages/security.html"
+  status = 301
+
+[[redirects]]
+  from = "/terms.html"
+  to = "/pages/terms.html"
+  status = 301
+
+[[redirects]]
+  from = "/blog.html"
+  to = "/pages/blog.html"
+  status = 301
+
 [[headers]]
   # Security headers for all pages
   for = "/*"
