@@ -378,12 +378,12 @@
                     <h2>Upload Bank Statement</h2>
                     <p>Upload your Excel or CSV file to analyze your finances</p>
                     
-                    <div class="upload-area" id="uploadArea">
+                    <div class="upload-area" id="uploadArea" onclick="if(event.target.id!=='browseFilesBtn')document.getElementById('fileInput').click()">
                         <input type="file" id="fileInput" accept=".xlsx,.xls,.csv" multiple hidden aria-label="Select Excel files to analyze">
                         <div class="upload-content">
                             <div class="upload-icon-large">📁</div>
                             <p class="upload-text">Drag and drop files here or click to browse</p>
-                            <button class="btn-primary" id="browseFilesBtn">Browse Files</button>
+                            <button class="btn-primary" id="browseFilesBtn" onclick="event.stopPropagation();document.getElementById('fileInput').click()">Browse Files</button>
                             <p class="upload-note">.xlsx, .xls, .csv files supported</p>
                         </div>
                     </div>
