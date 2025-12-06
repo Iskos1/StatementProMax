@@ -2138,12 +2138,23 @@ p {
     }
 }
 
-/* Authentication Styles */
+/* Authentication Styles - Optimized to prevent layout shift */
 .nav-auth {
     display: flex;
     align-items: center;
     gap: 12px;
-    min-width: 100px; /* Reserve space to prevent layout shift */
+    min-width: 120px; /* Reserve consistent space */
+    justify-content: flex-end;
+}
+
+/* Auth wrapper to maintain consistent space */
+.nav-auth-wrapper {
+    position: relative;
+    min-width: 120px;
+    height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
 }
 
 .btn-auth {
@@ -2155,7 +2166,15 @@ p {
     font-size: 14px;
     color: #1a1a1a;
     cursor: pointer;
-    
+    white-space: nowrap;
+}
+
+/* Use visibility instead of display to prevent layout shift */
+.btn-auth.auth-hidden {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
 }
 
 .btn-auth:hover {
@@ -2166,6 +2185,14 @@ p {
 /* User Menu */
 .user-menu {
     position: relative;
+}
+
+/* Use visibility instead of display to prevent layout shift */
+.user-menu.auth-hidden {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    pointer-events: none;
 }
 
 .user-menu-btn {
@@ -2180,7 +2207,14 @@ p {
     font-size: 14px;
     color: #1a1a1a;
     cursor: pointer;
-    
+    white-space: nowrap;
+    max-width: 180px;
+}
+
+.user-menu-btn #userEmail {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: 120px;
 }
 
 .user-menu-btn:hover {
