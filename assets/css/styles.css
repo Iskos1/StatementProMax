@@ -82,7 +82,7 @@ p {
     padding: 20px 0;
 }
 
-/* Promotional Banner - Compact Buzzoid-style */
+/* Promotional Banner - Permanent */
 .promo-banner {
     background: linear-gradient(135deg, #FF6B6B 0%, #FF8A80 100%);
     color: white;
@@ -121,41 +121,33 @@ p {
     font-weight: 700;
     font-size: 12px;
     text-decoration: none;
-    
     margin-left: 6px;
     white-space: nowrap;
 }
 
 .promo-cta:hover {
     background: #FFF5F5;
-    
 }
 
-.promo-close {
-    position: absolute;
-    right: 16px;
-    background: rgba(255, 255, 255, 0.15);
-    border: none;
-    color: white;
-    width: 20px;
-    height: 20px;
-    border-radius: 50%;
-    cursor: pointer;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    
-    font-weight: 700;
-}
-
-.promo-close:hover {
+/* "You're Here" indicator for dashboard page */
+.promo-current {
     background: rgba(255, 255, 255, 0.25);
-    transform: rotate(90deg);
+    color: white;
+    padding: 4px 14px;
+    border-radius: 16px;
+    font-weight: 700;
+    font-size: 12px;
+    margin-left: 6px;
+    white-space: nowrap;
 }
 
-.promo-banner.hidden {
-    display: none;
+.promo-banner-active {
+    background: linear-gradient(135deg, #4CAF50 0%, #66BB6A 100%);
+    box-shadow: 0 2px 12px rgba(76, 175, 80, 0.25);
+}
+
+.promo-banner-active .promo-text strong {
+    color: white;
 }
 
 /* Logo with Icon */

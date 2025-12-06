@@ -10,14 +10,13 @@
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
-    <!-- Promotional Banner - Sticky Buzzoid-style -->
+    <!-- Promotional Banner - Permanent -->
     <div class="promo-banner">
         <div class="promo-content">
             <span class="promo-icon">📊</span>
             <span class="promo-text">New <strong>Financial Dashboard</strong> - Track spending & detect recurring payments!</span>
             <a href="dashboard.html" class="promo-cta">Try Now →</a>
         </div>
-        <button class="promo-close" id="closeBanner">✕</button>
     </div>
 
     <!-- Navigation -->
@@ -430,22 +429,5 @@
     <script type="module" src="assets/js/quick-start-guide.js"></script>
     <script type="module" src="assets/js/converter.js"></script>
     <script type="module" src="assets/js/script.js"></script>
-    <script>
-        // Promotional banner close functionality
-        const closeBannerBtn = document.getElementById('closeBanner');
-        const promoBanner = document.querySelector('.promo-banner');
-        
-        if (closeBannerBtn && promoBanner) {
-            // Check if user previously closed banner
-            if (localStorage.getItem('promoBannerClosed') === 'true') {
-                promoBanner.style.display = 'none';
-            }
-            
-            closeBannerBtn.addEventListener('click', () => {
-                promoBanner.style.display = 'none';
-                localStorage.setItem('promoBannerClosed', 'true');
-            });
-        }
-    </script>
 </body>
 </html>
