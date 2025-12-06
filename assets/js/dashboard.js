@@ -106,30 +106,11 @@ let isReviewMode = false; // Track if we're in review mode
 // DOM Elements - cached for performance
 let dom = {};
 
-// Initialize upload button (works without authentication)
+// Initialize upload button - REMOVED: now using inline onclick handlers in HTML
+// This prevents duplicate event listeners that cause double-click issues
 function initializeUploadButton() {
-    const browseFilesBtn = document.getElementById('browseFilesBtn');
-    const fileInput = document.getElementById('fileInput');
-    const uploadArea = document.getElementById('uploadArea');
-    
-    // Browse Files button click handler
-    if (browseFilesBtn && fileInput) {
-        browseFilesBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            fileInput.click();
-        });
-    }
-    
-    // Upload area click handler
-    if (uploadArea && fileInput) {
-        uploadArea.addEventListener('click', (e) => {
-            // Don't trigger if clicking the button (button has its own handler)
-            if (!e.target.closest('#browseFilesBtn')) {
-                fileInput.click();
-            }
-        });
-    }
+    // Inline handlers in dashboard.html handle the click events
+    // This function is kept for backward compatibility but does nothing
 }
 
 // Show optional sign-in banner (non-blocking)
