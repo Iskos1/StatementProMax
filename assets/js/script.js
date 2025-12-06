@@ -66,7 +66,25 @@ function setupAuth(db) {
     db.subscribeAuth((auth) => {
         currentUser = auth.user;
         updateUIForAuthState(auth.user);
+        // Cache auth state for instant load on next page
+        cacheAuthState(auth.user);
     });
+
+    // Cache auth state in localStorage for instant UI on page load
+    function cacheAuthState(user) {
+        try {
+            if (user) {
+                localStorage.setItem('cachedAuthUser', JSON.stringify({
+                    email: user.email,
+                    timestamp: Date.now()
+                }));
+            } else {
+                localStorage.removeItem('cachedAuthUser');
+            }
+        } catch (e) {
+            // localStorage might not be available
+        }
+    }
 
     // Update UI based on auth state - uses CSS classes to prevent layout shift
     function updateUIForAuthState(user) {

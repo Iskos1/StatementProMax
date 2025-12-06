@@ -8,8 +8,39 @@
     <link rel="stylesheet" href="assets/css/dashboard-styles.css">
     <link rel="stylesheet" href="assets/css/ui-enhancements.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    <!-- Instant auth state check - prevents flash of unauthenticated content -->
+    <script>
+        (function() {
+            try {
+                var cached = localStorage.getItem('cachedAuthUser');
+                if (cached) {
+                    var data = JSON.parse(cached);
+                    // Only use cache if less than 24 hours old
+                    if (data && data.email && (Date.now() - data.timestamp) < 86400000) {
+                        window.__authCached = data.email.split('@')[0];
+                        document.documentElement.classList.add('auth-cached');
+                    }
+                }
+            } catch(e) {}
+        })();
+    </script>
+    <style>
+        /* Hide both auth elements initially, then show correct one based on cached state */
+        .auth-cached #signInBtn { visibility: hidden !important; opacity: 0 !important; position: absolute !important; pointer-events: none !important; }
+        .auth-cached #userMenu { visibility: visible !important; opacity: 1 !important; position: relative !important; pointer-events: auto !important; }
+        .auth-cached .auth-hidden { visibility: visible !important; opacity: 1 !important; position: relative !important; pointer-events: auto !important; }
+    </style>
 </head>
 <body>
+    <!-- Set cached email immediately after body opens -->
+    <script>
+        if (window.__authCached) {
+            document.addEventListener('DOMContentLoaded', function() {
+                var el = document.getElementById('userEmail');
+                if (el && !el.textContent) el.textContent = window.__authCached;
+            });
+        }
+    </script>
     <!-- Promotional Banner - Permanent -->
     <div class="promo-banner">
         <div class="promo-content">
