@@ -157,8 +157,7 @@ function showSmartLoader(message = 'Processing...') {
 function hideSmartLoader() {
     const loader = document.getElementById('smartLoader');
     if (loader) {
-        loader.style.opacity = '0';
-        setTimeout(() => loader.remove(), 300);
+        loader.remove();
     }
 }
 
@@ -177,8 +176,7 @@ function initEnhancedDropZone() {
             e.preventDefault();
             dragCounter++;
             if (dragCounter === 1) {
-                area.style.transform = 'scale(1.02)';
-                area.style.borderWidth = '4px';
+                area.classList.add('drag-over');
             }
         });
 
@@ -186,21 +184,13 @@ function initEnhancedDropZone() {
             e.preventDefault();
             dragCounter--;
             if (dragCounter === 0) {
-                area.style.transform = 'scale(1)';
-                area.style.borderWidth = '3px';
+                area.classList.remove('drag-over');
             }
         });
 
         area.addEventListener('drop', () => {
             dragCounter = 0;
-            area.style.transform = 'scale(1)';
-            area.style.borderWidth = '3px';
-            
-            // Show success animation
-            area.style.borderColor = '#22c55e';
-            setTimeout(() => {
-                area.style.borderColor = '';
-            }, 1000);
+            area.classList.remove('drag-over');
         });
     });
 }
@@ -208,33 +198,9 @@ function initEnhancedDropZone() {
 // Smooth Scroll to Section - uses utils.js initSmoothScrolling() instead
 // REMOVED: smoothScrollTo() and initSmoothScrollAnchors() - duplicated utils.js functionality
 
-// Auto-hide elements on scroll (like promotional banner)
+// Auto-hide elements on scroll disabled for performance
 function initScrollAutoHide() {
-    let lastScrollTop = 0;
-    const banner = document.querySelector('.promo-banner');
-    const nav = document.querySelector('.nav');
-
-    if (!nav) return;
-
-    window.addEventListener('scroll', () => {
-        const scrollTop = window.pageYOffset || document.documentElement.scrollTop;
-
-        if (scrollTop > lastScrollTop && scrollTop > 100) {
-            // Scrolling down
-            if (banner && !banner.classList.contains('hidden')) {
-                banner.style.transform = 'translateY(-100%)';
-            }
-            nav.style.transform = 'translateY(-100%)';
-        } else {
-            // Scrolling up
-            if (banner && !banner.classList.contains('hidden')) {
-                banner.style.transform = 'translateY(0)';
-            }
-            nav.style.transform = 'translateY(0)';
-        }
-
-        lastScrollTop = scrollTop;
-    }, { passive: true });
+    // Disabled for performance optimization
 }
 
 // Toast Notifications Enhancement (replaces basic notifications)
@@ -258,14 +224,12 @@ function showToast(message, type = 'info', duration = 3000) {
 
     // Auto remove
     setTimeout(() => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
+        toast.remove();
     }, duration);
 
     // Click to dismiss
     toast.addEventListener('click', () => {
-        toast.classList.remove('show');
-        setTimeout(() => toast.remove(), 300);
+        toast.remove();
     });
 }
 
