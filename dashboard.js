@@ -835,21 +835,27 @@ async function processAllFiles() {
 }
 
 function processFile(file, providedYear = null) {
+    console.log('🔄 processFile called for:', file?.name);
+    
     return new Promise((resolve, reject) => {
         if (!file || !(file instanceof File)) {
+            console.error('❌ Invalid file object:', file);
             reject(new Error('Invalid file object'));
             return;
         }
         
+        console.log('📖 Creating FileReader...');
         const reader = new FileReader();
         
         // Add timeout for file reading
         const timeout = setTimeout(() => {
+            console.error('⏱️ File reading timed out after 30s');
             reader.abort();
             reject(new Error('File reading timed out'));
         }, 30000); // 30 second timeout
         
         reader.onload = async (e) => {
+            console.log('✅ FileReader.onload fired');
             clearTimeout(timeout);
             try {
                 if (!e.target || !e.target.result) {
@@ -857,21 +863,22 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
-                
-                console.log(`Processing file: ${file.name}, Size: ${data.length} bytes`);
+                console.log(`📊 File data: ${file.name}, ${data.length} bytes`);
                 
                 if (!window.XLSX) {
-                    console.error('XLSX library check failed');
+                    console.error('❌ XLSX library NOT available on window');
                     throw new Error('XLSX library not loaded. Please refresh the page.');
                 }
                 
-                console.log('XLSX library loaded, version:', window.XLSX.version);
+                console.log('✅ XLSX library available, version:', window.XLSX.version);
                 
                 let workbook;
                 try {
+                    console.log('📖 Calling XLSX.read...');
                     workbook = XLSX.read(data, { type: 'array' });
+                    console.log('✅ XLSX.read succeeded, sheets:', workbook.SheetNames);
                 } catch (xlsxError) {
-                    console.error('XLSX.read failed:', xlsxError);
+                    console.error('❌ XLSX.read failed:', xlsxError);
                     throw new Error(`Failed to parse file: ${xlsxError.message}`);
                 }
                 
@@ -881,14 +888,26 @@ function processFile(file, providedYear = null) {
                 
                 // Get first sheet
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+                console.log('📋 Converting sheet to JSON...');
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+                
+                console.log(`📊 JSON data: ${jsonData?.length || 0} rows`);
+                if (jsonData && jsonData.length > 0) {
+                    console.log('First row:', JSON.stringify(jsonData[0]));
+                    if (jsonData.length > 1) {
+                        console.log('Second row:', JSON.stringify(jsonData[1]));
+                    }
+                }
                 
                 if (!jsonData || jsonData.length === 0) {
                     throw new Error('No data found in sheet');
                 }
                 
                 // Process transactions with optional year correction (now async)
+                console.log('🔄 Calling parseTransactions...');
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
+                
+                console.log(`📊 parseTransactions returned ${fileTransactions?.length || 0} transactions`);
                 
                 if (!fileTransactions || fileTransactions.length === 0) {
                     throw new Error('No valid transactions found');
@@ -896,6 +915,7 @@ function processFile(file, providedYear = null) {
                 
                 resolve(fileTransactions);
             } catch (error) {
+                console.error('❌ Error in processFile:', error);
                 reject(new Error(`File parsing error: ${error.message}`));
             }
         };
@@ -2237,11 +2257,23 @@ function displayOptimizerRecommendations(recommendations, needToSave, totalIncom
 }
 
 function handleFileSelect(e) {
+    console.log('📁 handleFileSelect triggered');
+    console.log('Event:', e);
+    console.log('Files from input:', e.target.files);
+    
     const files = Array.from(e.target.files);
+    console.log('Converted to array:', files.length, 'files');
+    
     if (files.length > 0) {
+        files.forEach((f, i) => {
+            console.log(`  File ${i + 1}: ${f.name}, Size: ${f.size}, Type: ${f.type}`);
+        });
         selectedFiles = [...selectedFiles, ...files];
+        console.log('Total selected files now:', selectedFiles.length);
         displayFileList();
         if (dom.fileInput) dom.fileInput.value = '';
+    } else {
+        console.warn('No files selected');
     }
 }
 
