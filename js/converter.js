@@ -86,6 +86,8 @@ function handleFileDrop(e) {
 function handleFileSelect(e) {
     const files = Array.from(e.target.files);
     addFiles(files);
+    // Reset the input so the same file can be selected again
+    e.target.value = '';
 }
 
 // Add files to the queue
