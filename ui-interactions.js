@@ -205,32 +205,8 @@ function initEnhancedDropZone() {
     });
 }
 
-// Smooth Scroll to Section
-function smoothScrollTo(elementId) {
-    const element = document.getElementById(elementId);
-    if (element) {
-        const offset = 80;
-        const targetPosition = element.offsetTop - offset;
-        window.scrollTo({
-            top: targetPosition,
-            behavior: 'smooth'
-        });
-    }
-}
-
-// Add smooth scroll to anchor links
-function initSmoothScrollAnchors() {
-    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-        anchor.addEventListener('click', function (e) {
-            const href = this.getAttribute('href');
-            if (href !== '#' && href.length > 1) {
-                e.preventDefault();
-                const targetId = href.substring(1);
-                smoothScrollTo(targetId);
-            }
-        });
-    });
-}
+// Smooth Scroll to Section - uses utils.js initSmoothScrolling() instead
+// REMOVED: smoothScrollTo() and initSmoothScrollAnchors() - duplicated utils.js functionality
 
 // Auto-hide elements on scroll (like promotional banner)
 function initScrollAutoHide() {
@@ -398,7 +374,6 @@ function initUIEnhancements() {
     initScrollProgress();
     initKeyboardShortcuts();
     initEnhancedDropZone();
-    initSmoothScrollAnchors();
     initScrollAutoHide();
     enhanceFormValidation();
     initCopyButtons();
@@ -428,7 +403,6 @@ export {
     showSmartLoader,
     hideSmartLoader,
     showToast,
-    smoothScrollTo,
     copyToClipboard,
     showKeyboardShortcutsHelp
 };

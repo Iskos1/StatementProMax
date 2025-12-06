@@ -4,14 +4,16 @@ import {
     getFileHistoryById,
     deleteFileHistory,
     clearFileHistory,
-    getFileHistoryStats
+    getFileHistoryStats,
+    initializeDB
 } from './transaction-db.js';
 
 import {
     formatFileSize,
     formatCurrency,
     escapeHtml,
-    showNotification
+    showNotification,
+    handleError
 } from './utils.js';
 
 // Update file history statistics
@@ -251,13 +253,12 @@ async function handleClearAllFileHistory() {
 export async function showFileHistoryModal() {
     const modal = document.getElementById('fileHistoryModal');
     if (!modal) {
-        console.error('File history modal not found');
+        handleError(new Error('File history modal not found'), 'showFileHistoryModal', false);
         return;
     }
     
     try {
-        // Initialize database if needed
-        const { initializeDB } = await import('./transaction-db.js');
+        // Initialize database if needed (uses static import from top of file)
         await initializeDB();
         
         // Update stats
@@ -272,8 +273,7 @@ export async function showFileHistoryModal() {
         // Show modal
         modal.style.display = 'flex';
     } catch (error) {
-        console.error('Failed to show file history modal:', error);
-        showNotification('Failed to load file history', 'error');
+        handleError(error, 'showFileHistoryModal', true);
     }
 }
 

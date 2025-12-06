@@ -1,51 +1,67 @@
+// Simplified PDF to Excel Converter - Uses ConvertAPI directly
 import { 
     formatFileSize, 
     escapeHtml, 
     showNotification,
     generateId,
-    safeSessionStorageSet
+    safeSessionStorageSet,
+    handleError
 } from './utils.js';
 
 import { initializeYearModal, showYearModal } from './year-modal.js';
 
+// API Configuration
 const CONFIG = {
-    // ConvertAPI.com credentials
-    sandboxToken: 'ELgjnLbeO8Q8XQjcC6cT8zA4lJEoqRDI',
-    productionToken: 'yGOcVvne4JAfBzzLxd45iUzrCCr25kBB',
-    apiToken: 'yGOcVvne4JAfBzzLxd45iUzrCCr25kBB', // Production token
+    apiToken: 'yGOcVvne4JAfBzzLxd45iUzrCCr25kBB',
     convertEndpoint: 'https://v2.convertapi.com/convert/pdf/to/xlsx',
-    maxFileSize: 50 * 1024 * 1024,
-    allowedFileTypes: ['application/pdf', 'pdf']
+    maxFileSize: 50 * 1024 * 1024  // 50MB
 };
 
+// State
 const state = { files: [] };
 
-document.addEventListener('DOMContentLoaded', () => {
-    initializeConverter();
-    initializeYearModal();
+// Initialize when DOM is ready
+document.addEventListener('DOMContentLoaded', function() {
+    try {
+        initializeConverter();
+        initializeYearModal();
+    } catch (error) {
+        handleError(error, 'Converter initialization', true);
+    }
 });
 
+// Set up event listeners
 function initializeConverter() {
     const fileInput = document.getElementById('fileInput');
     const uploadArea = document.getElementById('uploadArea');
     const convertAllBtn = document.getElementById('convertAllBtn');
     const clearAllBtn = document.getElementById('clearAllBtn');
 
-    if (fileInput) fileInput.addEventListener('change', handleFileSelect);
+    if (fileInput) {
+        fileInput.addEventListener('change', handleFileSelect);
+    }
 
     if (uploadArea) {
         uploadArea.addEventListener('dragover', handleDragOver);
         uploadArea.addEventListener('dragleave', handleDragLeave);
         uploadArea.addEventListener('drop', handleFileDrop);
-        uploadArea.addEventListener('click', (e) => {
-            if (e.target.closest('.btn-primary')) fileInput.click();
+        uploadArea.addEventListener('click', function(e) {
+            if (e.target.closest('.btn-primary')) {
+                fileInput.click();
+            }
         });
     }
 
-    if (convertAllBtn) convertAllBtn.addEventListener('click', convertAllFiles);
-    if (clearAllBtn) clearAllBtn.addEventListener('click', clearAllFiles);
+    if (convertAllBtn) {
+        convertAllBtn.addEventListener('click', convertAllFiles);
+    }
+    
+    if (clearAllBtn) {
+        clearAllBtn.addEventListener('click', clearAllFiles);
+    }
 }
 
+// Drag and drop handlers
 function handleDragOver(e) {
     e.preventDefault();
     e.stopPropagation();
@@ -62,198 +78,274 @@ function handleFileDrop(e) {
     e.preventDefault();
     e.stopPropagation();
     e.currentTarget.classList.remove('drag-over');
-    addFiles(Array.from(e.dataTransfer.files));
+    
+    const files = Array.from(e.dataTransfer.files);
+    addFiles(files);
 }
 
 function handleFileSelect(e) {
-    addFiles(Array.from(e.target.files));
+    const files = Array.from(e.target.files);
+    addFiles(files);
 }
 
+// Add files to the queue
 function addFiles(files) {
-    const validFiles = files.filter(validateFile);
+    const validFiles = [];
+    
+    for (let i = 0; i < files.length; i++) {
+        const file = files[i];
+        
+        // Check if PDF
+        const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
+        if (!isPDF) {
+            showNotification(file.name + ' is not a PDF file', 'error');
+            continue;
+        }
+        
+        // Check file size
+        if (file.size > CONFIG.maxFileSize) {
+            showNotification(file.name + ' exceeds maximum file size of ' + formatFileSize(CONFIG.maxFileSize), 'error');
+            continue;
+        }
+        
+        // Check for duplicates
+        let isDuplicate = false;
+        for (let j = 0; j < state.files.length; j++) {
+            if (state.files[j].name === file.name && state.files[j].size === file.size) {
+                isDuplicate = true;
+                break;
+            }
+        }
+        
+        if (isDuplicate) {
+            showNotification(file.name + ' is already in the queue', 'warning');
+            continue;
+        }
+        
+        validFiles.push(file);
+    }
     
     if (validFiles.length === 0) {
         showNotification('No valid PDF files selected', 'error');
         return;
     }
-
-    validFiles.forEach(file => {
+    
+    // Add valid files to state
+    for (let i = 0; i < validFiles.length; i++) {
+        const file = validFiles[i];
         state.files.push({
             id: generateId('file'),
-            file,
+            file: file,
             name: file.name,
             size: file.size,
             status: 'pending',
             progress: 0,
-            downloadUrl: null,
             excelFile: null,
+            excelFileName: null,
             error: null
         });
-    });
-
+    }
+    
     updateFileList();
     showConversionControls();
 }
 
-function validateFile(file) {
-    const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
-    if (!isPDF) {
-        showNotification(`${file.name} is not a PDF file`, 'error');
-        return false;
-    }
-
-    if (file.size > CONFIG.maxFileSize) {
-        showNotification(`${file.name} exceeds maximum file size of ${formatFileSize(CONFIG.maxFileSize)}`, 'error');
-        return false;
-    }
-
-    if (state.files.some(f => f.name === file.name && f.size === file.size)) {
-        showNotification(`${file.name} is already in the queue`, 'warning');
-        return false;
-    }
-
-    return true;
-}
-
+// Update the file list display
 function updateFileList() {
     const fileListContainer = document.getElementById('fileListContainer');
     const fileCount = document.getElementById('fileCount');
     const uploadSection = document.getElementById('uploadSection');
+    const fileItemsContainer = document.getElementById('fileItems');
 
     if (!fileListContainer) return;
 
+    // Hide if no files
     if (state.files.length === 0) {
         fileListContainer.style.display = 'none';
         if (uploadSection) uploadSection.style.display = 'block';
         return;
     }
 
+    // Show file list
     const wasHidden = fileListContainer.style.display === 'none';
     fileListContainer.style.display = 'block';
     if (uploadSection) uploadSection.style.display = 'block';
     if (fileCount) fileCount.textContent = state.files.length;
-    
-    // Add pulse effect for first-time visibility
+
+    // Scroll to file list if just appeared
     if (wasHidden && state.files.length > 0) {
-        fileListContainer.setAttribute('data-new', 'true');
-        setTimeout(() => {
-            fileListContainer.removeAttribute('data-new');
-        }, 6000);
-    }
-    
-    // Smooth scroll to file list to make it obvious
-    if (wasHidden && state.files.length > 0) {
-        setTimeout(() => {
+        setTimeout(function() {
             fileListContainer.scrollIntoView({ 
                 behavior: 'smooth', 
-                block: 'start',
-                inline: 'nearest'
+                block: 'start'
             });
         }, 100);
     }
 
-    const fileItemsContainer = document.getElementById('fileItems');
     if (!fileItemsContainer) return;
 
-    fileItemsContainer.innerHTML = state.files.map(createFileItemHTML).join('');
+    // Build HTML for all files
+    let html = '';
+    for (let i = 0; i < state.files.length; i++) {
+        html = html + createFileItemHTML(state.files[i]);
+    }
+    fileItemsContainer.innerHTML = html;
 
-    state.files.forEach(fileData => {
-        const removeBtn = document.getElementById(`remove-${fileData.id}`);
-        if (removeBtn) removeBtn.onclick = () => removeFile(fileData.id);
+    // Attach event handlers
+    for (let i = 0; i < state.files.length; i++) {
+        const fileData = state.files[i];
+        
+        const removeBtn = document.getElementById('remove-' + fileData.id);
+        if (removeBtn) {
+            removeBtn.onclick = function() {
+                removeFile(fileData.id);
+            };
+        }
 
-        const downloadBtn = document.getElementById(`download-${fileData.id}`);
-        if (downloadBtn && fileData.excelFile) downloadBtn.onclick = () => downloadFile(fileData);
+        const downloadBtn = document.getElementById('download-' + fileData.id);
+        if (downloadBtn && fileData.excelFile) {
+            downloadBtn.onclick = function() {
+                downloadFile(fileData);
+            };
+        }
 
-        const analyzeBtn = document.getElementById(`analyze-${fileData.id}`);
-        if (analyzeBtn && fileData.excelFile) analyzeBtn.onclick = () => analyzeInDashboard(fileData);
-    });
+        const analyzeBtn = document.getElementById('analyze-' + fileData.id);
+        if (analyzeBtn && fileData.excelFile) {
+            analyzeBtn.onclick = function() {
+                analyzeInDashboard(fileData);
+            };
+        }
+    }
 }
 
+// Create HTML for a single file item
 function createFileItemHTML(fileData) {
-    const statusIcons = { pending: '⏳', converting: '🔄', completed: '✅', error: '❌' };
-    const statusTexts = { pending: 'Ready to convert', converting: 'Converting...', completed: 'Completed', error: 'Conversion failed' };
+    const statusIcons = {
+        pending: '⏳',
+        converting: '🔄',
+        completed: '✅',
+        error: '❌'
+    };
+    
+    const statusTexts = {
+        pending: 'Ready to convert',
+        converting: 'Converting...',
+        completed: 'Completed',
+        error: 'Conversion failed'
+    };
 
     let actionButtons = '';
+    
     if (fileData.status === 'pending') {
-        actionButtons = `
-            <button class="btn-convert" onclick="convertSingleFile('${fileData.id}')">Convert</button>
-            <button class="btn-remove" id="remove-${fileData.id}">Remove</button>
-        `;
+        actionButtons = '<button class="btn-convert" onclick="convertSingleFile(\'' + fileData.id + '\')">Convert</button>' +
+                       '<button class="btn-remove" id="remove-' + fileData.id + '">Remove</button>';
     } else if (fileData.status === 'converting') {
-        actionButtons = `<div class="progress-bar"><div class="progress-fill" style="width: ${fileData.progress}%"></div></div>`;
+        actionButtons = '<div class="progress-bar"><div class="progress-fill" style="width: ' + fileData.progress + '%"></div></div>';
     } else if (fileData.status === 'completed') {
-        actionButtons = `
-            <button class="btn-download" id="download-${fileData.id}">Download</button>
-            <button class="btn-analyze" id="analyze-${fileData.id}">Analyze</button>
-            <button class="btn-remove" id="remove-${fileData.id}">Remove</button>
-        `;
+        actionButtons = '<button class="btn-download" id="download-' + fileData.id + '">Download</button>' +
+                       '<button class="btn-analyze" id="analyze-' + fileData.id + '">Analyze</button>' +
+                       '<button class="btn-remove" id="remove-' + fileData.id + '">Remove</button>';
     } else if (fileData.status === 'error') {
-        actionButtons = `
-            <button class="btn-retry" onclick="convertSingleFile('${fileData.id}')">Retry</button>
-            <button class="btn-remove" id="remove-${fileData.id}">Remove</button>
-        `;
+        actionButtons = '<button class="btn-retry" onclick="convertSingleFile(\'' + fileData.id + '\')">Retry</button>' +
+                       '<button class="btn-remove" id="remove-' + fileData.id + '">Remove</button>';
     }
 
-    return `
-        <div class="file-item status-${fileData.status}" data-file-id="${fileData.id}">
-            <div class="file-info">
-                <div class="file-icon">${statusIcons[fileData.status] || '📄'}</div>
-                <div class="file-details">
-                    <div class="file-name">${escapeHtml(fileData.name)}</div>
-                    <div class="file-meta">
-                        <span class="file-size">${formatFileSize(fileData.size)}</span>
-                        <span class="file-status">${statusTexts[fileData.status] || fileData.status}</span>
-                    </div>
-                    ${fileData.error ? `<div class="file-error">${fileData.error}</div>` : ''}
-                </div>
-            </div>
-            <div class="file-actions">${actionButtons}</div>
-        </div>
-    `;
+    let errorHtml = '';
+    if (fileData.error) {
+        errorHtml = '<div class="file-error">' + escapeHtml(fileData.error) + '</div>';
+    }
+
+    const icon = statusIcons[fileData.status] || '📄';
+    const statusText = statusTexts[fileData.status] || fileData.status;
+
+    return '<div class="file-item status-' + fileData.status + '" data-file-id="' + fileData.id + '">' +
+           '<div class="file-info">' +
+           '<div class="file-icon">' + icon + '</div>' +
+           '<div class="file-details">' +
+           '<div class="file-name">' + escapeHtml(fileData.name) + '</div>' +
+           '<div class="file-meta">' +
+           '<span class="file-size">' + formatFileSize(fileData.size) + '</span>' +
+           '<span class="file-status">' + statusText + '</span>' +
+           '</div>' +
+           errorHtml +
+           '</div>' +
+           '</div>' +
+           '<div class="file-actions">' + actionButtons + '</div>' +
+           '</div>';
 }
 
+// Show/hide conversion controls
 function showConversionControls() {
     const controls = document.getElementById('conversionControls');
-    if (controls) controls.style.display = state.files.length > 0 ? 'flex' : 'none';
+    if (controls) {
+        if (state.files.length > 0) {
+            controls.style.display = 'flex';
+        } else {
+            controls.style.display = 'none';
+        }
+    }
 }
 
+// Convert all pending files
 async function convertAllFiles() {
-    const pendingFiles = state.files.filter(f => f.status === 'pending' || f.status === 'error');
+    const pendingFiles = [];
+    for (let i = 0; i < state.files.length; i++) {
+        if (state.files[i].status === 'pending' || state.files[i].status === 'error') {
+            pendingFiles.push(state.files[i]);
+        }
+    }
+    
     if (pendingFiles.length === 0) {
         showNotification('No files to convert', 'warning');
         return;
     }
-    for (const fileData of pendingFiles) await convertFile(fileData.id);
+    
+    for (let i = 0; i < pendingFiles.length; i++) {
+        await convertFile(pendingFiles[i].id);
+    }
 }
 
+// Convert a single file (exposed globally for onclick)
 window.convertSingleFile = async function(fileId) {
     await convertFile(fileId);
 };
 
+// Main conversion function - Uses API directly
 async function convertFile(fileId) {
-    const fileData = state.files.find(f => f.id === fileId);
+    // Find the file
+    let fileData = null;
+    for (let i = 0; i < state.files.length; i++) {
+        if (state.files[i].id === fileId) {
+            fileData = state.files[i];
+            break;
+        }
+    }
+    
     if (!fileData) return;
 
+    // Update status
     fileData.status = 'converting';
     fileData.progress = 0;
     fileData.error = null;
     updateFileList();
 
     try {
-        // Step 1: Convert PDF to XLSX using ConvertAPI (0-80%)
+        // Step 1: Read file as base64
+        showNotification('🔄 Reading file: ' + fileData.name, 'info');
         fileData.progress = 10;
-        updateFileItemProgress(fileId, fileData.progress);
-
-        showNotification(`🔄 Converting ${fileData.name} to Excel...`, 'info');
-
-        // Read file as base64
-        const base64File = await fileToBase64(fileData.file);
+        updateProgress(fileId, 10);
         
-        fileData.progress = 30;
-        updateFileItemProgress(fileId, fileData.progress);
+        const base64Data = await readFileAsBase64(fileData.file);
+        
+        fileData.progress = 20;
+        updateProgress(fileId, 20);
 
-        // Call ConvertAPI
-        const convertResponse = await fetch(`${CONFIG.convertEndpoint}?Secret=${CONFIG.apiToken}`, {
+        // Step 2: Send to ConvertAPI
+        showNotification('🔄 Converting to Excel...', 'info');
+        
+        const apiUrl = CONFIG.convertEndpoint + '?Secret=' + CONFIG.apiToken;
+        
+        const response = await fetch(apiUrl, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
@@ -264,518 +356,142 @@ async function convertFile(fileId) {
                         Name: 'File',
                         FileValue: {
                             Name: fileData.name,
-                            Data: base64File
+                            Data: base64Data
                         }
                     }
                 ]
             })
         });
 
-        if (!convertResponse.ok) {
-            const errorData = await convertResponse.json().catch(() => ({}));
-            throw new Error(errorData.Message || `Conversion failed: ${convertResponse.status}`);
+        fileData.progress = 50;
+        updateProgress(fileId, 50);
+
+        if (!response.ok) {
+            let errorMessage = 'Conversion failed: ' + response.status;
+            try {
+                const errorData = await response.json();
+                if (errorData.Message) {
+                    errorMessage = errorData.Message;
+                }
+            } catch (e) {
+                // Ignore JSON parse error
+            }
+            throw new Error(errorMessage);
         }
 
-        const convertResult = await convertResponse.json();
-        console.log('ConvertAPI result:', convertResult);
+        const result = await response.json();
+        console.log('API Response:', result);
         
-        fileData.progress = 60;
-        updateFileItemProgress(fileId, fileData.progress);
+        fileData.progress = 70;
+        updateProgress(fileId, 70);
 
-        if (!convertResult.Files || convertResult.Files.length === 0) {
-            console.error('Full API response:', convertResult);
+        // Step 3: Get the Excel file
+        if (!result.Files || result.Files.length === 0) {
             throw new Error('No Excel file returned from API');
         }
 
-        // Step 2: Download the converted XLSX file (60-80%)
-        const xlsxFile = convertResult.Files[0];
-        console.log('Excel file info:', {
-            FileName: xlsxFile.FileName,
-            FileSize: xlsxFile.FileSize,
-            Url: xlsxFile.Url
-        });
+        const excelFileInfo = result.Files[0];
+        console.log('Excel file info:', excelFileInfo);
         
-        showNotification(`📥 Downloading converted file...`, 'info');
+        showNotification('📥 Downloading converted file...', 'info');
         
-        let xlsxBlob;
+        let excelBlob;
         
-        // Try to get the file - ConvertAPI might return base64 data or URL
-        if (xlsxFile.FileData) {
-            // File data is included in response (base64)
-            console.log('Using FileData from response');
-            const binaryString = atob(xlsxFile.FileData);
+        // Check if file data is in response
+        if (excelFileInfo.FileData) {
+            // Convert base64 to blob
+            const binaryString = atob(excelFileInfo.FileData);
             const bytes = new Uint8Array(binaryString.length);
             for (let i = 0; i < binaryString.length; i++) {
                 bytes[i] = binaryString.charCodeAt(i);
             }
-            xlsxBlob = new Blob([bytes], { 
+            excelBlob = new Blob([bytes], { 
                 type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
             });
-        } else if (xlsxFile.Url) {
-            // Need to fetch from URL
-            console.log('Fetching from URL:', xlsxFile.Url);
-            try {
-                const xlsxResponse = await fetch(xlsxFile.Url, {
-                    mode: 'cors',
-                    credentials: 'omit'
-                });
-                
-                if (!xlsxResponse.ok) {
-                    console.error('Fetch failed:', xlsxResponse.status, xlsxResponse.statusText);
-                    throw new Error(`Failed to download: ${xlsxResponse.status} ${xlsxResponse.statusText}`);
-                }
-                
-                xlsxBlob = await xlsxResponse.blob();
-                console.log('Downloaded blob size:', xlsxBlob.size);
-            } catch (fetchError) {
-                console.error('Fetch error:', fetchError);
-                throw new Error(`Download failed: ${fetchError.message}. Try using a different PDF or contact support.`);
+        } else if (excelFileInfo.Url) {
+            // Download from URL
+            const downloadResponse = await fetch(excelFileInfo.Url);
+            if (!downloadResponse.ok) {
+                throw new Error('Failed to download converted file');
             }
+            excelBlob = await downloadResponse.blob();
         } else {
             throw new Error('No file data or URL in API response');
         }
-        
-        fileData.progress = 80;
-        updateFileItemProgress(fileId, fileData.progress);
 
-        // Step 3: Parse Excel and reformat to 6-column format (80-100%)
-        showNotification(`📊 Reformatting to bank statement format...`, 'info');
-        
-        let finalBlob;
-        try {
-            finalBlob = await reformatExcelToBankStatement(xlsxBlob, fileData.name);
-            console.log('Reformatting successful');
-        } catch (reformatError) {
-            console.warn('Reformatting failed, using original Excel:', reformatError);
-            showNotification(`⚠️ Using original Excel format (reformatting failed)`, 'warning');
-            finalBlob = xlsxBlob; // Use original if reformatting fails
-        }
-        
-        fileData.status = 'completed';
         fileData.progress = 100;
-        fileData.excelFile = finalBlob;
-        fileData.excelFileName = fileData.name.replace(/\.pdf$/i, '.xlsx');
+        updateProgress(fileId, 100);
 
-        showNotification(
-            `✅ ${fileData.name} converted successfully!`, 
-            'success'
-        );
+        // Success!
+        fileData.status = 'completed';
+        fileData.excelFile = excelBlob;
+        fileData.excelFileName = fileData.name.replace(/\.pdf$/i, '.xlsx');
         
+        showNotification('✅ ' + fileData.name + ' converted successfully!', 'success');
+
     } catch (error) {
+        console.error('Conversion error:', error);
         fileData.status = 'error';
         fileData.error = error.message || 'Conversion failed. Please try again.';
-        showNotification(`❌ Failed to convert ${fileData.name}: ${error.message}`, 'error');
-        console.error('Conversion error:', error);
+        showNotification('❌ Failed to convert ' + fileData.name + ': ' + error.message, 'error');
     }
 
     updateFileList();
 }
 
-// Helper function to convert file to base64
-function fileToBase64(file) {
-    return new Promise((resolve, reject) => {
+// Read file as base64
+function readFileAsBase64(file) {
+    return new Promise(function(resolve, reject) {
         const reader = new FileReader();
-        reader.onload = () => {
-            // Remove the data:application/pdf;base64, prefix
+        
+        reader.onload = function() {
+            // Remove the data URL prefix
             const base64 = reader.result.split(',')[1];
             resolve(base64);
         };
-        reader.onerror = reject;
+        
+        reader.onerror = function() {
+            reject(new Error('Failed to read file'));
+        };
+        
         reader.readAsDataURL(file);
     });
 }
 
-// Reformat the Excel file from ConvertAPI to our 6-column bank statement format
-async function reformatExcelToBankStatement(xlsxBlob, originalFileName) {
-    if (typeof XLSX === 'undefined') {
-        throw new Error('XLSX library not loaded. Please refresh the page.');
-    }
-
-    try {
-        // Read the Excel file from ConvertAPI
-        const arrayBuffer = await xlsxBlob.arrayBuffer();
-        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
-        
-        // Validate workbook structure
-        if (!workbook.SheetNames || workbook.SheetNames.length === 0) {
-            console.error('Workbook has no sheets!');
-            throw new Error('Invalid Excel file: No sheets found');
-        }
-        
-        console.log('=== WORKBOOK ANALYSIS ===');
-        console.log('Total sheets:', workbook.SheetNames.length);
-        console.log('Sheet names:', workbook.SheetNames);
-        
-        const allTransactions = [];
-        
-        // Process ALL sheets, not just the first one
-        for (const sheetName of workbook.SheetNames) {
-            console.log(`Processing sheet: "${sheetName}"`);
-            const worksheet = workbook.Sheets[sheetName];
-            const rawData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
-            
-            console.log(`- Sheet "${sheetName}" has ${rawData.length} rows`);
-            
-            const sheetTransactions = parseExcelDataToTransactions(rawData);
-            console.log(`- Parsed ${sheetTransactions.length} transactions from "${sheetName}"`);
-            
-            allTransactions.push(...sheetTransactions);
-        }
-        
-        console.log(`Total transactions from ALL sheets: ${allTransactions.length}`);
-        
-        if (allTransactions.length === 0) {
-            console.warn('No transactions found in any sheet, returning original file');
-            return xlsxBlob;
-        }
-        
-        console.log('Sample transactions:', allTransactions.slice(0, 5));
-        
-        // Create new workbook with our format
-        return await createSingleSheetExcel(allTransactions, originalFileName);
-        
-    } catch (error) {
-        console.error('Error reformatting Excel:', error);
-        // If reformatting fails, return original
-        return xlsxBlob;
+// Update progress bar
+function updateProgress(fileId, progress) {
+    const progressFill = document.querySelector('[data-file-id="' + fileId + '"] .progress-fill');
+    if (progressFill) {
+        progressFill.style.width = progress + '%';
     }
 }
 
-// Parse Excel data to transaction format
-function parseExcelDataToTransactions(data) {
-    const transactions = [];
-    
-    // Process ALL rows in the data
-    for (let i = 0; i < data.length; i++) {
-        const row = data[i];
-        
-        // Skip completely empty rows
-        if (!row || row.length === 0) continue;
-        
-        // Skip rows that are clearly headers or labels
-        const rowStr = row.join(' ').toLowerCase();
-        if (rowStr.includes('date') && rowStr.includes('description') && rowStr.includes('amount')) {
-            continue;
-        }
-        if (rowStr.includes('category:') || rowStr.includes('section:')) {
-            continue;
-        }
-        
-        // Try to identify date, description, and amount
-        let date = null;
-        let description = '';
-        let amount = null;
-        let hasDateColumn = false;
-        let hasAmountColumn = false;
-        
-        // First pass: identify what we have
-        for (let j = 0; j < row.length; j++) {
-            const cell = row[j];
-            if (!cell) continue;
-            
-            const cellStr = String(cell).trim();
-            if (!cellStr) continue;
-            
-            // Check if it's a date
-            if (isDate(cell)) {
-                if (!date) {
-                    date = normalizeExcelDate(cell);
-                    hasDateColumn = true;
-                }
-            }
-            // Check if it's an amount
-            else if (isAmount(cell)) {
-                if (amount === null) {
-                    const cleanAmount = String(cell).replace(/[$,\s]/g, '');
-                    amount = parseFloat(cleanAmount);
-                    hasAmountColumn = true;
-                }
-            }
-        }
-        
-        // Second pass: build description from non-date, non-amount cells
-        for (let j = 0; j < row.length; j++) {
-            const cell = row[j];
-            if (!cell) continue;
-            
-            const cellStr = String(cell).trim();
-            if (!cellStr) continue;
-            
-            // Skip if it's the date or amount we already captured
-            if (isDate(cell) || isAmount(cell)) continue;
-            
-            // Skip if it's just whitespace or punctuation
-            if (/^[\s\-_,.;:]+$/.test(cellStr)) continue;
-            
-            // Add to description
-            if (description) {
-                description += ' ' + cellStr;
-            } else {
-                description = cellStr;
-            }
-        }
-        
-        // Clean up description
-        description = description.trim();
-        
-        // Only add if we have ALL required fields
-        if (date && hasDateColumn && amount !== null && hasAmountColumn && description) {
-            // Skip if description is too short (likely noise)
-            if (description.length < 2) continue;
-            
-            transactions.push({ 
-                date, 
-                description, 
-                amount,
-                sourceRow: i
-            });
-        }
-    }
-    
-    return transactions;
-}
-
-// Check if value looks like a date
-function isDate(value) {
-    if (!value) return false;
-    const str = String(value).trim();
-    if (!str) return false;
-    
-    // Check for common date patterns
-    const datePatterns = [
-        /^\d{1,2}[\/\-]\d{1,2}[\/\-]\d{2,4}$/,
-        /^\d{4}[\/\-]\d{1,2}[\/\-]\d{1,2}$/,
-        /^\d{1,2}\/\d{1,2}$/,
-        /^[A-Za-z]{3}\s+\d{1,2},?\s+\d{4}$/,
-        /^\d{1,2}\s+[A-Za-z]{3}\s+\d{4}$/
-    ];
-    
-    for (const pattern of datePatterns) {
-        if (pattern.test(str)) return true;
-    }
-    
-    // Try parsing as date (be more strict)
-    const parsed = Date.parse(str);
-    if (!isNaN(parsed)) {
-        const date = new Date(parsed);
-        const year = date.getFullYear();
-        return year >= 1900 && year <= 2100;
-    }
-    
-    return false;
-}
-
-// Check if value looks like an amount
-function isAmount(value) {
-    if (!value) return false;
-    const str = String(value).trim();
-    if (!str) return false;
-    
-    // Remove common currency symbols and whitespace
-    const cleaned = str.replace(/[$£€¥\s]/g, '');
-    
-    // Check for amount patterns (including negative/positive, with/without commas)
-    const amountPatterns = [
-        /^-?\d{1,3}(,?\d{3})*(\.\d{1,2})?$/,
-        /^\(\d{1,3}(,?\d{3})*(\.\d{1,2})?\)$/,
-        /^-?\d+\.\d{2}$/,
-        /^-?\d+$/
-    ];
-    
-    for (const pattern of amountPatterns) {
-        if (pattern.test(cleaned)) {
-            // Make sure it's not just a year (4 digits)
-            if (/^\d{4}$/.test(cleaned)) {
-                return false;
-            }
-            return true;
-        }
-    }
-    
-    return false;
-}
-
-// Normalize Excel date to YYYY-MM-DD
-function normalizeExcelDate(value) {
-    try {
-        const date = new Date(value);
-        if (!isNaN(date.getTime())) {
-            const year = date.getFullYear();
-            const month = String(date.getMonth() + 1).padStart(2, '0');
-            const day = String(date.getDate()).padStart(2, '0');
-            return `${year}-${month}-${day}`;
-        }
-    } catch (e) {
-        return normalizeDateFormat(String(value));
-    }
-    return String(value);
-}
-
-// Create a SINGLE Excel sheet with ONLY transaction data
-async function createSingleSheetExcel(transactions, originalFileName) {
-    if (typeof XLSX === 'undefined') {
-        throw new Error('XLSX library not loaded. Please refresh the page.');
-    }
-
-    // Filter and consolidate all transactions into one array
-    const consolidatedTransactions = transactions.filter(t => 
-        t.date && t.description && t.amount
-    );
-
-    if (consolidatedTransactions.length === 0) {
-        throw new Error('No valid transactions found in the statement');
-    }
-
-    // Create worksheet data with proper bank statement format
-    const wsData = [
-        ['Date', 'Check Number', 'Description', 'Deposits', 'Withdrawals', 'Balance']
-    ];
-
-    let runningBalance = 0;
-
-    // Add all transactions with proper column mapping
-    consolidatedTransactions.forEach(transaction => {
-        const amount = parseFloat(transaction.amount) || 0;
-        const isDeposit = amount > 0;
-        
-        // Update running balance
-        runningBalance += amount;
-        
-        // Normalize date format
-        const normalizedDate = normalizeDateFormat(transaction.date);
-        
-        wsData.push([
-            normalizedDate,
-            '',
-            transaction.description || '',
-            isDeposit ? Math.abs(amount) : '',
-            !isDeposit ? Math.abs(amount) : '',
-            runningBalance.toFixed(2)
-        ]);
-    });
-
-    // Create workbook with SINGLE sheet
-    const wb = XLSX.utils.book_new();
-    const ws = XLSX.utils.aoa_to_sheet(wsData);
-
-    // Format columns for better readability
-    ws['!cols'] = [
-        { wch: 12 },
-        { wch: 12 },
-        { wch: 40 },
-        { wch: 15 },
-        { wch: 15 },
-        { wch: 15 }
-    ];
-
-    // Format currency columns
-    const range = XLSX.utils.decode_range(ws['!ref']);
-    for (let row = 1; row <= range.e.r; row++) {
-        // Format Deposits (column D)
-        const depositsCell = XLSX.utils.encode_cell({ r: row, c: 3 });
-        if (ws[depositsCell] && ws[depositsCell].v !== '') {
-            ws[depositsCell].z = '#,##0.00';
-            ws[depositsCell].t = 'n';
-        }
-        
-        // Format Withdrawals (column E)
-        const withdrawalsCell = XLSX.utils.encode_cell({ r: row, c: 4 });
-        if (ws[withdrawalsCell] && ws[withdrawalsCell].v !== '') {
-            ws[withdrawalsCell].z = '#,##0.00';
-            ws[withdrawalsCell].t = 'n';
-        }
-        
-        // Format Balance (column F)
-        const balanceCell = XLSX.utils.encode_cell({ r: row, c: 5 });
-        if (ws[balanceCell] && ws[balanceCell].v !== '') {
-            ws[balanceCell].z = '#,##0.00';
-            ws[balanceCell].t = 'n';
-        }
-    }
-
-    // Add only ONE sheet named "Transactions"
-    XLSX.utils.book_append_sheet(wb, ws, 'Transactions');
-
-    // Generate Excel file
-    const excelBuffer = XLSX.write(wb, { type: 'array', bookType: 'xlsx' });
-    return new Blob([excelBuffer], { 
-        type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
-    });
-}
-
-// Normalize date format from API (MM/DD/YY) to Excel format (YYYY-MM-DD)
-function normalizeDateFormat(dateStr) {
-    if (!dateStr) return '';
-    
-    try {
-        // Handle MM/DD/YY format from API
-        const match = dateStr.match(/(\d{1,2})\/(\d{1,2})\/(\d{2,4})/);
-        if (match) {
-            let [, month, day, year] = match;
-            
-            // Convert 2-digit year to 4-digit
-            if (year.length === 2) {
-                const currentYear = new Date().getFullYear();
-                const currentCentury = Math.floor(currentYear / 100) * 100;
-                const yearNum = parseInt(year);
-                
-                // If year is greater than current year's last 2 digits, assume previous century
-                if (yearNum > (currentYear % 100)) {
-                    year = String(currentCentury - 100 + yearNum);
-                } else {
-                    year = String(currentCentury + yearNum);
-                }
-            }
-            
-            // Pad month and day with leading zeros
-            month = month.padStart(2, '0');
-            day = day.padStart(2, '0');
-            
-            return `${year}-${month}-${day}`;
-        }
-        
-        // If already in YYYY-MM-DD format, return as is
-        if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-            return dateStr;
-        }
-        
-        // Fallback: return original
-        return dateStr;
-        
-    } catch (error) {
-        console.error('Date normalization error:', error);
-        return dateStr;
-    }
-}
-
-function updateFileItemProgress(fileId, progress) {
-    const progressFill = document.querySelector(`[data-file-id="${fileId}"] .progress-fill`);
-    if (progressFill) progressFill.style.width = `${progress}%`;
-}
-
+// Download converted file
 function downloadFile(fileData) {
     if (!fileData.excelFile) return;
 
     const url = URL.createObjectURL(fileData.excelFile);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = fileData.excelFileName || 'converted.xlsx';
-    document.body.appendChild(a);
-    a.click();
-    document.body.removeChild(a);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = fileData.excelFileName || 'converted.xlsx';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
     URL.revokeObjectURL(url);
 
-    showNotification(`Downloading ${fileData.excelFileName}`, 'success');
+    showNotification('📥 Downloading ' + fileData.excelFileName, 'success');
 }
 
+// Analyze file in dashboard
 async function analyzeInDashboard(fileData) {
     if (!fileData.excelFile) return;
 
+    // Ask for year
     let year;
     try {
         year = await showYearModal();
-    } catch {
-        return;
+    } catch (e) {
+        return; // User cancelled
     }
 
     if (isNaN(year) || year < 1900 || year > 2100) {
@@ -783,14 +499,15 @@ async function analyzeInDashboard(fileData) {
         return;
     }
 
+    // Read file and store in session
     const reader = new FileReader();
+    
     reader.onload = function(e) {
         const success = safeSessionStorageSet('pendingAnalysisFile', {
             name: fileData.excelFileName,
             data: e.target.result,
-            year,
-            timestamp: Date.now(),
-            transactionData: fileData.transactionData || null
+            year: year,
+            timestamp: Date.now()
         });
         
         if (success) {
@@ -799,22 +516,35 @@ async function analyzeInDashboard(fileData) {
             showNotification('Unable to transfer file to dashboard. File may be too large.', 'error');
         }
     };
+    
     reader.readAsDataURL(fileData.excelFile);
 }
 
+// Remove file from queue
 function removeFile(fileId) {
-    const index = state.files.findIndex(f => f.id === fileId);
+    let index = -1;
+    let fileName = '';
+    
+    for (let i = 0; i < state.files.length; i++) {
+        if (state.files[i].id === fileId) {
+            index = i;
+            fileName = state.files[i].name;
+            break;
+        }
+    }
+    
     if (index !== -1) {
-        const fileName = state.files[index].name;
         state.files.splice(index, 1);
         updateFileList();
         showConversionControls();
-        showNotification(`${fileName} removed`, 'info');
+        showNotification(fileName + ' removed', 'info');
     }
 }
 
+// Clear all files
 function clearAllFiles() {
     if (state.files.length === 0) return;
+    
     if (confirm('Are you sure you want to clear all files?')) {
         state.files = [];
         updateFileList();
@@ -822,4 +552,3 @@ function clearAllFiles() {
         showNotification('All files cleared', 'info');
     }
 }
-

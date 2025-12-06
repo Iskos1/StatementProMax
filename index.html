@@ -417,6 +417,15 @@
         </div>
     </footer>
 
+    <!-- Global Error Handler -->
+    <script>
+        window.addEventListener('error', function(e) {
+            console.error('Global error:', e.error);
+        });
+        window.addEventListener('unhandledrejection', function(e) {
+            console.error('Unhandled promise rejection:', e.reason);
+        });
+    </script>
     <script type="module" src="ui-interactions.js"></script>
     <script type="module" src="quick-start-guide.js"></script>
     <script type="module" src="converter.js"></script>

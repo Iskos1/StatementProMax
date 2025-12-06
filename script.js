@@ -1,4 +1,4 @@
-import { initSmoothScrolling } from './utils.js';
+import { initSmoothScrolling, validateEmail } from './utils.js';
 
 const APP_ID = '76a8365b-a4b6-48b0-a63b-d7a14d3587ec';
 
@@ -157,10 +157,7 @@ function setupAuth(db) {
         }
     });
 
-    function validateEmail(email) {
-        if (!email || typeof email !== 'string') return false;
-        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
-    }
+    // validateEmail is now imported from utils.js
 
     function showError(errorElement, message) {
         errorElement.textContent = message;
