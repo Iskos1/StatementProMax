@@ -2257,37 +2257,76 @@ async function parseTransactions(data, providedYear = null) {
     
     const transactions = [];
     let skippedRows = 0;
-    const headers = data[0].map(h => String(h || '').toLowerCase());
+    const headers = data[0].map(h => String(h || '').toLowerCase().trim());
     console.log('Parsed headers:', headers);
     
-    // Find column indices
-    const dateCol = findColumnIndex(headers, ['date', 'transaction date', 'posting date']);
-    const descCol = findColumnIndex(headers, ['description', 'memo', 'details', 'transaction', 'narration']);
-    const amountCol = findColumnIndex(headers, ['amount', 'debit', 'credit', 'value']);
-    const balanceCol = findColumnIndex(headers, ['balance', 'running balance', 'available balance']);
+    // More flexible column detection - supports many bank formats
+    const dateCol = findColumnIndex(headers, [
+        'date', 'transaction date', 'posting date', 'posted date', 
+        'trans date', 'effective date', 'value date', 'post date'
+    ]);
     
-    // Alternative: look for credit/debit columns separately
-    const creditCol = findColumnIndex(headers, ['credit', 'deposit', 'cr']);
-    const debitCol = findColumnIndex(headers, ['debit', 'withdrawal', 'dr']);
+    const descCol = findColumnIndex(headers, [
+        'description', 'memo', 'details', 'transaction', 'narration',
+        'transaction description', 'payee', 'merchant', 'name',
+        'transaction details', 'particulars', 'reference'
+    ]);
+    
+    const amountCol = findColumnIndex(headers, [
+        'amount', 'value', 'sum', 'total', 'net amount', 'transaction amount'
+    ]);
+    
+    const balanceCol = findColumnIndex(headers, [
+        'balance', 'running balance', 'available balance', 'current balance',
+        'account balance', 'closing balance', 'ledger balance'
+    ]);
+    
+    // Credit/Deposit columns (money coming IN)
+    const creditCol = findColumnIndex(headers, [
+        'credit', 'deposit', 'deposits', 'cr', 'credit amount',
+        'money in', 'additions', 'credits', 'payment', 'incoming'
+    ]);
+    
+    // Debit/Withdrawal columns (money going OUT)
+    const debitCol = findColumnIndex(headers, [
+        'debit', 'withdrawal', 'withdrawals', 'dr', 'debit amount',
+        'money out', 'subtractions', 'debits', 'charge', 'outgoing'
+    ]);
     
     // Log detected columns
-    console.log('Column detection:', {
-        dateCol, descCol, amountCol, balanceCol, creditCol, debitCol
-    });
+    console.log('=== COLUMN DETECTION ===');
+    console.log('Headers found:', headers);
+    console.log('Date column:', dateCol, dateCol !== -1 ? '(' + headers[dateCol] + ')' : '(NOT FOUND)');
+    console.log('Description column:', descCol, descCol !== -1 ? '(' + headers[descCol] + ')' : '(NOT FOUND)');
+    console.log('Amount column:', amountCol, amountCol !== -1 ? '(' + headers[amountCol] + ')' : '(NOT FOUND)');
+    console.log('Balance column:', balanceCol, balanceCol !== -1 ? '(' + headers[balanceCol] + ')' : '(NOT FOUND)');
+    console.log('Credit column:', creditCol, creditCol !== -1 ? '(' + headers[creditCol] + ')' : '(NOT FOUND)');
+    console.log('Debit column:', debitCol, debitCol !== -1 ? '(' + headers[debitCol] + ')' : '(NOT FOUND)');
+    console.log('========================');
     
-    // Validate required columns
+    // Log first few data rows for debugging
+    console.log('First 3 data rows:');
+    for (let i = 1; i <= Math.min(3, data.length - 1); i++) {
+        console.log('Row', i, ':', data[i]);
+    }
+    
+    // Validate required columns - more helpful error messages
     if (dateCol === -1) {
         console.error('Date column not found in headers:', headers);
-        throw new Error('Could not find date column in file. Expected headers: "date", "transaction date", or "posting date"');
+        throw new Error('Could not find date column. Your file headers are: ' + headers.join(', ') + '. Expected: "Date", "Transaction Date", etc.');
     }
     
     if (descCol === -1) {
-        console.warn('Description column not found, using default');
+        console.warn('Description column not found, will try to use other columns');
     }
     
-    if (amountCol === -1 && (creditCol === -1 || debitCol === -1)) {
+    // Check if we have ANY way to get amounts
+    const hasAmountColumn = amountCol !== -1;
+    const hasSeparateColumns = creditCol !== -1 || debitCol !== -1;
+    
+    if (!hasAmountColumn && !hasSeparateColumns) {
         console.error('Amount columns not found in headers:', headers);
-        throw new Error('Could not find amount column in file. Expected headers: "amount", "debit/credit", or "value"');
+        throw new Error('Could not find amount column. Your file headers are: ' + headers.join(', ') + '. Expected: "Amount", "Deposits/Withdrawals", "Credit/Debit", etc.');
     }
     
     // Process each row (skip header)
@@ -2295,21 +2334,36 @@ async function parseTransactions(data, providedYear = null) {
         const row = data[i];
         if (!row || row.length === 0) continue;
         
-        let date = row[dateCol] || '';
-        let description = row[descCol] || 'Unknown Transaction';
-        let amount = 0;
-        let balance = row[balanceCol] || 0;
+        // Skip rows that are completely empty
+        const hasData = row.some(cell => cell !== null && cell !== undefined && cell !== '');
+        if (!hasData) continue;
         
-        // Parse amount
-        if (creditCol !== -1 && debitCol !== -1) {
-            const credit = parseAmount(row[creditCol]);
-            const debit = parseAmount(row[debitCol]);
-            amount = credit - debit;
-        } else if (amountCol !== -1) {
+        let date = row[dateCol] || '';
+        let description = descCol !== -1 ? (row[descCol] || 'Unknown Transaction') : 'Unknown Transaction';
+        let amount = 0;
+        let balance = balanceCol !== -1 ? row[balanceCol] : 0;
+        
+        // Parse amount - try multiple methods
+        // Method 1: Separate credit/debit columns
+        if (creditCol !== -1 || debitCol !== -1) {
+            const credit = creditCol !== -1 ? parseAmount(row[creditCol]) : 0;
+            const debit = debitCol !== -1 ? parseAmount(row[debitCol]) : 0;
+            
+            // If we have values in either column, use them
+            if (credit !== 0 || debit !== 0) {
+                amount = credit - debit;
+            }
+        }
+        
+        // Method 2: Single amount column (if no amount from credit/debit)
+        if (amount === 0 && amountCol !== -1) {
             amount = parseAmount(row[amountCol]);
         }
         
-        // Skip if no valid amount
+        // Method 3: If still no amount, try balance difference (last resort)
+        // Skip this for now as it's unreliable
+        
+        // Skip if no valid amount found
         if (amount === 0) {
             skippedRows++;
             continue;
@@ -2380,12 +2434,28 @@ function findColumnIndex(headers, possibilities) {
 function parseAmount(value) {
     if (value === null || value === undefined || value === '') return 0;
     
-    // Remove currency symbols and commas
-    const cleaned = String(value).replace(/[$,₹€£]/g, '').trim();
+    // If it's already a number, return it
+    if (typeof value === 'number') return value;
     
-    // Handle parentheses (negative numbers)
+    let cleaned = String(value).trim();
+    
+    // Remove currency symbols and spaces
+    cleaned = cleaned.replace(/[$,₹€£\s]/g, '');
+    
+    // Handle empty string after cleaning
+    if (cleaned === '' || cleaned === '-') return 0;
+    
+    // Handle parentheses (negative numbers in accounting format)
     if (cleaned.startsWith('(') && cleaned.endsWith(')')) {
         return -parseFloat(cleaned.replace(/[()]/g, '')) || 0;
+    }
+    
+    // Handle CR/DR suffixes (some banks use this)
+    if (cleaned.toUpperCase().endsWith('CR')) {
+        return Math.abs(parseFloat(cleaned.replace(/CR$/i, ''))) || 0;
+    }
+    if (cleaned.toUpperCase().endsWith('DR')) {
+        return -Math.abs(parseFloat(cleaned.replace(/DR$/i, ''))) || 0;
     }
     
     return parseFloat(cleaned) || 0;
