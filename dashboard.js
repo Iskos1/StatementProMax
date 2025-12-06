@@ -185,7 +185,11 @@ async function initializeDashboard() {
         
     } catch (error) {
         console.error('Failed to initialize authentication:', error);
-        alert('Failed to load authentication system. Please refresh the page.');
+        // Don't block the dashboard - still allow file uploads even if auth fails
+        console.warn('⚠️ Auth failed, but dashboard features will still work');
+        
+        // Initialize dashboard features anyway so users can still upload files
+        initializeDashboardFeatures();
     }
 }
 
@@ -480,6 +484,11 @@ window.addEventListener('DOMContentLoaded', () => {
         return;
     }
     dashboardInitialized = true;
+    
+    // CRITICAL: Cache DOM elements FIRST, before any other initialization
+    // This ensures dom object is available even if auth fails
+    cacheDOMElements();
+    console.log('✓ DOM elements cached');
     
     initializeDashboard();
     
