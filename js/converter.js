@@ -331,17 +331,15 @@ async function convertFile(fileId) {
 
     try {
         // Step 1: Read file as base64
-        showNotification('🔄 Reading file: ' + fileData.name, 'info');
         fileData.progress = 10;
         updateProgress(fileId, 10);
 
         const base64Data = await readFileAsBase64(fileData.file);
-
+        
         fileData.progress = 20;
         updateProgress(fileId, 20);
 
         // Step 2: Send to ConvertAPI
-        showNotification('🔄 Converting to Excel...', 'info');
         
         const apiUrl = CONFIG.convertEndpoint + '?Secret=' + CONFIG.apiToken;
 
@@ -390,8 +388,6 @@ async function convertFile(fileId) {
         }
 
         const excelFileInfo = result.Files[0];
-        
-        showNotification('📥 Downloading converted file...', 'info');
         
         let excelBlob;
         
@@ -476,8 +472,6 @@ function downloadFile(fileData) {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
-
-    showNotification('📥 Downloading ' + fileData.excelFileName, 'success');
 }
 
 // Analyze file in dashboard
