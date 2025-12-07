@@ -54,11 +54,11 @@
                     <div class="logo">
                         <div class="logo-icon-wrapper">
                             <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#7c3aed"/>
-                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#a78bfa"/>
-                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#7c3aed"/>
-                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#a78bfa"/>
-                                <path d="M2 24 L30 24" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/>
+                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#ff6a3d"/>
+                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#ff8f5a"/>
+                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#ff6a3d"/>
+                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#ff8f5a"/>
+                                <path d="M2 24 L30 24" stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"/>
                             </svg>
                         </div>
                         <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
@@ -230,16 +230,36 @@
         <div class="container">
             <!-- Header -->
             <div class="converter-header animate-slide-in-up">
-                <div class="trust-badge-row">
-                    <span class="mini-badge" data-tooltip="Your files are processed locally in your browser">✓ 100% Secure</span>
-                    <span class="mini-badge" data-tooltip="Average conversion time: 3 seconds">✓ Instant Processing</span>
-                    <span class="mini-badge" data-tooltip="Start converting immediately">✓ No Registration</span>
+                <!-- 5-Star Green Rating -->
+                <div class="trust-rating" style="margin-bottom: 20px;">
+                    <div class="star-rating">
+                        <div class="star"></div>
+                        <div class="star"></div>
+                        <div class="star"></div>
+                        <div class="star"></div>
+                        <div class="star"></div>
+                    </div>
+                    <span class="trust-rating-text"><span class="trust-rating-score">5.0</span> • Excellent</span>
+                    <span style="color: var(--text-muted); font-size: 13px;">2,847 reviews</span>
                 </div>
+                
                 <h1>Bank Statement Converter</h1>
                 <p class="converter-subtitle">Convert your bank statement files to Excel format instantly. Fast, secure, and accurate.</p>
-                <div class="cta-urgency">
-                    <span class="urgency-icon">⚡</span>
-                    <span>Join 10,000+ users converting files securely every month</span>
+                
+                <!-- Trust Items -->
+                <div class="hero-trust">
+                    <div class="hero-trust-item">
+                        <span class="checkmark">✓</span>
+                        <span>100% Secure</span>
+                    </div>
+                    <div class="hero-trust-item">
+                        <span class="checkmark">✓</span>
+                        <span>Instant Processing</span>
+                    </div>
+                    <div class="hero-trust-item">
+                        <span class="checkmark">✓</span>
+                        <span>No Registration</span>
+                    </div>
                 </div>
             </div>
 
@@ -343,7 +363,7 @@
     <!-- How It Works Section -->
     <section id="how-it-works" class="how-it-works">
         <div class="container">
-            <h2 class="section-title">Get Started in <span style="color: #7c3aed;">3 Simple Steps</span></h2>
+            <h2 class="section-title">Get Started in <span style="color: #ff6a3d;">3 Simple Steps</span></h2>
             <div class="steps">
                 <div class="step step-card">
                     <div class="step-number">1</div>
@@ -425,13 +445,13 @@
             <div class="footer-brand">
                 <div class="footer-logo">
                     <svg class="footer-logo-icon" width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <rect x="4" y="8" width="4" height="16" rx="2" fill="#7c3aed"/>
-                        <rect x="10" y="12" width="4" height="12" rx="2" fill="#a78bfa"/>
-                        <rect x="16" y="6" width="4" height="18" rx="2" fill="#7c3aed"/>
-                        <rect x="22" y="10" width="4" height="14" rx="2" fill="#a78bfa"/>
-                        <path d="M2 24 L30 24" stroke="#7c3aed" stroke-width="2" stroke-linecap="round"/>
+                        <rect x="4" y="8" width="4" height="16" rx="2" fill="#ff6a3d"/>
+                        <rect x="10" y="12" width="4" height="12" rx="2" fill="#ff8f5a"/>
+                        <rect x="16" y="6" width="4" height="18" rx="2" fill="#ff6a3d"/>
+                        <rect x="22" y="10" width="4" height="14" rx="2" fill="#ff8f5a"/>
+                        <path d="M2 24 L30 24" stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"/>
                     </svg>
-                    <span class="footer-logo-text">Statement<span style="color: #7c3aed;">ProMax</span></span>
+                    <span class="footer-logo-text">Statement<span style="color: #ff6a3d;">ProMax</span></span>
                 </div>
                 <p>Secure bank statement conversion and financial analysis.</p>
             </div>
@@ -454,5 +474,56 @@
     <script type="module" src="assets/js/quick-start-guide.js"></script>
     <script type="module" src="assets/js/converter.js"></script>
     <script type="module" src="assets/js/script.js"></script>
+    
+    <!-- Live Delivery Ticker (Buzzoid-style) -->
+    <div class="delivery-ticker" id="deliveryTicker"></div>
+    
+    <script>
+        // Rotating delivery notifications - Buzzoid style
+        (function() {
+            const deliveries = [
+                { icon: '📄', title: '15 PDF files converted', location: 'New York, USA', time: 'Just now' },
+                { icon: '✅', title: '8 statements processed', location: 'London, UK', time: '30 sec ago' },
+                { icon: '📊', title: '23 Excel files generated', location: 'Toronto, Canada', time: '1 min ago' },
+                { icon: '🔄', title: '12 bank statements converted', location: 'Sydney, Australia', time: '2 min ago' },
+                { icon: '💼', title: '5 financial reports created', location: 'Berlin, Germany', time: '3 min ago' },
+                { icon: '📑', title: '18 PDFs to Excel converted', location: 'Paris, France', time: '4 min ago' },
+                { icon: '✨', title: '10 statements analyzed', location: 'Tokyo, Japan', time: '5 min ago' },
+                { icon: '🏦', title: '7 Wells Fargo files processed', location: 'Chicago, USA', time: '6 min ago' },
+                { icon: '📈', title: '14 Chase statements converted', location: 'Miami, USA', time: '7 min ago' },
+                { icon: '💳', title: '9 Bank of America files done', location: 'Seattle, USA', time: '8 min ago' }
+            ];
+            
+            const ticker = document.getElementById('deliveryTicker');
+            let currentIndex = 0;
+            
+            function showNotification() {
+                const delivery = deliveries[currentIndex];
+                ticker.innerHTML = `
+                    <div class="delivery-notification">
+                        <div class="delivery-icon">${delivery.icon}</div>
+                        <div class="delivery-content">
+                            <div class="delivery-title">${delivery.title}</div>
+                            <div class="delivery-subtitle">${delivery.location}</div>
+                            <div class="delivery-time">${delivery.time}</div>
+                        </div>
+                    </div>
+                `;
+                
+                setTimeout(() => {
+                    const notif = ticker.querySelector('.delivery-notification');
+                    if (notif) notif.classList.add('fade-out');
+                }, 4000);
+                
+                currentIndex = (currentIndex + 1) % deliveries.length;
+            }
+            
+            // Start after 3 seconds, then every 6 seconds
+            setTimeout(() => {
+                showNotification();
+                setInterval(showNotification, 6000);
+            }, 3000);
+        })();
+    </script>
 </body>
 </html>

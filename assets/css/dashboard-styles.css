@@ -108,7 +108,7 @@ html {
 }
 
 .active {
-    color: #7c3aed !important;
+    color: #ff6a3d !important;
     font-weight: 600;
 }
 
@@ -149,7 +149,7 @@ html {
 }
 
 .upload-area:hover {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     background: #fff5f5;
 }
 
@@ -202,7 +202,7 @@ html {
     padding: 16px;
     background: #f0f8f5;
     border-radius: 8px;
-    color: #7c3aed;
+    color: #ff6a3d;
     font-size: 14px;
     font-weight: 500;
     line-height: 1.5;
@@ -312,7 +312,7 @@ html {
     right: 32px;
     width: 56px;
     height: 56px;
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
     color: white;
     border: none;
     border-radius: 50%;
@@ -336,7 +336,7 @@ html {
 }
 
 .back-to-top:hover {
-    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+    background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
     box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
     transform: scale(1.05) translateY(-2px);
 }
@@ -393,16 +393,16 @@ html {
 }
 
 .month-btn:hover {
-    border-color: #7c3aed;
-    color: #7c3aed;
+    border-color: #ff6a3d;
+    color: #ff6a3d;
     background: white;
     box-shadow: 0 2px 8px rgba(255, 107, 107, 0.15);
 }
 
 .month-btn.active {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
     color: white;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
 }
 
@@ -411,7 +411,7 @@ html {
 }
 
 .month-btn-all.active {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
     color: white;
 }
 
@@ -473,7 +473,7 @@ html {
 
 #selectedMonthCount {
     font-weight: 700;
-    color: #7c3aed;
+    color: #ff6a3d;
 }
 
 /* Quick Presets */
@@ -498,8 +498,8 @@ html {
 }
 
 .preset-btn:hover {
-    border-color: #7c3aed;
-    color: #7c3aed;
+    border-color: #ff6a3d;
+    color: #ff6a3d;
     background: white;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
@@ -511,13 +511,13 @@ html {
 
 /* Save/Load Buttons */
 .month-btn-save {
-    background: #faf5ff;
-    border-color: #7c3aed;
-    color: #7c3aed;
+    background: #fff8f5;
+    border-color: #ff6a3d;
+    color: #ff6a3d;
 }
 
 .month-btn-save:hover {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
     color: white;
 }
 
@@ -534,7 +534,7 @@ html {
 
 /* Saved Selections Modal */
 .saved-selections-modal .btn-primary {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
     color: white;
     border: none;
     border-radius: 10px;
@@ -545,7 +545,7 @@ html {
 }
 
 .saved-selections-modal .btn-primary:hover {
-    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+    background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
     transform: translateY(-2px);
     box-shadow: 0 5px 16px rgba(255, 107, 107, 0.35);
 }
@@ -562,8 +562,8 @@ html {
 }
 
 .saved-selections-modal .btn-outline:hover {
-    border-color: #7c3aed;
-    color: #7c3aed;
+    border-color: #ff6a3d;
+    color: #ff6a3d;
 }
 
 /* Savings Optimizer Section - Simplified */
@@ -616,7 +616,7 @@ html {
 .optimizer-stat-value {
     font-size: 20px;
     font-weight: 700;
-    color: #7c3aed;
+    color: #ff6a3d;
     line-height: 1;
 }
 
@@ -845,7 +845,7 @@ html {
 .optimizer-target-value-display {
     font-size: 28px;
     font-weight: 700;
-    color: #7c3aed;
+    color: #ff6a3d;
     line-height: 1;
 }
 
@@ -906,7 +906,7 @@ html {
     border-radius: 50%;
     background: white;
     cursor: pointer;
-    border: 4px solid #7c3aed;
+    border: 4px solid #ff6a3d;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     
 }
@@ -926,7 +926,7 @@ html {
     border-radius: 50%;
     background: white;
     cursor: pointer;
-    border: 4px solid #7c3aed;
+    border: 4px solid #ff6a3d;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     
 }
@@ -1055,7 +1055,7 @@ html {
 }
 
 .recurring-search-wrapper:focus-within {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     background: white;
     box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
 }
@@ -1107,7 +1107,7 @@ html {
     background: #f0f8f5;
     border-radius: 8px;
     font-size: 14px;
-    color: #7c3aed;
+    color: #ff6a3d;
     font-weight: 500;
 }
 
@@ -1145,7 +1145,7 @@ html {
 .recurring-stat-value {
     font-size: 20px;
     font-weight: 700;
-    color: #7c3aed;
+    color: #ff6a3d;
     line-height: 1;
 }
 
@@ -1178,7 +1178,7 @@ html {
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(135deg, #7c3aed 0%, #22c55e 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #22c55e 100%);
     opacity: 0;
 }
 
@@ -1187,7 +1187,7 @@ html {
 }
 
 .recurring-payment-item:hover {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     background: #fffafa;
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.1);
 }
@@ -1229,7 +1229,7 @@ html {
 
 .recurring-frequency {
     background: #e8f0ed;
-    color: #7c3aed;
+    color: #ff6a3d;
     padding: 3px 10px;
     border-radius: 12px;
     font-weight: 600;
@@ -1269,8 +1269,8 @@ html {
 
 .month-btn.active {
     background: white;
-    color: #7c3aed;
-    border-color: #7c3aed;
+    color: #ff6a3d;
+    border-color: #ff6a3d;
 }
 
 .dashboard-header {
@@ -1307,7 +1307,7 @@ html {
 }
 
 .dashboard-file-badge {
-    background: #7c3aed;
+    background: #ff6a3d;
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -1344,7 +1344,7 @@ html {
 
 /* Small primary button */
 .btn-primary-sm {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
     color: white;
     border: none;
     padding: 10px 16px;
@@ -1359,7 +1359,7 @@ html {
 }
 
 .btn-primary-sm:hover {
-    background: linear-gradient(135deg, #6d28d9 0%, #5b21b6 100%);
+    background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
 }
 
 /* Month Filter Bar - Top position */
@@ -1403,13 +1403,13 @@ html {
 
 .month-filter-bar .month-btn:hover {
     background: #f0f0f0;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
 }
 
 .month-filter-bar .month-btn.active {
     background: white;
-    color: #7c3aed;
-    border: 2px solid #7c3aed;
+    color: #ff6a3d;
+    border: 2px solid #ff6a3d;
     font-weight: 600;
 }
 
@@ -1493,7 +1493,7 @@ html {
 }
 
 .savings-card {
-    border-left-color: #7c3aed;
+    border-left-color: #ff6a3d;
 }
 
 /* Charts - Simplified */
@@ -1550,7 +1550,7 @@ html {
 
 .transaction-count span {
     font-weight: 700;
-    color: #7c3aed;
+    color: #ff6a3d;
 }
 
 .transaction-filters-container {
@@ -1597,13 +1597,13 @@ html {
 
 .category-filter-select:hover,
 .sort-filter-select:hover {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
 }
 
 .category-filter-select:focus,
 .sort-filter-select:focus {
     outline: none;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
 }
 
@@ -1626,24 +1626,24 @@ html {
     left: 50%;
     width: 0;
     height: 3px;
-    background: linear-gradient(90deg, #7c3aed 0%, #22c55e 100%);
+    background: linear-gradient(90deg, #ff6a3d 0%, #22c55e 100%);
     transform: translateX(-50%);
     
     border-radius: 2px;
 }
 
 .filter-btn:hover {
-    border-color: #7c3aed;
-    color: #7c3aed;
+    border-color: #ff6a3d;
+    color: #ff6a3d;
     background: #fffafa;
     transform: translateY(-2px);
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
 }
 
 .filter-btn.active {
-    background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
     color: white;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);
 }
 
@@ -1692,7 +1692,7 @@ html {
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(135deg, #7c3aed, #22c55e);
+    background: linear-gradient(135deg, #ff6a3d, #22c55e);
     opacity: 0;
 }
 
@@ -1744,7 +1744,7 @@ html {
 }
 
 .category-cell-clickable:hover {
-    background: #faf5ff;
+    background: #fff8f5;
 }
 
 .confidence-badge {
@@ -1878,7 +1878,7 @@ button:focus-visible {
     width: 60px;
     height: 60px;
     border: 4px solid #f0f0f0;
-    border-top-color: #7c3aed;
+    border-top-color: #ff6a3d;
     border-right-color: #22c55e;
     border-radius: 50%;
     
@@ -2175,12 +2175,12 @@ button:focus-visible {
 }
 
 .year-select-dropdown:hover {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
 }
 
 .year-select-dropdown:focus {
     outline: none;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
 }
 
@@ -2204,14 +2204,14 @@ button:focus-visible {
 }
 
 .year-quick-btn:hover {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     background: #f0f7f4;
 }
 
 .year-quick-btn.selected {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     background: white;
-    color: #7c3aed;
+    color: #ff6a3d;
 }
 
 .year-modal-footer {
@@ -2390,17 +2390,17 @@ button:focus-visible {
 }
 
 .category-select-dropdown:hover {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
 }
 
 .category-select-dropdown:focus {
     outline: none;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
 }
 
 .similar-transactions-section {
-    background: #faf5ff;
+    background: #fff8f5;
     padding: 20px;
     border-radius: 12px;
     border: 2px solid #FFE5E5;
@@ -2423,7 +2423,7 @@ button:focus-visible {
 }
 
 .checkbox-label strong {
-    color: #7c3aed;
+    color: #ff6a3d;
 }
 
 .similar-list {
@@ -2551,7 +2551,7 @@ button:focus-visible {
     content: '';
     width: 4px;
     height: 24px;
-    background: linear-gradient(135deg, #7c3aed 0%, #22c55e 100%);
+    background: linear-gradient(135deg, #ff6a3d 0%, #22c55e 100%);
     border-radius: 2px;
 }
 
@@ -2839,12 +2839,12 @@ button:focus-visible {
 }
 
 .review-actions select:hover {
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
 }
 
 .review-actions select:focus {
     outline: none;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
 }
 
@@ -2888,7 +2888,7 @@ button:focus-visible {
 .learned-patterns-link button {
     background: none;
     border: none;
-    color: #7c3aed;
+    color: #ff6a3d;
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;
@@ -3119,7 +3119,7 @@ button:focus-visible {
 
 .learned-search-input:focus {
     outline: none;
-    border-color: #7c3aed;
+    border-color: #ff6a3d;
     box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
 }
 

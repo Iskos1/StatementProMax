@@ -37,7 +37,7 @@ export function showQuickStartGuide() {
                 <!-- Step 1 -->
                 <div style="display: flex; gap: 20px; margin-bottom: 32px; padding: 20px; background: linear-gradient(135deg, #FFF5F5 0%, #FFF9F9 100%); border-radius: 12px; border: 2px solid #FFE8E8;">
                     <div style="flex-shrink: 0;">
-                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 800; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);">1</div>
+                        <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 24px; font-weight: 800; box-shadow: 0 4px 12px rgba(255, 107, 107, 0.3);">1</div>
                     </div>
                     <div style="flex: 1;">
                         <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 8px; color: #1a1a1a;">Upload Your Files</h3>
