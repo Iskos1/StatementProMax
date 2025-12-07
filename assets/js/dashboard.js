@@ -115,32 +115,6 @@ let isReviewMode = false; // Track if we're in review mode
 // DOM Elements - cached for performance
 let dom = {};
 
-// Initialize upload button (works without authentication)
-function initializeUploadButton() {
-    const browseFilesBtn = document.getElementById('browseFilesBtn');
-    const fileInput = document.getElementById('fileInput');
-    const uploadArea = document.getElementById('uploadArea');
-    
-    // Browse Files button click handler
-    if (browseFilesBtn && fileInput) {
-        browseFilesBtn.addEventListener('click', (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            fileInput.click();
-        });
-    }
-    
-    // Upload area click handler
-    if (uploadArea && fileInput) {
-        uploadArea.addEventListener('click', (e) => {
-            // Don't trigger if clicking the button (button has its own handler)
-            if (!e.target.closest('#browseFilesBtn')) {
-                fileInput.click();
-            }
-        });
-    }
-}
-
 // Show optional sign-in banner (non-blocking)
 function showOptionalSignInBanner() {
     const dashboardHero = document.getElementById('dashboardHero');
@@ -438,12 +412,7 @@ function attachEventListeners() {
         return;
     }
     
-    // Note: File input listener is attached in DOMContentLoaded, don't duplicate
-    // if (dom.fileInput) {
-    //     dom.fileInput.addEventListener('change', handleFileSelect);
-    // }
-    
-    // Browse Files button handler is now in initializeUploadButton() - called on page load
+    // File input and button handlers use inline HTML attributes (onclick/onchange)
     
     if (dom.uploadArea) {
         dom.uploadArea.addEventListener('dragover', (e) => {
@@ -543,14 +512,9 @@ window.addEventListener('DOMContentLoaded', () => {
     
     initializeDashboard();
     
-    // Initialize upload button immediately (don't wait for auth)
-    initializeUploadButton();
-    
-    // Attach file input listener immediately
-    const fileInput = document.getElementById('fileInput');
-    if (fileInput) {
-        fileInput.addEventListener('change', handleFileSelect);
-    }
+    // File input change handler is now inline in HTML (onchange="handleFileSelectGlobal")
+    // Button click handlers are also inline in HTML
+    // No need for duplicate JavaScript event listeners
     
     // Also attach drag/drop listeners immediately
     const uploadArea = document.getElementById('uploadArea');
