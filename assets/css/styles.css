@@ -6,13 +6,22 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+    font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     font-size: 16px;
     line-height: 1.7;
     color: #1a1a1a;
     background: #ffffff;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
+}
+
+/* Primary gradient colors - Purple/Pink theme */
+:root {
+    --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 50%, #f093fb 100%);
+    --primary-gradient-hover: linear-gradient(135deg, #5a6fd6 0%, #6a4190 50%, #e085e8 100%);
+    --primary-purple: #667eea;
+    --primary-pink: #f093fb;
+    --accent-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 }
 
 /* Typography Hierarchy */
@@ -84,13 +93,13 @@ p {
 
 /* Promotional Banner - Permanent */
 .promo-banner {
-    background: linear-gradient(135deg, #FF6B6B 0%, #FF8A80 100%);
+    background: var(--primary-gradient);
     color: white;
-    padding: 8px 20px;
+    padding: 10px 20px;
     display: flex;
     justify-content: center;
     align-items: center;
-    box-shadow: 0 2px 12px rgba(255, 107, 107, 0.25);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.35);
 }
 
 .promo-content {
@@ -175,7 +184,7 @@ p {
     justify-content: center;
     width: 40px;
     height: 40px;
-    background: linear-gradient(135deg, #FFF5F5 0%, #FFE8E8 100%);
+    background: linear-gradient(135deg, #f0f0ff 0%, #f5e6ff 100%);
     border-radius: 10px;
     padding: 4px;
     
@@ -191,18 +200,20 @@ p {
 }
 
 .logo-accent {
-    color: #FF6B6B;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     font-weight: 900;
 }
 
 .logo-link:hover .logo-icon-wrapper {
-    
-    background: linear-gradient(135deg, #FFE8E8 0%, #FFD4D4 100%);
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+    background: linear-gradient(135deg, #e8e8ff 0%, #f0e0ff 100%);
+    box-shadow: 0 4px 12px rgba(102, 126, 234, 0.2);
 }
 
 .logo-link:hover .logo-text {
-    color: #FF6B6B;
+    color: var(--primary-purple);
 }
 
 /* Mobile Menu Toggle */
@@ -260,27 +271,26 @@ p {
     color: #1a1a1a;
 }
 
-/* Buttons - Buzzoid-inspired CTA colors */
+/* Buttons - Purple/Pink gradient theme */
 .btn-primary,
 .btn-primary-large {
-    background: linear-gradient(135deg, #FF6B6B 0%, #FF5252 100%);
+    background: var(--primary-gradient);
     color: white;
     border: none;
     padding: 16px 36px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 16px;
     font-weight: 700;
     cursor: pointer;
-    
     letter-spacing: 0.01em;
-    box-shadow: 0 4px 14px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 20px rgba(102, 126, 234, 0.4);
 }
 
 .btn-primary:hover,
 .btn-primary-large:hover {
-    background: linear-gradient(135deg, #FF5252 0%, #FF4040 100%);
-    
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    background: var(--primary-gradient-hover);
+    box-shadow: 0 8px 30px rgba(102, 126, 234, 0.5);
+    transform: translateY(-2px);
 }
 
 .btn-primary-large {
@@ -291,8 +301,8 @@ p {
 
 .btn-secondary {
     background: white;
-    color: #FF6B6B;
-    border: 2px solid #FF6B6B;
+    color: var(--primary-purple);
+    border: 2px solid var(--primary-purple);
     padding: 14px 28px;
     border-radius: 10px;
     font-size: 15px;
@@ -329,42 +339,65 @@ p {
     
 }
 
-/* Hero Section - Buzzoid-inspired */
+/* Hero Section - Buzzoid-inspired gradient */
 .hero {
-    padding: 160px 0 80px;
+    padding: 140px 0 80px;
     text-align: center;
-    background: linear-gradient(180deg, #FFF9F9 0%, #FFFFFF 100%);
+    background: linear-gradient(180deg, #f8f6ff 0%, #fff5fb 50%, #ffffff 100%);
+    position: relative;
+}
+
+.hero::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 400px;
+    background: radial-gradient(ellipse at 50% 0%, rgba(102, 126, 234, 0.08) 0%, transparent 70%);
+    pointer-events: none;
 }
 
 .hero-content {
-    max-width: 800px;
+    max-width: 850px;
     margin: 0 auto;
+    position: relative;
 }
 
 .hero h1 {
-    font-size: 64px;
+    font-size: 58px;
     font-weight: 800;
-    line-height: 1.15;
-    margin-bottom: 28px;
-    color: #1a1a1a;
-    letter-spacing: -0.02em;
+    line-height: 1.12;
+    margin-bottom: 24px;
+    letter-spacing: -0.03em;
+    background: linear-gradient(135deg, #1a1a1a 0%, #333 100%);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.hero h1 span {
+    background: var(--primary-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
 }
 
 .hero-subtitle {
     font-size: 20px;
-    color: #6a6a6a;
-    margin-bottom: 48px;
+    color: #555;
+    margin-bottom: 40px;
     line-height: 1.7;
-    font-weight: 400;
+    font-weight: 500;
 }
 
 .hero-cta {
-    margin-bottom: 60px;
+    margin-bottom: 50px;
 }
 
 .hero-note {
     margin-top: 16px;
-    color: #8a8a8a;
+    color: #888;
     font-size: 14px;
     line-height: 1.5;
 }
@@ -374,7 +407,7 @@ p {
     justify-content: center;
     gap: 80px;
     padding: 40px 0;
-    border-top: 1px solid #e5e5e5;
+    border-top: 1px solid rgba(102, 126, 234, 0.15);
 }
 
 .stat {
@@ -382,9 +415,12 @@ p {
 }
 
 .stat-number {
-    font-size: 40px;
+    font-size: 42px;
     font-weight: 800;
-    color: #FF6B6B;
+    background: var(--accent-gradient);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
     margin-bottom: 8px;
     letter-spacing: -0.01em;
 }
@@ -2159,7 +2195,7 @@ p {
 
 .btn-auth {
     padding: 10px 20px;
-    border: 2px solid #e5e5e5;
+    border: 2px solid #e0e0e0;
     background: white;
     border-radius: 8px;
     font-weight: 600;
@@ -2170,8 +2206,8 @@ p {
 }
 
 .btn-auth:hover {
-    border-color: #2d7a5f;
-    color: #2d7a5f;
+    border-color: var(--primary-purple);
+    color: var(--primary-purple);
 }
 
 /* User Menu */
