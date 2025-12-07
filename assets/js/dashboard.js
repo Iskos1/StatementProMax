@@ -2254,6 +2254,9 @@ function handleFileSelect(e) {
     }
 }
 
+// Expose globally for inline onchange handler in HTML
+window.handleFileSelectGlobal = handleFileSelect;
+
 async function parseTransactions(data, providedYear = null) {
     if (!data || data.length < 2) {
         return [];
