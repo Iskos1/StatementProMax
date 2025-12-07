@@ -317,8 +317,8 @@ function setupAuth(db) {
             await db.auth.sendMagicCode({ email: sentEmail });
             showError(codeError, 'New code sent! Check your email.');
             codeError.style.background = '#f0f8f5';
-            codeError.style.borderColor = '#2d7a5f';
-            codeError.style.color = '#2d7a5f';
+            codeError.style.borderColor = '#7c3aed';
+            codeError.style.color = '#7c3aed';
         } catch (error) {
             showError(codeError, 'Failed to resend code. Please try again.');
         } finally {
