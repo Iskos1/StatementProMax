@@ -32,7 +32,6 @@ export async function updateFileHistoryStats() {
             storageUsed.textContent = `${sizeMB} MB`;
         }
     } catch (error) {
-        console.error('Failed to update file history stats:', error);
     }
 }
 
@@ -124,7 +123,6 @@ export async function renderFileHistoryList(searchFilter = '') {
             `;
         }).join('');
     } catch (error) {
-        console.error('Failed to render file history:', error);
         listContainer.innerHTML = `
             <div style="text-align: center; padding: 40px; color: #ef4444;">
                 <div style="font-size: 32px; margin-bottom: 12px;">❌</div>
@@ -204,7 +202,6 @@ window.reloadFileFromHistory = async function(fileId) {
         }));
         window.location.href = 'dashboard.html';
     } catch (error) {
-        console.error('Failed to reload file from history:', error);
         showNotification('Failed to reload file', 'error');
     }
 };
@@ -221,7 +218,6 @@ window.deleteFileFromHistory = async function(fileId) {
         await renderFileHistoryList();
         showNotification('File deleted from history', 'success');
     } catch (error) {
-        console.error('Failed to delete file from history:', error);
         showNotification('Failed to delete file', 'error');
     }
 };
@@ -244,7 +240,6 @@ async function handleClearAllFileHistory() {
         await renderFileHistoryList();
         showNotification('All file history cleared', 'success');
     } catch (error) {
-        console.error('Failed to clear file history:', error);
         showNotification('Failed to clear history', 'error');
     }
 }

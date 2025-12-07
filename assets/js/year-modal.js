@@ -17,12 +17,10 @@ export function initializeYearModal() {
         const confirmYearBtn = document.getElementById('confirmYearBtn');
         
         if (!yearModal || !yearSelect || !yearQuickButtons || !cancelYearBtn || !confirmYearBtn) {
-            console.warn('Year modal elements not found, skipping initialization');
             return false;
         }
         
         if (eventListenersAttached) {
-            console.warn('Year modal already initialized');
             return true;
         }
     
@@ -122,7 +120,6 @@ export function initializeYearModal() {
         return true;
         
     } catch (error) {
-        console.error('Error initializing year modal:', error);
         return false;
     }
 }
@@ -161,7 +158,6 @@ export function showYearModal() {
                     }
                 });
             } catch (error) {
-                console.warn('Error updating quick buttons:', error);
             }
             
             // Use requestAnimationFrame to ensure smooth animation
@@ -188,7 +184,6 @@ export function hideYearModal() {
         document.body.style.overflow = 'auto';
         isModalOpen = false;
     } catch (error) {
-        console.error('Error hiding year modal:', error);
         document.body.style.overflow = 'auto';
         isModalOpen = false;
     }

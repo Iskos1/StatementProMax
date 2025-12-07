@@ -7,7 +7,6 @@ async function initializeApp() {
         const { init } = await import('https://cdn.jsdelivr.net/npm/@instantdb/core@0.14.30/+esm');
         return init({ appId: APP_ID });
     } catch (error) {
-        console.error('Failed to load InstantDB:', error);
         return null;
     }
 }
@@ -58,7 +57,6 @@ function setupAuth(db) {
 
     // Check if element exists before adding listeners
     if (!modal || !signInBtn) {
-        console.warn('Auth elements not found on this page');
         return;
     }
 
@@ -217,7 +215,6 @@ function setupAuth(db) {
             sentEmail = email;
             showCodeView(email);
         } catch (error) {
-            console.error('Error sending magic code:', error);
             showError(emailError, error.message || 'Failed to send code. Please try again.');
         } finally {
             sendCodeBtn.textContent = originalText;
@@ -279,7 +276,6 @@ function setupAuth(db) {
                 }
             }, 500);
         } catch (error) {
-            console.error('Error verifying code:', error);
             showError(codeError, error.message || 'Invalid code. Please try again.');
             verifyCodeBtn.textContent = originalText;
             verifyCodeBtn.disabled = false;
@@ -324,7 +320,6 @@ function setupAuth(db) {
             codeError.style.borderColor = '#2d7a5f';
             codeError.style.color = '#2d7a5f';
         } catch (error) {
-            console.error('Error resending code:', error);
             showError(codeError, 'Failed to resend code. Please try again.');
         } finally {
             resendCodeBtn.textContent = originalText;
@@ -342,7 +337,6 @@ function setupAuth(db) {
             await db.auth.signInWithGoogle();
             // Redirect will happen automatically after auth state updates
         } catch (error) {
-            console.error('Error signing in with Google:', error);
             showError(emailError, 'Failed to sign in with Google. Please try again.');
             googleSignInBtn.disabled = false;
             googleSignInBtn.textContent = originalText;
@@ -377,7 +371,6 @@ function setupAuth(db) {
                 // Redirect to homepage after sign out
                 window.location.href = 'index.html';
             } catch (error) {
-                console.error('Error signing out:', error);
                 alert('Failed to sign out. Please try again.');
                 signOutBtn.disabled = false;
                 signOutBtn.textContent = originalText;

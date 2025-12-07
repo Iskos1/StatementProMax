@@ -426,7 +426,6 @@ async function convertFile(fileId) {
         showNotification('✅ ' + fileData.name + ' converted successfully!', 'success');
         
     } catch (error) {
-        console.error('Conversion error:', error);
         fileData.status = 'error';
         fileData.error = error.message || 'Conversion failed. Please try again.';
         showNotification('❌ Failed to convert ' + fileData.name + ': ' + error.message, 'error');

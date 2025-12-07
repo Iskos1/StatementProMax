@@ -27,7 +27,6 @@ import {
 
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
-    console.error('Unhandled rejection:', event.reason);
 });
 
 // ========================================
@@ -67,20 +66,6 @@ function verifyXLSXLibrary() {
     }
     
     return diagnostics;
-}
-
-// Log diagnostic information about file processing
-function logFileDiagnostics(context, data) {
-    console.group(`📊 [File Diagnostics] ${context}`);
-    console.log('Timestamp:', new Date().toISOString());
-    Object.entries(data).forEach(([key, value]) => {
-        if (typeof value === 'object' && value !== null) {
-            console.log(`${key}:`, JSON.stringify(value, null, 2));
-        } else {
-            console.log(`${key}:`, value);
-        }
-    });
-    console.groupEnd();
 }
 
 let transactions = [];
@@ -210,7 +195,6 @@ async function initializeDashboard() {
         window.dashboardDb = db;
         
     } catch (error) {
-        console.error('Failed to initialize authentication:', error);
         // Initialize dashboard features anyway so users can still upload files
         initializeDashboardFeatures();
     }
@@ -269,7 +253,6 @@ async function initializeDashboardFeatures() {
         // Load and display database statistics
         await loadDatabaseStats();
     } catch (error) {
-        console.error('Failed to initialize transaction database:', error);
         showNotification('Warning: Categorization learning may not persist', 'warning');
     }
     
@@ -332,7 +315,6 @@ async function loadDatabaseStats() {
         
         return stats;
     } catch (error) {
-        console.error('Failed to load database stats:', error);
         return null;
     }
 }
@@ -408,7 +390,6 @@ let listenersAttached = false;
 // Attach all event listeners
 function attachEventListeners() {
     if (listenersAttached) {
-        console.warn('Event listeners already attached');
         return;
     }
     
@@ -484,27 +465,22 @@ let dashboardInitialized = false;
 // Start authentication check on page load
 window.addEventListener('DOMContentLoaded', () => {
     if (dashboardInitialized) {
-        console.warn('Dashboard already initialized, skipping');
         return;
     }
     dashboardInitialized = true;
     
     // Verify XLSX library is available
     const xlsxCheck = verifyXLSXLibrary();
-    console.log('📚 XLSX Library Status:', xlsxCheck);
     
     if (!xlsxCheck.loaded) {
-        console.error('❌ XLSX library failed to load! Excel file processing will not work.');
         // Try to wait for it
         setTimeout(() => {
             const retryCheck = verifyXLSXLibrary();
-            console.log('📚 XLSX Library Retry:', retryCheck);
             if (!retryCheck.loaded) {
                 showNotification('Excel library failed to load. Please refresh the page.', 'error');
             }
         }, 2000);
     } else {
-        console.log(`✅ XLSX library loaded successfully (v${xlsxCheck.version})`);
     }
     
     // Cache DOM elements first, before any other initialization
@@ -688,7 +664,6 @@ window.loadConvertedFile = async function loadConvertedFile(fileName, base64Data
         showCategorizationReview(allTransactions);
     } catch (error) {
         hideLoading();
-        console.error('Error loading converted file:', error);
         alert('Error loading the converted file. Please try uploading it manually.');
     }
 }
@@ -793,8 +768,6 @@ async function processAllFiles() {
                 errors.push(`${file.name}: No valid transactions found`);
             }
         } catch (error) {
-            console.error(`Error processing ${file.name}:`, error);
-            console.error('Full error details:', {
                 message: error.message,
                 stack: error.stack,
                 name: error.name
@@ -809,9 +782,6 @@ async function processAllFiles() {
         const errorMsg = 'Failed to process files:\n' + errors.join('\n');
         alert(`Failed to process files:\n\n${errors.join('\n')}\n\nCheck browser console (F12) for details.`);
         showNotification('All files failed to process', 'error');
-        console.error('=== PROCESSING ERRORS ===');
-        console.error(errorMsg);
-        console.error('=========================');
         if (dom.uploadSection) dom.uploadSection.style.display = 'block';
         return;
     } else if (errors.length > 0) {
@@ -859,7 +829,6 @@ function processFile(file, providedYear = null) {
     return new Promise((resolve, reject) => {
         // Verify XLSX library at the start of processing
         const xlsxDiagnostics = verifyXLSXLibrary();
-        logFileDiagnostics('XLSX Library Check', xlsxDiagnostics);
         
         if (!xlsxDiagnostics.loaded || xlsxDiagnostics.errors.length > 0) {
             reject(new Error(`XLSX library issue: ${xlsxDiagnostics.errors.join(', ')}`));
@@ -871,7 +840,6 @@ function processFile(file, providedYear = null) {
             return;
         }
         
-        logFileDiagnostics('File Info', {
             name: file.name,
             size: file.size,
             type: file.type,
@@ -883,7 +851,6 @@ function processFile(file, providedYear = null) {
         
         // Add timeout for file reading
         const timeout = setTimeout(() => {
-            console.error('⏱️ File reading timed out after 30s');
             reader.abort();
             reject(new Error('File reading timed out'));
         }, 30000); // 30 second timeout
@@ -896,7 +863,6 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
-                logFileDiagnostics('File Read Complete', {
                     dataLength: data.length,
                     byteLength: e.target.result.byteLength
                 });
@@ -907,15 +873,12 @@ function processFile(file, providedYear = null) {
                 
                 let workbook;
                 try {
-                    logFileDiagnostics('Parsing Excel', { status: 'starting' });
                     workbook = XLSX.read(data, { type: 'array' });
-                    logFileDiagnostics('Parsing Excel', { 
                         status: 'success',
                         sheetCount: workbook.SheetNames?.length || 0,
                         sheetNames: workbook.SheetNames || []
                     });
                 } catch (xlsxError) {
-                    logFileDiagnostics('Excel Parse Error', {
                         error: xlsxError.message,
                         stack: xlsxError.stack
                     });
@@ -931,7 +894,6 @@ function processFile(file, providedYear = null) {
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                 
                 // Log sheet data for diagnostics
-                logFileDiagnostics('Sheet Data', {
                     rowCount: jsonData?.length || 0,
                     firstFewRows: jsonData?.slice(0, 5).map(row => 
                         row?.map(cell => String(cell || '').substring(0, 50)) || []
@@ -945,7 +907,6 @@ function processFile(file, providedYear = null) {
                 // Process transactions with optional year correction
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
                 
-                logFileDiagnostics('Parsing Complete', {
                     transactionCount: fileTransactions?.length || 0,
                     sampleTransaction: fileTransactions?.[0] ? {
                         date: fileTransactions[0].date,
@@ -961,7 +922,6 @@ function processFile(file, providedYear = null) {
                 
                 resolve(fileTransactions);
             } catch (error) {
-                logFileDiagnostics('Processing Error', {
                     error: error.message,
                     stack: error.stack
                 });
@@ -971,7 +931,6 @@ function processFile(file, providedYear = null) {
         
         reader.onerror = () => {
             clearTimeout(timeout);
-            logFileDiagnostics('FileReader Error', { error: reader.error });
             reject(new Error('Failed to read file'));
         };
         
@@ -984,7 +943,6 @@ function processFile(file, providedYear = null) {
             reader.readAsArrayBuffer(file);
         } catch (error) {
             clearTimeout(timeout);
-            logFileDiagnostics('Read Start Error', { error: error.message });
             reject(new Error(`Failed to start reading file: ${error.message}`));
         }
     });
@@ -1257,7 +1215,6 @@ function loadSavedSelections() {
             savedSelections = JSON.parse(saved);
         }
     } catch (error) {
-        console.error('Error loading saved selections:', error);
         savedSelections = {};
     }
 }
@@ -1266,7 +1223,6 @@ function saveSavedSelections() {
     try {
         localStorage.setItem('monthSelections', JSON.stringify(savedSelections));
     } catch (error) {
-        console.error('Error saving selections:', error);
         showNotification('Failed to save selection', 'error');
     }
 }
@@ -2253,7 +2209,6 @@ async function parseTransactions(data, providedYear = null) {
     const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
     
     // Log headers for debugging
-    logFileDiagnostics('Column Detection', {
         headerRowIndex: headerRowIndex,
         dataStartIndex: dataStartIndex,
         headers: headers,
@@ -2306,7 +2261,6 @@ async function parseTransactions(data, providedYear = null) {
     ]);
     
     // Log detected columns
-    logFileDiagnostics('Detected Columns', {
         dateCol, descCol, amountCol, balanceCol, creditCol, debitCol,
         hasAmountColumn: amountCol !== -1,
         hasSeparateColumns: creditCol !== -1 || debitCol !== -1
@@ -2417,10 +2371,8 @@ async function parseTransactions(data, providedYear = null) {
     
     // Log parsing results
     const autoCategorized = transactions.filter(t => t.isLearned && t.source === 'database').length;
-    console.log(`Parsed ${transactions.length} transactions (${autoCategorized} auto-categorized from database), skipped ${skippedRows} invalid rows`);
     
     // Diagnostic log for parsing completion
-    logFileDiagnostics('Transaction Parsing Complete', {
         totalParsed: transactions.length,
         skippedRows: skippedRows,
         autoCategorized: autoCategorized,
@@ -2432,7 +2384,6 @@ async function parseTransactions(data, providedYear = null) {
     
     // If no transactions were parsed, log detailed error info
     if (transactions.length === 0) {
-        logFileDiagnostics('No Transactions Parsed - Debug Info', {
             dataLength: data.length,
             headerRowIndex: headerRowIndex,
             dataStartIndex: dataStartIndex,
@@ -2587,10 +2538,8 @@ function loadLearnedCategorizations() {
         if (saved) {
             const parsed = JSON.parse(saved);
             learnedCategorizations = new Map(Object.entries(parsed));
-            console.log(`Loaded ${learnedCategorizations.size} learned categorization patterns`);
         }
     } catch (error) {
-        console.error('Error loading learned categorizations:', error);
         learnedCategorizations = new Map();
     }
 }
@@ -2600,9 +2549,7 @@ function saveLearnedCategorizations() {
     try {
         const obj = Object.fromEntries(learnedCategorizations);
         localStorage.setItem('learnedCategorizations', JSON.stringify(obj));
-        console.log(`Saved ${learnedCategorizations.size} learned categorization patterns`);
     } catch (error) {
-        console.error('Error saving learned categorizations:', error);
         showNotification('Failed to save categorization patterns', 'error');
     }
 }
@@ -2614,10 +2561,8 @@ function loadDissimilarPairs() {
         if (saved) {
             const parsed = JSON.parse(saved);
             dissimilarPairs = new Set(parsed);
-            console.log(`Loaded ${dissimilarPairs.size} dissimilar transaction pairs`);
         }
     } catch (error) {
-        console.error('Error loading dissimilar pairs:', error);
         dissimilarPairs = new Set();
     }
 }
@@ -2627,9 +2572,7 @@ function saveDissimilarPairs() {
     try {
         const arr = Array.from(dissimilarPairs);
         localStorage.setItem('dissimilarPairs', JSON.stringify(arr));
-        console.log(`Saved ${dissimilarPairs.size} dissimilar transaction pairs`);
     } catch (error) {
-        console.error('Error saving dissimilar pairs:', error);
         showNotification('Failed to save similarity exclusions', 'error');
     }
 }
@@ -2666,7 +2609,6 @@ async function markAsDissimilar(desc1, desc2) {
     try {
         await dbMarkDissimilar(desc1, desc2);
     } catch (error) {
-        console.error('Failed to save dissimilar pair to database:', error);
     }
 }
 
@@ -2835,7 +2777,6 @@ async function categorizeTransaction(description, amount = 0) {
     try {
         learned = await dbFindLearnedCategory(description);
     } catch (error) {
-        console.error('Error querying learned categories:', error);
     }
     
     // If not found in database, check in-memory cache (legacy fallback)
@@ -2845,7 +2786,6 @@ async function categorizeTransaction(description, amount = 0) {
     
     // Auto-apply high-confidence learned patterns (85%+)
     if (learned && learned.confidence >= 0.85) {
-        console.log(`✓ Auto-applying learned category for "${description}": ${learned.category} (${(learned.confidence * 100).toFixed(0)}% confidence)`);
         return {
             category: learned.category,
             isLearned: true,
@@ -2858,7 +2798,6 @@ async function categorizeTransaction(description, amount = 0) {
     
     // Use medium-confidence learned patterns (70-85%)
     if (learned && learned.confidence >= 0.70) {
-        console.log(`✓ Suggesting learned category for "${description}": ${learned.category} (${(learned.confidence * 100).toFixed(0)}% confidence)`);
         return {
             category: learned.category,
             isLearned: true,
@@ -2972,7 +2911,6 @@ function findSimilarTransactions(transaction, allTransactions) {
     }
     
     if (skippedReviewed > 0 || skippedDissimilar > 0) {
-        console.log(`findSimilarTransactions for "${transaction.description}": Found ${similar.length}, Skipped ${skippedReviewed} reviewed, ${skippedDissimilar} dissimilar`);
     }
     
     return similar.sort((a, b) => b.similarity - a.similarity);
@@ -2984,7 +2922,6 @@ function showCategorizationReview(transactions) {
     const reviewList = document.getElementById('reviewTransactionsList');
     
     if (!modal || !reviewList) {
-        console.error('Review modal elements not found');
         // Fall back to showing dashboard directly
         finalizeDashboardDisplay();
         return;
@@ -3022,7 +2959,6 @@ function renderReviewTransactions() {
     // Only show pending transactions (hide approved and modified)
     const pendingTransactions = pendingReview.filter(t => t.reviewStatus === 'pending');
     
-    console.log(`Rendering review: ${pendingTransactions.length} pending, ${pendingReview.filter(t => t.reviewStatus === 'approved').length} approved, ${pendingReview.filter(t => t.reviewStatus === 'modified').length} modified`);
     
     if (pendingTransactions.length === 0) {
         // All transactions reviewed - show completion message
@@ -3281,7 +3217,6 @@ function handleCategoryChange(e) {
         }
     }
     
-    console.log(`Transaction ${index} category changed to:`, newCategory, 'Status:', transaction.reviewStatus);
     
     // Re-render this item
     const item = document.querySelector(`.review-transaction-item[data-index="${index}"]`);
@@ -3306,7 +3241,6 @@ function handleCategoryChange(e) {
             showMoreBtn.addEventListener('click', handleShowMoreSimilar);
         }
     } else {
-        console.error('Could not find item to re-render for index:', index);
     }
     
     updateReviewProgress();
@@ -3348,7 +3282,6 @@ async function handleMarkNotSimilar(e) {
     const targetIndex = parseInt(e.target.dataset.targetIndex);
     
     if (isNaN(sourceIndex) || isNaN(targetIndex)) {
-        console.error('Invalid indices for marking dissimilar');
         return;
     }
     
@@ -3356,7 +3289,6 @@ async function handleMarkNotSimilar(e) {
     const targetTransaction = pendingReview[targetIndex];
     
     if (!sourceTransaction || !targetTransaction) {
-        console.error('Transactions not found');
         return;
     }
     
@@ -3395,7 +3327,6 @@ function handleApplyToSimilar(e) {
     const index = parseInt(e.target.dataset.index);
     
     if (isNaN(index) || index < 0 || index >= pendingReview.length) {
-        console.error('Invalid index for apply to similar:', index);
         return;
     }
     
@@ -3486,7 +3417,6 @@ function handleApproveTransaction(e) {
     const index = parseInt(e.target.dataset.index);
     
     if (isNaN(index) || index < 0 || index >= pendingReview.length) {
-        console.error('Invalid index for approve transaction:', index);
         return;
     }
     
@@ -3636,7 +3566,6 @@ async function showFinalApprovalSummary() {
     const reviewModal = document.getElementById('categorizationReviewModal');
     
     if (!modal || !summaryBody) {
-        console.error('Final approval modal not found, proceeding directly');
         await processFinalApproval();
         return;
     }
@@ -3827,7 +3756,6 @@ async function processFinalApproval() {
             // await saveTransaction(transaction); // Uncomment if you want full transaction history
             
         } catch (error) {
-            console.error('Failed to save categorization to database:', error);
         }
     }
     
@@ -3946,7 +3874,6 @@ async function processFinalApproval() {
             
             // File saved to history
         } catch (error) {
-            console.error('Failed to save file history:', error);
         }
     }
     
@@ -3971,7 +3898,6 @@ async function processFinalApproval() {
     }
     
     showNotification(message, 'success');
-    console.log(`Learning Summary: ${newPatterns} new patterns, ${updatedPatterns} updated patterns, ${learnedCategorizations.size} total patterns stored`);
 }
 
 // Close review modal
@@ -4387,7 +4313,6 @@ function updateCharts(income, expenses) {
             charts.incomeExpense.data.datasets[0].data = [income, expenses, income - expenses];
             charts.incomeExpense.update('none');
         } catch (error) {
-            console.error('Error updating income chart, will recreate:', error);
             charts.incomeExpense.destroy();
             charts.incomeExpense = null;
         }
@@ -4448,7 +4373,6 @@ function updateCharts(income, expenses) {
             charts.category.data.datasets[0].data = categoryValues;
             charts.category.update('none');
         } catch (error) {
-            console.error('Error updating category chart, will recreate:', error);
             charts.category.destroy();
             charts.category = null;
         }
@@ -5014,7 +4938,6 @@ function exportToExcel() {
         showNotification('Excel file exported successfully! Open it to create charts.', 'success');
         
     } catch (error) {
-        console.error('Export error:', error);
         hideLoading();
         showNotification('Failed to export Excel file. Please try again.', 'error');
     }
@@ -5062,7 +4985,6 @@ window.reloadFileFromHistory = async function(fileId) {
         
         showNotification(`Reloaded: ${fileData.fileName}`, 'success');
     } catch (error) {
-        console.error('Failed to reload file from history:', error);
         showNotification('Failed to reload file', 'error');
     }
 };
