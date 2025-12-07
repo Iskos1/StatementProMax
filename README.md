@@ -5,6 +5,8 @@
 ## ⚡ Quick Start
 
 ```bash
+
+https://69350d1c7448cb0008e9e394--elegant-douhua-4fe50e.netlify.app/ - URL
 # Start local server (Python 3)
 python3 -m http.server 8080
 
