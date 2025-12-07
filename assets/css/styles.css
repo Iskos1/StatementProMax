@@ -2459,9 +2459,23 @@ p {
 
 .auth-code-input {
     text-align: center;
-    font-size: 24px;
-    letter-spacing: 8px;
-    font-weight: 600;
+    font-size: 28px;
+    letter-spacing: 12px;
+    font-weight: 700;
+    font-family: 'SF Mono', 'Monaco', 'Consolas', monospace;
+    padding: 16px 20px;
+    background: #fafafa;
+    border: 2px solid #e0e0e0;
+}
+
+.auth-code-input::placeholder {
+    color: #ccc;
+    letter-spacing: 12px;
+}
+
+.auth-code-input:focus {
+    background: #fff;
+    border-color: #2d7a5f;
 }
 
 .auth-resend-text {

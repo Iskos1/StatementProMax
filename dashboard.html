@@ -132,7 +132,7 @@
                 </div>
                 <div class="auth-input-group">
                     <label for="codeInput">Verification Code</label>
-                    <input type="text" id="codeInput" placeholder="000000" maxlength="6" class="auth-input auth-code-input">
+                    <input type="text" id="codeInput" placeholder="------" maxlength="6" inputmode="numeric" pattern="[0-9]*" class="auth-input auth-code-input" autocomplete="one-time-code">
                 </div>
                 <div id="codeError" class="auth-error" style="display: none;"></div>
                 <button class="btn-primary btn-full" id="verifyCodeBtn">Verify & Sign In</button>
