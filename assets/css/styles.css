@@ -182,7 +182,6 @@ p {
     font-weight: 800;
     color: #1a1a1a;
     letter-spacing: -0.01em;
-    
 }
 
 .logo-icon-wrapper {
@@ -194,7 +193,6 @@ p {
     background: #f3f0ff;
     border-radius: 8px;
     padding: 4px;
-    
 }
 
 .logo-icon-svg {
@@ -237,7 +235,7 @@ p {
     height: 3px;
     background: #1a1a1a;
     border-radius: 2px;
-    
+    transition: transform 0.2s ease;
 }
 
 .mobile-menu-toggle.active span:nth-child(1) {
@@ -263,7 +261,7 @@ p {
     color: var(--text-secondary);
     font-size: 14px;
     font-weight: 500;
-    
+    transition: color 0.2s ease;
     /* Prevent link preview popups */
     -webkit-touch-callout: none;
     user-select: none;
@@ -309,14 +307,13 @@ p {
     font-size: 15px;
     font-weight: 700;
     text-decoration: none;
-    
+    cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
 }
 
 .btn-secondary:hover {
     background: #ff6a3d;
     color: white;
-    
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
 }
 
@@ -329,7 +326,6 @@ p {
     font-size: 15px;
     font-weight: 600;
     cursor: pointer;
-    
     width: 100%;
 }
 
@@ -337,7 +333,6 @@ p {
     border-color: #ff6a3d;
     background: #fff8f5;
     color: #ff6a3d;
-    
 }
 
 /* Hero Section - Clean & Simple */
@@ -458,11 +453,10 @@ p {
     padding: 40px;
     border-radius: 12px;
     border: 1px solid #e5e5e5;
-    
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .feature-card:hover {
-    
     box-shadow: 0 10px 30px rgba(255, 107, 107, 0.15);
     border-color: #ff6a3d;
 }
@@ -509,11 +503,10 @@ p {
     border-radius: 16px;
     border: 2px solid #fff0eb;
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.08);
-    
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .step-card:hover {
-    
     box-shadow: 0 8px 24px rgba(255, 107, 107, 0.15);
     border-color: #ff6a3d;
 }
@@ -575,17 +568,16 @@ p {
     border-radius: 12px;
     border: 2px solid #e5e5e5;
     position: relative;
-    
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .pricing-card:hover {
-    
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
 }
 
 .pricing-card.featured {
     border-color: #ff6a3d;
-    
+    transform: scale(1.02);
 }
 
 .pricing-card.featured:hover {
@@ -817,7 +809,8 @@ p {
     font-weight: 300;
     color: #6a6a6a;
     cursor: pointer;
-    
+    background: none;
+    border: none;
     line-height: 1;
 }
 
@@ -866,8 +859,8 @@ p {
     border: 2px solid #e5e5e5;
     border-radius: 8px;
     font-size: 16px;
-    
     font-family: inherit;
+    transition: border-color 0.2s ease;
 }
 
 .form-group input:focus {
@@ -918,7 +911,7 @@ p {
     text-decoration: none;
     font-size: 14px;
     font-weight: 600;
-    
+    transition: color 0.2s ease;
 }
 
 .link:hover {
@@ -934,14 +927,13 @@ p {
     font-size: 16px;
     font-weight: 600;
     cursor: pointer;
-    
     width: 100%;
+    transition: background 0.2s ease;
 }
 
 .btn-primary-full:hover {
-    background: #235f4a;
-    
-    box-shadow: 0 4px 12px rgba(45, 122, 95, 0.2);
+    background: #e55a2d;
+    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
 }
 
 .form-divider {
@@ -987,7 +979,7 @@ p {
     font-weight: 600;
     font-size: 14px;
     color: #1a1a1a;
-    
+    transition: border-color 0.2s ease, background 0.2s ease;
 }
 
 .btn-social:hover {
@@ -1010,8 +1002,8 @@ p {
     cursor: pointer;
     padding: 12px;
     font-size: 14px;
-    
     width: 100%;
+    transition: color 0.2s ease;
 }
 
 .btn-text:hover {
@@ -1625,9 +1617,6 @@ p {
     line-height: 1.6;
     font-weight: 500;
 }
-    color: #1a1a1a;
-    line-height: 1.4;
-}
 
 .conversion-controls {
     display: flex;
@@ -1661,7 +1650,7 @@ p {
     border: 2px solid #e5e5e5;
     border-radius: 12px;
     padding: 16px;
-    
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .file-item:hover {
@@ -1766,8 +1755,8 @@ p {
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    
     border: none;
+    transition: background 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-convert,
@@ -1779,7 +1768,6 @@ p {
 .btn-convert:hover,
 .btn-retry:hover {
     background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
-    
     box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
 }
 
@@ -1790,7 +1778,6 @@ p {
 
 .btn-download:hover {
     background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
-    
     box-shadow: 0 6px 16px rgba(255, 107, 107, 0.3);
 }
 
@@ -1802,7 +1789,6 @@ p {
 
 .btn-analyze:hover {
     background: #fff8f5;
-    
 }
 
 .btn-remove {
@@ -1814,7 +1800,7 @@ p {
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    
+    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
 
 .btn-remove:hover {
@@ -1835,9 +1821,9 @@ p {
 .progress-fill {
     height: 100%;
     background: linear-gradient(90deg, #ff6a3d 0%, #ff8f5a 100%);
-    
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
+    transition: width 0.3s ease;
 }
 
 /* Add More Section */
@@ -1863,7 +1849,7 @@ p {
     background: white;
     border-radius: 12px;
     border: 2px solid #e5e5e5;
-    
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .feature-highlight {
@@ -1872,7 +1858,6 @@ p {
 }
 
 .feature-small:hover {
-    
     box-shadow: 0 10px 30px rgba(255, 107, 107, 0.12);
     border-color: #ff6a3d;
 }
@@ -1933,11 +1918,10 @@ p {
     border-radius: 12px;
     border: 2px solid #fff0eb;
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.08);
-    
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .stat-item:hover {
-    
     box-shadow: 0 8px 24px rgba(255, 107, 107, 0.15);
     border-color: #ff6a3d;
 }
@@ -1985,11 +1969,10 @@ p {
     color: #1a1a1a;
     border: 2px solid #E8F5E9;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-    
+    transition: box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .trust-badge-item:hover {
-    
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
     border-color: #fff0eb;
 }
@@ -2026,8 +2009,8 @@ p {
     z-index: 3000;
     opacity: 0;
     transform: translateX(400px);
-    
     max-width: 400px;
+    transition: opacity 0.3s ease, transform 0.3s ease;
 }
 
 .notification.show {
@@ -2227,7 +2210,7 @@ p {
 .dropdown-arrow {
     font-size: 10px;
     color: #6a6a6a;
-    
+    transition: transform 0.2s ease;
 }
 
 .user-menu-btn:hover .dropdown-arrow {
@@ -2261,7 +2244,7 @@ p {
     font-weight: 600;
     color: #dc2626;
     cursor: pointer;
-    
+    transition: background 0.2s ease;
 }
 
 .user-dropdown-btn:hover {
@@ -2312,9 +2295,9 @@ p {
     background: none;
     border: none;
     cursor: pointer;
-    
     line-height: 1;
     z-index: 1;
+    transition: color 0.2s ease;
 }
 
 .auth-modal-close:hover {
@@ -2364,8 +2347,8 @@ p {
     border: 2px solid #e5e5e5;
     border-radius: 8px;
     font-size: 16px;
-    
     font-family: inherit;
+    transition: border-color 0.2s ease;
 }
 
 .auth-input:focus {
@@ -2451,8 +2434,8 @@ p {
     display: flex;
     align-items: center;
     gap: 4px;
-    
     padding: 8px 0;
+    transition: color 0.2s ease;
 }
 
 .auth-back-btn:hover {
@@ -2511,7 +2494,7 @@ p {
     font-weight: 600;
     cursor: pointer;
     padding: 0;
-    
+    transition: color 0.2s ease;
 }
 
 .auth-link-btn:hover {

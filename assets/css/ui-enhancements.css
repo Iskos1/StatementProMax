@@ -312,21 +312,8 @@
     font-weight: 600;
 }
 
-/* === Info Callouts === */
-.callout {
-    padding: 16px 20px;
-    border-radius: 10px;
-    border-left: 4px solid;
-    margin: 20px 0;
-    font-size: 14px;
-    line-height: 1.6;
-}
-
-.callout-info {
-    background: #eff6ff;
-    border-color: #3b82f6;
-    color: #1e40af;
-}
+/* === Info Callouts - MOVED TO styles.css === */
+/* Only keeping additional callout variants not in main file */
 
 .callout-success {
     background: #f0fdf4;
@@ -344,14 +331,6 @@
     background: #fef2f2;
     border-color: #ef4444;
     color: #991b1b;
-}
-
-.callout-title {
-    font-weight: 700;
-    margin-bottom: 4px;
-    display: flex;
-    align-items: center;
-    gap: 8px;
 }
 
 /* === Enhanced Form Inputs === */

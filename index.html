@@ -472,58 +472,7 @@
     </script>
     <script type="module" src="assets/js/ui-interactions.js"></script>
     <script type="module" src="assets/js/quick-start-guide.js"></script>
-    <script type="module" src="assets/js/converter.js"></script>
+    <script type="module" src="assets/js/converter.js?v=20251208"></script>
     <script type="module" src="assets/js/script.js"></script>
-    
-    <!-- Live Delivery Ticker (Buzzoid-style) -->
-    <div class="delivery-ticker" id="deliveryTicker"></div>
-    
-    <script>
-        // Rotating delivery notifications - Buzzoid style
-        (function() {
-            const deliveries = [
-                { icon: '📄', title: '15 PDF files converted', location: 'New York, USA', time: 'Just now' },
-                { icon: '✅', title: '8 statements processed', location: 'London, UK', time: '30 sec ago' },
-                { icon: '📊', title: '23 Excel files generated', location: 'Toronto, Canada', time: '1 min ago' },
-                { icon: '🔄', title: '12 bank statements converted', location: 'Sydney, Australia', time: '2 min ago' },
-                { icon: '💼', title: '5 financial reports created', location: 'Berlin, Germany', time: '3 min ago' },
-                { icon: '📑', title: '18 PDFs to Excel converted', location: 'Paris, France', time: '4 min ago' },
-                { icon: '✨', title: '10 statements analyzed', location: 'Tokyo, Japan', time: '5 min ago' },
-                { icon: '🏦', title: '7 Wells Fargo files processed', location: 'Chicago, USA', time: '6 min ago' },
-                { icon: '📈', title: '14 Chase statements converted', location: 'Miami, USA', time: '7 min ago' },
-                { icon: '💳', title: '9 Bank of America files done', location: 'Seattle, USA', time: '8 min ago' }
-            ];
-            
-            const ticker = document.getElementById('deliveryTicker');
-            let currentIndex = 0;
-            
-            function showNotification() {
-                const delivery = deliveries[currentIndex];
-                ticker.innerHTML = `
-                    <div class="delivery-notification">
-                        <div class="delivery-icon">${delivery.icon}</div>
-                        <div class="delivery-content">
-                            <div class="delivery-title">${delivery.title}</div>
-                            <div class="delivery-subtitle">${delivery.location}</div>
-                            <div class="delivery-time">${delivery.time}</div>
-                        </div>
-                    </div>
-                `;
-                
-                setTimeout(() => {
-                    const notif = ticker.querySelector('.delivery-notification');
-                    if (notif) notif.classList.add('fade-out');
-                }, 4000);
-                
-                currentIndex = (currentIndex + 1) % deliveries.length;
-            }
-            
-            // Start after 3 seconds, then every 6 seconds
-            setTimeout(() => {
-                showNotification();
-                setInterval(showNotification, 6000);
-            }, 3000);
-        })();
-    </script>
 </body>
 </html>

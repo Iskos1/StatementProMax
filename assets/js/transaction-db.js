@@ -581,6 +581,7 @@ export async function exportData() {
         };
         
         transaction.oncomplete = () => {
+            console.log('Export data ready:', {
                 patterns: data.patterns.length,
                 transactions: data.transactions.length,
                 dissimilarPairs: data.dissimilarPairs.length
@@ -802,5 +803,132 @@ export async function getFileHistoryStats() {
         
         countRequest.onerror = () => reject(countRequest.error);
     });
+}
+
+// ========================================
+// PENDING ANALYSIS FILE TRANSFER
+// Uses IndexedDB for large file transfer between converter and dashboard
+// (sessionStorage has 5MB limit, IndexedDB doesn't)
+// ========================================
+
+const PENDING_FILE_KEY = 'pending_analysis_file';
+
+/**
+ * Store a file for analysis in the dashboard
+ * This bypasses sessionStorage's 5MB limit
+ * @param {Object} fileData - { name, data (base64), year, timestamp }
+ * @returns {Promise<boolean>}
+ */
+export async function storePendingAnalysisFile(fileData) {
+    try {
+        const db = await initializeDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORES.FILE_HISTORY], 'readwrite');
+            const store = transaction.objectStore(STORES.FILE_HISTORY);
+            
+            // First, delete any existing pending file
+            const deleteRequest = store.delete(PENDING_FILE_KEY);
+            
+            deleteRequest.onsuccess = () => {
+                // Now store the new file with a known key
+                const record = {
+                    id: PENDING_FILE_KEY,
+                    fileName: fileData.name,
+                    fileData: fileData.data,
+                    year: fileData.year,
+                    timestamp: fileData.timestamp || Date.now(),
+                    isPending: true
+                };
+                
+                const putRequest = store.put(record);
+                
+                putRequest.onsuccess = () => {
+                    console.log('Pending analysis file stored in IndexedDB:', fileData.name);
+                    resolve(true);
+                };
+                
+                putRequest.onerror = () => {
+                    console.error('Failed to store pending file:', putRequest.error);
+                    reject(putRequest.error);
+                };
+            };
+            
+            deleteRequest.onerror = () => {
+                // Try to put anyway
+                const record = {
+                    id: PENDING_FILE_KEY,
+                    fileName: fileData.name,
+                    fileData: fileData.data,
+                    year: fileData.year,
+                    timestamp: fileData.timestamp || Date.now(),
+                    isPending: true
+                };
+                
+                const putRequest = store.put(record);
+                putRequest.onsuccess = () => resolve(true);
+                putRequest.onerror = () => reject(putRequest.error);
+            };
+        });
+    } catch (error) {
+        console.error('Error storing pending analysis file:', error);
+        return false;
+    }
+}
+
+/**
+ * Get and remove the pending analysis file
+ * @returns {Promise<Object|null>} - { name, data, year, timestamp } or null
+ */
+export async function getPendingAnalysisFile() {
+    try {
+        const db = await initializeDB();
+        
+        return new Promise((resolve, reject) => {
+            const transaction = db.transaction([STORES.FILE_HISTORY], 'readwrite');
+            const store = transaction.objectStore(STORES.FILE_HISTORY);
+            
+            const getRequest = store.get(PENDING_FILE_KEY);
+            
+            getRequest.onsuccess = () => {
+                const record = getRequest.result;
+                
+                if (record && record.isPending) {
+                    // Delete it after retrieving
+                    const deleteRequest = store.delete(PENDING_FILE_KEY);
+                    
+                    deleteRequest.onsuccess = () => {
+                        console.log('Retrieved and cleared pending analysis file:', record.fileName);
+                        resolve({
+                            name: record.fileName,
+                            data: record.fileData,
+                            year: record.year,
+                            timestamp: record.timestamp
+                        });
+                    };
+                    
+                    deleteRequest.onerror = () => {
+                        // Return the data anyway
+                        resolve({
+                            name: record.fileName,
+                            data: record.fileData,
+                            year: record.year,
+                            timestamp: record.timestamp
+                        });
+                    };
+                } else {
+                    resolve(null);
+                }
+            };
+            
+            getRequest.onerror = () => {
+                console.error('Failed to get pending file:', getRequest.error);
+                resolve(null);
+            };
+        });
+    } catch (error) {
+        console.error('Error getting pending analysis file:', error);
+        return null;
+    }
 }
 

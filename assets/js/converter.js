@@ -9,6 +9,7 @@ import {
 } from './utils.js';
 
 import { initializeYearModal, showYearModal } from './year-modal.js';
+import { storePendingAnalysisFile, initializeDB } from './transaction-db.js';
 
 // API Configuration
 const CONFIG = {
@@ -492,22 +493,45 @@ async function analyzeInDashboard(fileData) {
         return;
     }
 
-    // Read file and store in session
+    showNotification('Preparing file for analysis...', 'info');
+
+    // Read file and store using IndexedDB (no size limit unlike sessionStorage)
     const reader = new FileReader();
     
-    reader.onload = function(e) {
-        const success = safeSessionStorageSet('pendingAnalysisFile', {
-            name: fileData.excelFileName,
-            data: e.target.result,
-            year: year,
-            timestamp: Date.now()
-        });
-        
-        if (success) {
-            window.location.href = 'dashboard.html';
-        } else {
-            showNotification('Unable to transfer file to dashboard. File may be too large.', 'error');
+    reader.onload = async function(e) {
+        try {
+            // Initialize IndexedDB first
+            await initializeDB();
+            
+            // Store in IndexedDB (handles large files that sessionStorage can't)
+            const success = await storePendingAnalysisFile({
+                name: fileData.excelFileName,
+                data: e.target.result,
+                year: year,
+                timestamp: Date.now()
+            });
+            
+            if (success) {
+                // Also try sessionStorage as fallback for faster load
+                safeSessionStorageSet('pendingAnalysisFile', {
+                    name: fileData.excelFileName,
+                    data: e.target.result,
+                    year: year,
+                    timestamp: Date.now()
+                });
+                
+                window.location.href = 'dashboard.html';
+            } else {
+                showNotification('Unable to transfer file to dashboard. Please try again.', 'error');
+            }
+        } catch (error) {
+            console.error('Error storing file for analysis:', error);
+            showNotification('Error preparing file: ' + error.message, 'error');
         }
+    };
+    
+    reader.onerror = function() {
+        showNotification('Failed to read file. Please try again.', 'error');
     };
     
     reader.readAsDataURL(fileData.excelFile);

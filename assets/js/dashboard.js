@@ -22,7 +22,8 @@ import {
     markDissimilar as dbMarkDissimilar,
     getDBStats,
     saveFileHistory,
-    getFileHistoryById
+    getFileHistoryById,
+    getPendingAnalysisFile
 } from './transaction-db.js';
 
 // Handle unhandled promise rejections
@@ -260,15 +261,40 @@ async function initializeDashboardFeatures() {
     loadLearnedCategorizations();
     loadDissimilarPairs();
     
-    // Check for file from converter
-    const data = safeSessionStorageGet('pendingAnalysisFile');
+    // Check for file from converter - try IndexedDB first (handles large files), then sessionStorage
+    let pendingFile = null;
     
-    if (data) {
-            const dataAge = Date.now() - (data.timestamp || 0);
-            if (dataAge < 5 * 60 * 1000) {
-                loadConvertedFile(data.name, data.data, data.year || null);
-            }
-        safeSessionStorageRemove('pendingAnalysisFile');
+    // First, try IndexedDB (handles files > 5MB)
+    try {
+        pendingFile = await getPendingAnalysisFile();
+        if (pendingFile) {
+            console.log('Found pending file in IndexedDB:', pendingFile.name);
+        }
+    } catch (error) {
+        console.log('IndexedDB pending file check failed:', error);
+    }
+    
+    // Fallback to sessionStorage if IndexedDB didn't have the file
+    if (!pendingFile) {
+        const sessionData = safeSessionStorageGet('pendingAnalysisFile');
+        if (sessionData) {
+            pendingFile = sessionData;
+            console.log('Found pending file in sessionStorage:', pendingFile.name);
+        }
+    }
+    
+    // Always clear sessionStorage entry to prevent stale data
+    safeSessionStorageRemove('pendingAnalysisFile');
+    
+    // Load the pending file if found and not too old (10 minutes max)
+    if (pendingFile) {
+        const dataAge = Date.now() - (pendingFile.timestamp || 0);
+        if (dataAge < 10 * 60 * 1000) { // 10 minutes instead of 5
+            console.log('Loading pending analysis file:', pendingFile.name, 'age:', Math.round(dataAge/1000), 'seconds');
+            loadConvertedFile(pendingFile.name, pendingFile.data, pendingFile.year || null);
+        } else {
+            console.log('Pending file too old, skipping:', Math.round(dataAge/1000/60), 'minutes');
+        }
     }
 }
 
@@ -648,18 +674,13 @@ window.loadConvertedFile = async function loadConvertedFile(fileName, base64Data
         // Setup month filter
         setupMonthFilter();
         
-        // Store file data for history (if single file)
-    if (selectedFiles.length === 1) {
-        const file = selectedFiles[0];
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            currentFileData = e.target.result; // Base64 data
-            currentFileYear = providedYear;
-        };
-        reader.readAsDataURL(file);
-    }
+        // Store file data for history - use the base64Data directly since it's already provided
+        // This fixes the bug where reloading from history wouldn't set currentFileData
+        // because selectedFiles is empty when loading from history
+        currentFileData = base64Data;
+        currentFileYear = providedYear;
     
-    // Show categorization review modal before displaying dashboard
+        // Show categorization review modal before displaying dashboard
         hideLoading();
         showCategorizationReview(allTransactions);
     } catch (error) {
@@ -768,6 +789,8 @@ async function processAllFiles() {
                 errors.push(`${file.name}: No valid transactions found`);
             }
         } catch (error) {
+            console.error('File processing error:', {
+                file: file.name,
                 message: error.message,
                 stack: error.stack,
                 name: error.name
@@ -840,6 +863,7 @@ function processFile(file, providedYear = null) {
             return;
         }
         
+        console.log('Processing file:', {
             name: file.name,
             size: file.size,
             type: file.type,
@@ -863,6 +887,7 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
+                console.log('File data loaded:', {
                     dataLength: data.length,
                     byteLength: e.target.result.byteLength
                 });
@@ -874,11 +899,13 @@ function processFile(file, providedYear = null) {
                 let workbook;
                 try {
                     workbook = XLSX.read(data, { type: 'array' });
+                    console.log('XLSX.read result:', {
                         status: 'success',
                         sheetCount: workbook.SheetNames?.length || 0,
                         sheetNames: workbook.SheetNames || []
                     });
                 } catch (xlsxError) {
+                    console.error('XLSX.read error:', {
                         error: xlsxError.message,
                         stack: xlsxError.stack
                     });
@@ -894,6 +921,7 @@ function processFile(file, providedYear = null) {
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                 
                 // Log sheet data for diagnostics
+                console.log('Sheet data:', {
                     rowCount: jsonData?.length || 0,
                     firstFewRows: jsonData?.slice(0, 5).map(row => 
                         row?.map(cell => String(cell || '').substring(0, 50)) || []
@@ -907,6 +935,7 @@ function processFile(file, providedYear = null) {
                 // Process transactions with optional year correction
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
                 
+                console.log('Parsed transactions:', {
                     transactionCount: fileTransactions?.length || 0,
                     sampleTransaction: fileTransactions?.[0] ? {
                         date: fileTransactions[0].date,
@@ -922,6 +951,7 @@ function processFile(file, providedYear = null) {
                 
                 resolve(fileTransactions);
             } catch (error) {
+                console.error('File parsing error:', {
                     error: error.message,
                     stack: error.stack
                 });
@@ -2209,6 +2239,7 @@ async function parseTransactions(data, providedYear = null) {
     const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
     
     // Log headers for debugging
+    console.log('Parsed headers:', {
         headerRowIndex: headerRowIndex,
         dataStartIndex: dataStartIndex,
         headers: headers,
@@ -2261,6 +2292,7 @@ async function parseTransactions(data, providedYear = null) {
     ]);
     
     // Log detected columns
+    console.log('Detected columns:', {
         dateCol, descCol, amountCol, balanceCol, creditCol, debitCol,
         hasAmountColumn: amountCol !== -1,
         hasSeparateColumns: creditCol !== -1 || debitCol !== -1
@@ -2373,6 +2405,7 @@ async function parseTransactions(data, providedYear = null) {
     const autoCategorized = transactions.filter(t => t.isLearned && t.source === 'database').length;
     
     // Diagnostic log for parsing completion
+    console.log('Parsing complete:', {
         totalParsed: transactions.length,
         skippedRows: skippedRows,
         autoCategorized: autoCategorized,
@@ -2384,6 +2417,7 @@ async function parseTransactions(data, providedYear = null) {
     
     // If no transactions were parsed, log detailed error info
     if (transactions.length === 0) {
+        console.warn('No transactions parsed:', {
             dataLength: data.length,
             headerRowIndex: headerRowIndex,
             dataStartIndex: dataStartIndex,
