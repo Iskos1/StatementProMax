@@ -6,7 +6,7 @@
 
 ```bash
 
-https://github.com/Iskos1/StatementProMax
+https://iskos1.github.io/StatementProMax/
 # Start local server (Python 3)
 python3 -m http.server 8080
 
