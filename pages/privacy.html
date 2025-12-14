@@ -16,28 +16,12 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Figtree:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="../assets/css/styles.css">
-    <!-- Instant auth state -->
-    <script>
-        (function() {
-            try {
-                var cached = localStorage.getItem('cachedAuthUser');
-                if (cached) {
-                    var data = JSON.parse(cached);
-                    if (data && data.email && (Date.now() - data.timestamp) < 86400000) {
-                        window.__authCached = data.email.split('@')[0];
-                    }
-                }
-            } catch(e) {}
-        })();
-    </script>
+    <link rel="stylesheet" href="../assets/css/responsive.css">
+    <!-- Instant auth state - shared module -->
+    <script src="../assets/js/auth-cache.js"></script>
     <style>#signInBtn, #userMenu { transition: none !important; }</style>
 </head>
 <body>
-    <script>
-        if (window.__authCached) {
-            document.write('<style>#signInBtn{display:none!important}#userMenu{display:block!important}</style>');
-        }
-    </script>
     <!-- Promotional Banner - Permanent -->
     <div class="promo-banner">
         <div class="promo-content">
@@ -65,7 +49,12 @@
                         <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
                     </div>
                 </a>
-                <div class="nav-links">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
+                <div class="nav-links" id="navLinks">
                     <a href="../index.html">Converter</a>
                     <a href="../dashboard.html">Dashboard</a>
                     <a href="blog.html">Blog</a>
@@ -233,6 +222,7 @@
         </div>
     </footer>
 
+    <script type="module" src="../assets/js/ui-interactions.js"></script>
     <script type="module" src="../assets/js/script.js"></script>
 </body>
 </html>

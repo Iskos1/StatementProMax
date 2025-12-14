@@ -312,9 +312,7 @@
     font-weight: 600;
 }
 
-/* === Info Callouts - MOVED TO styles.css === */
-/* Only keeping additional callout variants not in main file */
-
+/* === Additional Callout Variants === */
 .callout-success {
     background: #f0fdf4;
     border-color: #22c55e;

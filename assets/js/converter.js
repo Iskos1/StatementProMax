@@ -98,11 +98,19 @@ function addFiles(files) {
     for (let i = 0; i < files.length; i++) {
         const file = files[i];
         
+        // Check if this is a demo file
+        const isDemoFile = file.isDemoFile === true;
+        
         // Check if PDF
         const isPDF = file.type === 'application/pdf' || file.name.toLowerCase().endsWith('.pdf');
         if (!isPDF) {
             showNotification(file.name + ' is not a PDF file', 'error');
             continue;
+        }
+        
+        // Show positive message for demo files
+        if (isDemoFile) {
+            showNotification('✨ Sample PDF loaded! Ready to convert.', 'success');
         }
         
         // Check file size
@@ -416,12 +424,18 @@ async function convertFile(fileId) {
             throw new Error('No file data or URL in API response');
         }
         
+        fileData.progress = 80;
+        updateProgress(fileId, 80);
+
+        // Step 4: Filter to keep ONLY the transactions page
+        const filteredBlob = await filterTransactionsPage(excelBlob);
+        
         fileData.progress = 100;
         updateProgress(fileId, 100);
 
         // Success!
         fileData.status = 'completed';
-        fileData.excelFile = excelBlob;
+        fileData.excelFile = filteredBlob;
         fileData.excelFileName = fileData.name.replace(/\.pdf$/i, '.xlsx');
 
         showNotification('✅ ' + fileData.name + ' converted successfully!', 'success');
@@ -433,6 +447,215 @@ async function convertFile(fileId) {
     }
 
     updateFileList();
+}
+
+// Helper: Check if row contains transaction headers
+function isTransactionHeader(row) {
+    const rowText = row.map(cell => String(cell).toLowerCase().trim()).join('|');
+    return (rowText.includes('date') || rowText.includes('posting')) &&
+           (rowText.includes('description') || rowText.includes('memo') || rowText.includes('details') || rowText.includes('merchant')) &&
+           (rowText.includes('amount') || rowText.includes('debit') || rowText.includes('credit') || rowText.includes('balance'));
+}
+
+// Helper: Find transactions sheet and header row
+function findTransactionsData(workbook) {
+    for (const sheetName of workbook.SheetNames) {
+        const jsonData = XLSX.utils.sheet_to_json(workbook.Sheets[sheetName], { header: 1, defval: '' });
+        
+        for (let j = 0; j < Math.min(jsonData.length, 20); j++) {
+            if (isTransactionHeader(jsonData[j])) {
+                return { data: jsonData, headerIndex: j };
+            }
+        }
+    }
+    return null;
+}
+
+// Filter Excel to keep ONLY transactions page with professional formatting
+async function filterTransactionsPage(excelBlob) {
+    try {
+        // Load required libraries
+        if (typeof XLSX === 'undefined') await loadXLSXLibrary();
+        if (typeof ExcelJS === 'undefined') await loadExcelJSLibrary();
+
+        // Read workbook and find transactions
+        const arrayBuffer = await excelBlob.arrayBuffer();
+        const workbook = XLSX.read(arrayBuffer, { type: 'array' });
+        const found = findTransactionsData(workbook);
+
+        // If no transactions found, return original
+        if (!found) {
+            console.warn('No transactions found, returning original file');
+            return excelBlob;
+        }
+
+        // Extract clean transactions data
+        const { data: transactionsData, headerIndex } = found;
+        const cleanData = [transactionsData[headerIndex]];
+        
+        for (let i = headerIndex + 1; i < transactionsData.length; i++) {
+            const row = transactionsData[i];
+            if (row.every(cell => !cell || String(cell).trim() === '')) continue;
+            
+            const rowText = row.map(cell => String(cell).toLowerCase()).join('|');
+            if (!rowText.includes('beginning balance') && !rowText.includes('ending balance')) {
+                cleanData.push(row);
+            }
+        }
+
+        // Create new formatted workbook using ExcelJS
+        const newWorkbook = new ExcelJS.Workbook();
+        const worksheet = newWorkbook.addWorksheet('Transactions');
+        
+        // Find amount columns
+        const headers = cleanData[0];
+        const amountColumns = [];
+        for (let col = 0; col < headers.length; col++) {
+            const header = String(headers[col]).toLowerCase();
+            if (header.includes('amount') || header.includes('debit') || 
+                header.includes('credit') || header.includes('balance')) {
+                amountColumns.push(col + 1); // ExcelJS uses 1-based indexing
+            }
+        }
+
+        // Add all rows
+        cleanData.forEach(row => {
+            worksheet.addRow(row);
+        });
+
+        // Format header row (row 1)
+        const headerRow = worksheet.getRow(1);
+        headerRow.font = { bold: true, color: { argb: 'FFFFFFFF' }, size: 12 };
+        headerRow.fill = {
+            type: 'pattern',
+            pattern: 'solid',
+            fgColor: { argb: 'FF4472C4' }
+        };
+        headerRow.alignment = { horizontal: 'center', vertical: 'middle' };
+        headerRow.border = {
+            top: { style: 'thin' },
+            bottom: { style: 'thin' },
+            left: { style: 'thin' },
+            right: { style: 'thin' }
+        };
+
+        // Format data rows and detect total row
+        for (let i = 2; i <= worksheet.rowCount; i++) {
+            const row = worksheet.getRow(i);
+            const firstCell = row.getCell(1).value;
+            const isTotal = firstCell && String(firstCell).toLowerCase().includes('total');
+            
+            if (isTotal || i === worksheet.rowCount) {
+                // Total row formatting
+                row.font = { bold: true, size: 11 };
+                row.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: 'FFE7E6E6' }
+                };
+                row.border = {
+                    top: { style: 'double' },
+                    bottom: { style: 'double' },
+                    left: { style: 'thin' },
+                    right: { style: 'thin' }
+                };
+            } else {
+                // Regular row formatting with alternating colors
+                const bgColor = i % 2 === 0 ? 'FFFFFFFF' : 'FFF2F2F2';
+                row.fill = {
+                    type: 'pattern',
+                    pattern: 'solid',
+                    fgColor: { argb: bgColor }
+                };
+                row.border = {
+                    top: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+                    bottom: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+                    left: { style: 'thin', color: { argb: 'FFD3D3D3' } },
+                    right: { style: 'thin', color: { argb: 'FFD3D3D3' } }
+                };
+            }
+            
+            // Format amount columns
+            amountColumns.forEach(colIndex => {
+                const cell = row.getCell(colIndex);
+                cell.alignment = { horizontal: 'right' };
+                if (cell.value && !isNaN(cell.value)) {
+                    cell.numFmt = '$#,##0.00';
+                }
+            });
+        }
+
+        // Auto-size columns
+        worksheet.columns.forEach((column, idx) => {
+            let maxLength = 10;
+            column.eachCell({ includeEmpty: false }, (cell) => {
+                const cellLength = String(cell.value).length;
+                if (cellLength > maxLength) {
+                    maxLength = cellLength;
+                }
+            });
+            column.width = Math.min(maxLength + 2, 50);
+        });
+
+        // Freeze header row
+        worksheet.views = [{ state: 'frozen', ySplit: 1 }];
+
+        // Write to buffer
+        const buffer = await newWorkbook.xlsx.writeBuffer();
+        const filteredBlob = new Blob([buffer], { 
+            type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
+        });
+
+        console.log('✅ Created formatted Excel with', cleanData.length - 1, 'transactions');
+        return filteredBlob;
+
+    } catch (error) {
+        console.error('Error filtering transactions:', error);
+        return excelBlob;
+    }
+}
+
+// Load ExcelJS library for advanced Excel formatting
+function loadExcelJSLibrary() {
+    return new Promise(function(resolve, reject) {
+        if (typeof ExcelJS !== 'undefined') {
+            resolve();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js';
+        script.onload = function() {
+            console.log('✅ ExcelJS library loaded (formatting enabled)');
+            resolve();
+        };
+        script.onerror = function() {
+            console.warn('⚠️ Failed to load ExcelJS, formatting disabled');
+            reject(new Error('Failed to load ExcelJS library'));
+        };
+        document.head.appendChild(script);
+    });
+}
+
+// Load XLSX library for parsing
+function loadXLSXLibrary() {
+    return new Promise(function(resolve, reject) {
+        if (typeof XLSX !== 'undefined') {
+            resolve();
+            return;
+        }
+
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
+        script.onload = function() {
+            console.log('✅ XLSX library loaded (for parsing)');
+            resolve();
+        };
+        script.onerror = function() {
+            reject(new Error('Failed to load XLSX library'));
+        };
+        document.head.appendChild(script);
+    });
 }
 
 // Read file as base64

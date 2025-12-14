@@ -112,7 +112,7 @@ html {
     font-weight: 600;
 }
 
-/* Upload Section */
+/* Upload Section - Dashboard-specific overrides */
 .upload-section {
     padding: 20px 0;
 }
@@ -1265,8 +1265,6 @@ html {
     color: #6a6a6a;
     font-weight: 600;
 }
-
-/* .month-btn.active already defined above - REMOVED DUPLICATE */
 
 .dashboard-header {
     display: flex;

@@ -10,30 +10,14 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/dashboard-styles.css">
     <link rel="stylesheet" href="assets/css/ui-enhancements.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
-    <!-- Instant auth state - no flash -->
-    <script>
-        (function() {
-            try {
-                var cached = localStorage.getItem('cachedAuthUser');
-                if (cached) {
-                    var data = JSON.parse(cached);
-                    if (data && data.email && (Date.now() - data.timestamp) < 86400000) {
-                        window.__authCached = data.email.split('@')[0];
-                    }
-                }
-            } catch(e) {}
-        })();
-    </script>
+    <!-- Instant auth state - shared module -->
+    <script src="assets/js/auth-cache.js"></script>
     <style>#signInBtn, #userMenu { transition: none !important; }</style>
 </head>
 <body>
-    <script>
-        if (window.__authCached) {
-            document.write('<style>#signInBtn{display:none!important}#userMenu{display:block!important}</style>');
-        }
-    </script>
     <!-- Promotional Banner - Permanent -->
     <div class="promo-banner promo-banner-active">
         <div class="promo-content">

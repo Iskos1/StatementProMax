@@ -10,33 +10,16 @@
     <link rel="stylesheet" href="assets/css/styles.css">
     <link rel="stylesheet" href="assets/css/dashboard-styles.css">
     <link rel="stylesheet" href="assets/css/ui-enhancements.css">
+    <link rel="stylesheet" href="assets/css/responsive.css">
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
-    <!-- Instant auth state - no flash, no animations -->
-    <script>
-        (function() {
-            try {
-                var cached = localStorage.getItem('cachedAuthUser');
-                if (cached) {
-                    var data = JSON.parse(cached);
-                    if (data && data.email && (Date.now() - data.timestamp) < 86400000) {
-                        window.__authCached = data.email.split('@')[0];
-                    }
-                }
-            } catch(e) {}
-        })();
-    </script>
+    <!-- Instant auth state - shared module -->
+    <script src="assets/js/auth-cache.js"></script>
     <style>
         /* Instant auth display - no transitions, no delays */
         #signInBtn, #userMenu { transition: none !important; }
     </style>
 </head>
 <body>
-    <script>
-        // Set auth UI immediately before any rendering
-        if (window.__authCached) {
-            document.write('<style>#signInBtn{display:none!important}#userMenu{display:block!important}</style>');
-        }
-    </script>
     <!-- Promotional Banner - Permanent -->
     <div class="promo-banner">
         <div class="promo-content">
@@ -263,6 +246,49 @@
                 </div>
             </div>
 
+            <!-- Demo Section - Try Before Upload -->
+            <div class="demo-section" id="demoSection">
+                <div class="demo-card">
+                    <div class="demo-badge">✨ Try Demo</div>
+                    <h3>Test Drive with Sample Statement</h3>
+                    <p>See how it works with our sample bank statement - no signup required!</p>
+                    
+                    <div class="demo-preview">
+                        <!-- Draggable PDF Preview -->
+                        <div class="demo-pdf-container" id="demoPdfContainer">
+                            <div class="demo-pdf-preview" 
+                                 draggable="true" 
+                                 id="demoPdfPreview"
+                                 data-pdf-path="assets/samples/sample-bank-statement.pdf">
+                                <div class="demo-pdf-icon">📄</div>
+                                <div class="demo-pdf-info">
+                                    <div class="demo-pdf-name">Sample Bank Statement.pdf</div>
+                                    <div class="demo-pdf-meta">PDF • 25 KB • Real bank statement</div>
+                                </div>
+                                <div class="drag-indicator">
+                                    <span class="drag-icon">⤢</span>
+                                    <span>Drag me to upload area!</span>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <div class="demo-instructions">
+                            <p><strong>Try it now:</strong> Drag the PDF above into the upload area below, or click the button for quick demo</p>
+                        </div>
+                        
+                        <button class="btn-primary btn-with-icon btn-demo" id="useDemoBtn">
+                            <span class="btn-icon">⚡</span>
+                            <span>Quick Demo (Skip Upload)</span>
+                        </button>
+                    </div>
+                    
+                    <div class="demo-note">
+                        <span style="color: #10b981; font-weight: 600;">✓</span>
+                        Instant demo • No file upload needed • See results immediately
+                    </div>
+                </div>
+            </div>
+
             <!-- Upload Section -->
             <div class="upload-section" id="uploadSection">
                 <div class="upload-card">
@@ -472,6 +498,7 @@
     </script>
     <script type="module" src="assets/js/ui-interactions.js"></script>
     <script type="module" src="assets/js/quick-start-guide.js"></script>
+    <script type="module" src="assets/js/demo.js"></script>
     <script type="module" src="assets/js/converter.js?v=20251208"></script>
     <script type="module" src="assets/js/script.js"></script>
 </body>

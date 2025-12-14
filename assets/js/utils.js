@@ -1,13 +1,23 @@
-// DOM Safety Utilities
+// Enhanced DOM Safety Utilities
 export function safeGetElement(id) {
     return document.getElementById(id) || null;
 }
 
-function safeQuerySelector(selector) {
+export function safeQuerySelector(selector) {
     try {
         return document.querySelector(selector);
     } catch (error) {
+        console.warn('Invalid selector:', selector);
         return null;
+    }
+}
+
+export function safeQuerySelectorAll(selector) {
+    try {
+        return Array.from(document.querySelectorAll(selector));
+    } catch (error) {
+        console.warn('Invalid selector:', selector);
+        return [];
     }
 }
 
@@ -80,10 +90,19 @@ export function generateId(prefix = 'id') {
     return `${prefix}-${Date.now()}-${Math.random().toString(36).substring(2, 11)}`;
 }
 
-// Email validation
+// Input validation helpers
 export function validateEmail(email) {
     if (!email || typeof email !== 'string') return false;
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim());
+}
+
+export function validateNumber(value, min = -Infinity, max = Infinity) {
+    const num = Number(value);
+    return !isNaN(num) && num >= min && num <= max;
+}
+
+export function validateString(value, minLength = 0, maxLength = Infinity) {
+    return typeof value === 'string' && value.length >= minLength && value.length <= maxLength;
 }
 
 // SessionStorage utilities
@@ -111,20 +130,44 @@ export function safeSessionStorageRemove(key) {
     } catch {}
 }
 
-// Error Handler
+// Enhanced Error Handler with logging
 export function handleError(error, context = '', showToUser = true) {
     const errorMessage = error?.message || 'An unexpected error occurred';
+    const friendlyMessage = getFriendlyErrorMessage(errorMessage);
+    
+    // Log to console for debugging (can be disabled in production)
+    console.error(`[${context}]`, error);
+    
     if (showToUser) {
-        showNotification(getFriendlyErrorMessage(errorMessage), 'error');
+        showNotification(friendlyMessage, 'error');
     }
     return errorMessage;
 }
 
+// Get user-friendly error messages
 function getFriendlyErrorMessage(error) {
     const errorStr = String(error).toLowerCase();
-    if (errorStr.includes('network') || errorStr.includes('fetch')) return 'Network error. Please check your connection.';
-    if (errorStr.includes('timeout')) return 'Request timed out. Please try again.';
-    if (errorStr.includes('quota')) return 'Storage limit reached. Please clear some data.';
-    if (errorStr.includes('file')) return 'Error processing file. Please check the file format.';
+    const errorMap = {
+        'network': 'Network error. Please check your connection.',
+        'fetch': 'Network error. Please check your connection.',
+        'timeout': 'Request timed out. Please try again.',
+        'quota': 'Storage limit reached. Please clear some data.',
+        'file': 'Error processing file. Please check the file format.',
+        'permission': 'Permission denied. Please check your settings.'
+    };
+    
+    for (const [key, message] of Object.entries(errorMap)) {
+        if (errorStr.includes(key)) return message;
+    }
     return 'An error occurred. Please try again.';
+}
+
+// Safe async wrapper - prevents unhandled promise rejections
+export async function safeAsync(fn, fallbackValue = null, context = '') {
+    try {
+        return await fn();
+    } catch (error) {
+        handleError(error, context, false);
+        return fallbackValue;
+    }
 }
