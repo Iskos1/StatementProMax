@@ -623,34 +623,6 @@ html {
     font-feature-settings: 'tnum' 1;
 }
 
-/* Ensure percentage symbol matches number size */
-.optimizer-stat-value .stat-number,
-.optimizer-stat-value .stat-percent {
-    font-size: var(--font-lg, 20px);
-    font-weight: 700;
-    vertical-align: baseline;
-}
-
-.optimizer-stat-value .stat-percent {
-    margin-left: 1px;
-    font-size: 0.9em; /* Slightly smaller to match visual weight */
-}
-
-/* Consistent percentage display across all badges and stats */
-.percentage-badge .stat-number,
-.percentage-badge .stat-percent,
-.card-value .stat-number,
-.card-value .stat-percent {
-    vertical-align: baseline;
-    font-weight: inherit;
-}
-
-.percentage-badge .stat-percent,
-.card-value .stat-percent {
-    font-size: 0.9em;
-    margin-left: 1px;
-}
-
 .optimizer-stat-amount {
     color: #f59e0b;
 }
