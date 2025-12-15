@@ -39,7 +39,7 @@
 
 /* ===== BASE RESPONSIVE SETTINGS ===== */
 html {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
 }
@@ -419,7 +419,7 @@ small { font-size: var(--text-sm); }
     }
     
     .logo-text {
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     .logo-icon-wrapper,
@@ -434,7 +434,7 @@ small { font-size: var(--text-sm); }
     }
     
     .hero-badge {
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
         padding: 6px 12px;
     }
     
@@ -444,7 +444,7 @@ small { font-size: var(--text-sm); }
     
     /* Trust strip */
     .trust-value {
-        font-size: 20px;
+        font-size: var(--font-lg, 20px);
     }
     
     .trust-label {
@@ -476,7 +476,7 @@ small { font-size: var(--text-sm); }
     
     /* Stats */
     .stat-number {
-        font-size: 32px;
+        font-size: var(--font-2xl, 32px);
     }
     
     .stat-label {
@@ -499,17 +499,17 @@ small { font-size: var(--text-sm); }
     }
     
     .hero-subtitle {
-        font-size: 14px;
+        font-size: var(--font-sm, 14px);
     }
     
     .btn-primary,
     .btn-secondary {
         padding: 12px 16px;
-        font-size: 14px;
+        font-size: var(--font-sm, 14px);
     }
     
     .trust-value {
-        font-size: 18px;
+        font-size: var(--font-md, 18px);
     }
     
     .feature-card,
@@ -526,7 +526,7 @@ small { font-size: var(--text-sm); }
     }
     
     .hero h1 {
-        font-size: 32px;
+        font-size: var(--font-2xl, 32px);
     }
     
     .trust-strip {
@@ -652,7 +652,7 @@ small { font-size: var(--text-sm); }
     }
     
     .promo-text {
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
         line-height: 1.4;
     }
     
@@ -709,7 +709,7 @@ small { font-size: var(--text-sm); }
 /* ===== TABLES MOBILE ===== */
 @media (max-width: 767px) {
     .transactions-table {
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
     }
     
     .transactions-table th,

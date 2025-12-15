@@ -40,7 +40,7 @@ html {
 }
 
 .sign-in-banner-icon {
-    font-size: 32px;
+    font-size: var(--font-2xl, 32px);
     flex-shrink: 0;
 }
 
@@ -52,19 +52,19 @@ html {
 }
 
 .sign-in-banner-text strong {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 700;
     color: white;
 }
 
 .sign-in-banner-text span {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: rgba(255, 255, 255, 0.9);
 }
 
 .btn-small {
     padding: 8px 20px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     white-space: nowrap;
 }
@@ -76,7 +76,7 @@ html {
     background: none;
     border: none;
     color: white;
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     cursor: pointer;
     padding: 4px 8px;
     line-height: 1;
@@ -128,7 +128,7 @@ html {
 }
 
 .upload-card h2 {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     margin-bottom: 6px;
     color: #1a1a1a;
@@ -137,7 +137,7 @@ html {
 .upload-card > p {
     color: #6a6a6a;
     margin-bottom: 20px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .upload-area {
@@ -169,12 +169,12 @@ html {
 
 .upload-history-section .btn-outline {
     padding: 8px 16px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
 }
 
 .upload-icon-large {
-    font-size: 48px;
+    font-size: var(--font-4xl, 48px);
     margin-bottom: 12px;
 }
 
@@ -188,7 +188,7 @@ html {
 
 .upload-note {
     color: #8a8a8a;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     margin-top: 8px;
     line-height: 1.4;
 }
@@ -203,13 +203,13 @@ html {
     background: #f0f8f5;
     border-radius: 8px;
     color: #ff6a3d;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 500;
     line-height: 1.5;
 }
 
 .security-icon {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
 }
 
 /* File List - Enhanced */
@@ -222,7 +222,7 @@ html {
 }
 
 .file-list h4 {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 700;
     margin-bottom: 12px;
     color: #1a1a1a;
@@ -259,7 +259,7 @@ html {
 
 .file-item-size {
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     line-height: 1.5;
 }
 
@@ -295,7 +295,7 @@ html {
 
 /* Section Titles - Simplified */
 .section-title {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 700;
     color: #1a1a1a;
     margin: 24px 0 12px 0;
@@ -316,7 +316,7 @@ html {
     color: white;
     border: none;
     border-radius: 50%;
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     cursor: pointer;
     box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
     display: flex;
@@ -351,7 +351,7 @@ html {
         right: 20px;
         width: 48px;
         height: 48px;
-        font-size: 20px;
+        font-size: var(--font-lg, 20px);
     }
 }
 
@@ -443,7 +443,7 @@ html {
     top: 50%;
     transform: translateY(-50%);
     font-weight: 700;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
 }
 
 .month-btn-selectable:not(.active):hover::after {
@@ -605,21 +605,22 @@ html {
 }
 
 .optimizer-stat-label {
-    font-size: 10px;
+    font-size: var(--font-xs, 12px);
     color: #8a8a8a;
     text-transform: uppercase;
     letter-spacing: 0.5px;
     font-weight: 600;
-    margin-bottom: 2px;
+    margin-bottom: 4px;
 }
 
 .optimizer-stat-value {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     color: #ff6a3d;
-    line-height: 1;
+    line-height: var(--line-tight, 1.2);
     font-variant-numeric: tabular-nums;
-    letter-spacing: 0;
+    letter-spacing: -0.02em;
+    font-feature-settings: 'tnum' 1;
 }
 
 .optimizer-stat-amount {
@@ -636,7 +637,7 @@ html {
     border-radius: 8px;
     margin-bottom: 12px;
     border-left: 4px solid #22c55e;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 500;
     color: #1a1a1a;
     line-height: 1.5;
@@ -681,7 +682,7 @@ html {
     color: #dc2626;
     border-radius: 6px;
     cursor: pointer;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -711,7 +712,7 @@ html {
 }
 
 .optimizer-rank {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 800;
     color: #f59e0b;
     min-width: 40px;
@@ -727,7 +728,7 @@ html {
 }
 
 .optimizer-name {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 6px;
@@ -748,7 +749,7 @@ html {
     padding: 3px 10px;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
 }
 
 .optimizer-date {
@@ -761,18 +762,20 @@ html {
 }
 
 .optimizer-amount {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 700;
     color: #ef4444;
     margin-bottom: 4px;
-    line-height: 1;
+    line-height: var(--line-tight, 1.2);
+    font-variant-numeric: tabular-nums;
+    letter-spacing: -0.01em;
 }
 
 .optimizer-percentage {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: #6a6a6a;
     font-weight: 600;
-    line-height: 1.4;
+    line-height: var(--line-normal, 1.5);
     font-variant-numeric: tabular-nums;
 }
 
@@ -786,7 +789,7 @@ html {
 }
 
 .optimizer-summary h4 {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 700;
     margin-bottom: 12px;
     color: white;
@@ -804,7 +807,7 @@ html {
 }
 
 .optimizer-summary-label {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     opacity: 0.9;
     margin-bottom: 4px;
     text-transform: uppercase;
@@ -843,7 +846,7 @@ html {
 }
 
 .optimizer-target-icon {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
 }
 
 .optimizer-target-value-display {
@@ -947,7 +950,7 @@ html {
     display: flex;
     justify-content: space-between;
     padding: 0 4px;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: #6a6a6a;
     font-weight: 600;
     margin-bottom: 8px;
@@ -957,7 +960,7 @@ html {
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: #6a6a6a;
     padding: 8px 12px;
     background: #f0f9ff;
@@ -966,7 +969,7 @@ html {
 }
 
 .hint-icon {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .optimizer-slider-hint.warning {
@@ -993,7 +996,7 @@ html {
     }
     
     .optimizer-target-value-display {
-        font-size: 24px;
+        font-size: var(--font-xl, 24px);
     }
     
     .optimizer-slider-labels {
@@ -1064,7 +1067,7 @@ html {
 }
 
 .search-icon {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     color: #8a8a8a;
 }
 
@@ -1093,7 +1096,7 @@ html {
     border: none;
     border-radius: 50%;
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     cursor: pointer;
     flex-shrink: 0;
     transition: background 0.2s ease, color 0.2s ease;
@@ -1109,7 +1112,7 @@ html {
     padding: 8px 16px;
     background: #f0f8f5;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #ff6a3d;
     font-weight: 500;
 }
@@ -1146,7 +1149,7 @@ html {
 }
 
 .recurring-stat-value {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     color: #ff6a3d;
     line-height: 1;
@@ -1196,7 +1199,7 @@ html {
 }
 
 .recurring-icon {
-    font-size: 32px;
+    font-size: var(--font-2xl, 32px);
     width: 50px;
     height: 50px;
     display: flex;
@@ -1214,7 +1217,7 @@ html {
 }
 
 .recurring-name {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 6px;
@@ -1236,7 +1239,7 @@ html {
     padding: 3px 10px;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
 }
 
 .recurring-category {
@@ -1244,7 +1247,7 @@ html {
     padding: 3px 10px;
     border-radius: 12px;
     font-weight: 600;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
 }
 
 .recurring-separator {
@@ -1257,7 +1260,7 @@ html {
 }
 
 .recurring-amount {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 4px;
@@ -1265,7 +1268,7 @@ html {
 }
 
 .recurring-total {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: #6a6a6a;
     font-weight: 600;
 }
@@ -1296,7 +1299,7 @@ html {
 }
 
 .dashboard-header h1 {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     color: #1a1a1a;
     margin: 0;
@@ -1308,7 +1311,7 @@ html {
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     font-weight: 600;
     max-width: 200px;
     overflow: hidden;
@@ -1327,7 +1330,7 @@ html {
     border-radius: 10px;
     border: 1px solid #e5e5e5;
     background: white;
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -1346,7 +1349,7 @@ html {
     border: none;
     padding: 10px 16px;
     border-radius: 10px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -1375,7 +1378,7 @@ html {
 .filter-label {
     font-weight: 600;
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     white-space: nowrap;
 }
 
@@ -1420,7 +1423,7 @@ html {
 }
 
 .insight-card-title {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 700;
     color: #1a1a1a;
     margin: 0 0 16px 0;
@@ -1465,7 +1468,7 @@ html {
 }
 
 .card-value {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 700;
     margin-bottom: 2px;
     color: #1a1a1a !important;
@@ -1509,7 +1512,7 @@ html {
 }
 
 .chart-card h3 {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 700;
     margin-bottom: 12px;
     color: #1a1a1a;
@@ -1713,7 +1716,7 @@ html {
 
 .transaction-date {
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     line-height: 1.5;
 }
 
@@ -1730,7 +1733,7 @@ html {
     padding: 4px 12px;
     background: #f0f0f0;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     font-weight: 600;
     color: #6a6a6a;
     line-height: 1.5;
@@ -1774,14 +1777,14 @@ html {
 }
 
 .needs-review {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     margin-left: 4px;
     filter: drop-shadow(0 1px 2px rgba(0,0,0,0.1));
 }
 
 .transaction-amount {
     font-weight: 700;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     line-height: 1;
 }
 
@@ -1889,7 +1892,7 @@ button:focus-visible {
 }
 
 .loading-text {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 8px;
@@ -1898,7 +1901,7 @@ button:focus-visible {
 
 .loading-subtext {
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     line-height: 1.5;
 }
 
@@ -1909,7 +1912,7 @@ button:focus-visible {
     }
 
     .dashboard-header h1 {
-        font-size: 18px;
+        font-size: var(--font-md, 18px);
     }
 }
 
@@ -1946,7 +1949,7 @@ button:focus-visible {
     }
 
     .upload-card h2 {
-        font-size: 18px;
+        font-size: var(--font-md, 18px);
     }
     
     .upload-area {
@@ -1961,7 +1964,7 @@ button:focus-visible {
     }
     
     .dashboard-header h1 {
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     .dashboard-header-left {
@@ -1973,7 +1976,7 @@ button:focus-visible {
     .btn-icon-sm {
         width: 36px;
         height: 36px;
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     .btn-primary-sm {
@@ -1990,7 +1993,7 @@ button:focus-visible {
     
     .month-filter-bar .month-btn {
         padding: 5px 10px;
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
     }
     
     .insight-card {
@@ -1998,7 +2001,7 @@ button:focus-visible {
     }
     
     .insight-card-title {
-        font-size: 14px;
+        font-size: var(--font-sm, 14px);
         margin-bottom: 12px;
         padding-bottom: 10px;
     }
@@ -2073,11 +2076,11 @@ button:focus-visible {
     }
     
     .card-icon {
-        font-size: 24px;
+        font-size: var(--font-xl, 24px);
     }
     
     .card-value {
-        font-size: 20px;
+        font-size: var(--font-lg, 20px);
     }
 }
 
@@ -2128,7 +2131,7 @@ button:focus-visible {
 }
 
 .year-modal-header h2 {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 800;
     color: #1a1a1a;
     margin: 0 0 12px 0;
@@ -2137,7 +2140,7 @@ button:focus-visible {
 }
 
 .year-modal-header p {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #6a6a6a;
     margin: 0;
     line-height: 1.6;
@@ -2153,7 +2156,7 @@ button:focus-visible {
 
 .year-selector label {
     display: block;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 8px;
@@ -2163,7 +2166,7 @@ button:focus-visible {
 .year-select-dropdown {
     width: 100%;
     padding: 12px 16px;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     border: 2px solid #d0d0d0;
     border-radius: 8px;
     background: white;
@@ -2194,7 +2197,7 @@ button:focus-visible {
     border-radius: 8px;
     background: white;
     color: #1a1a1a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     cursor: pointer;
     line-height: 1.4;
@@ -2286,7 +2289,7 @@ button:focus-visible {
     right: 16px;
     background: rgba(0, 0, 0, 0.05);
     border: none;
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     color: #6a6a6a;
     cursor: pointer;
     width: 36px;
@@ -2323,14 +2326,14 @@ button:focus-visible {
 }
 
 .recategorize-modal-header h3 {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 8px;
 }
 
 .recategorize-modal-header p {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #6a6a6a;
 }
 
@@ -2349,7 +2352,7 @@ button:focus-visible {
     display: flex;
     justify-content: space-between;
     margin-bottom: 8px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .transaction-preview-label {
@@ -2369,7 +2372,7 @@ button:focus-visible {
 .recategorize-field label {
     display: block;
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #1a1a1a;
     margin-bottom: 8px;
 }
@@ -2450,7 +2453,7 @@ button:focus-visible {
 
 .similar-transaction-amount {
     color: #6a6a6a;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
 }
 
 .recategorize-modal-footer {
@@ -2536,7 +2539,7 @@ button:focus-visible {
 }
 
 .categorization-review-header h2 {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 800;
     color: #1a1a1a;
     margin: 0 0 4px 0;
@@ -2554,7 +2557,7 @@ button:focus-visible {
 }
 
 .categorization-review-header p {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #6a6a6a;
     margin: 0;
     line-height: 1.4;
@@ -2574,7 +2577,7 @@ button:focus-visible {
 }
 
 .review-progress strong {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 900;
     color: #16a34a;
 }
@@ -2592,7 +2595,7 @@ button:focus-visible {
 
 .review-actions-bar button {
     padding: 10px 20px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 700;
     white-space: nowrap;
 }
@@ -2711,7 +2714,7 @@ button:focus-visible {
 }
 
 .review-transaction-description {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 6px;
@@ -2727,7 +2730,7 @@ button:focus-visible {
 }
 
 .review-transaction-amount {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 800;
     flex-shrink: 0;
     line-height: 1;
@@ -2767,7 +2770,7 @@ button:focus-visible {
     border: 2px solid #d0d0d0;
     border-radius: 8px;
     font-weight: 700;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #1a1a1a;
 }
 
@@ -2797,7 +2800,7 @@ button:focus-visible {
 }
 
 .review-confidence {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: #6a6a6a;
     margin-top: 6px;
     font-weight: 600;
@@ -2829,7 +2832,7 @@ button:focus-visible {
     padding: 10px 14px;
     border: 2px solid #d0d0d0;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     color: #1a1a1a;
     background: white;
@@ -2848,7 +2851,7 @@ button:focus-visible {
 
 .review-actions button {
     padding: 10px 20px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 700;
     min-width: 100px;
 }
@@ -2890,7 +2893,7 @@ button:focus-visible {
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .learned-patterns-link button:hover {
@@ -2921,7 +2924,7 @@ button:focus-visible {
     }
     
     .categorization-review-header h2 {
-        font-size: 20px;
+        font-size: var(--font-lg, 20px);
     }
     
     .categorization-review-header p {
@@ -2930,12 +2933,12 @@ button:focus-visible {
     
     .review-progress {
         padding: 10px 18px;
-        font-size: 14px;
+        font-size: var(--font-sm, 14px);
         align-self: flex-start;
     }
     
     .review-progress strong {
-        font-size: 18px;
+        font-size: var(--font-md, 18px);
     }
     
     .review-actions-bar {
@@ -2961,12 +2964,12 @@ button:focus-visible {
     }
     
     .review-transaction-meta {
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
         flex-wrap: wrap;
     }
     
     .review-transaction-amount {
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     .review-category-section {
@@ -3072,7 +3075,7 @@ button:focus-visible {
 }
 
 .learned-stat-icon {
-    font-size: 32px;
+    font-size: var(--font-2xl, 32px);
     flex-shrink: 0;
 }
 
@@ -3081,7 +3084,7 @@ button:focus-visible {
 }
 
 .learned-stat-label {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     font-weight: 600;
     color: #6a6a6a;
     text-transform: uppercase;
@@ -3090,7 +3093,7 @@ button:focus-visible {
 }
 
 .learned-stat-value {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 800;
     color: #1a1a1a;
 }
@@ -3110,7 +3113,7 @@ button:focus-visible {
     padding: 12px 16px;
     border: 2px solid #e5e5e5;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     background: white;
     transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
@@ -3161,7 +3164,7 @@ button:focus-visible {
 }
 
 .learned-pattern-description {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 700;
     color: #1a1a1a;
     flex: 1;
@@ -3224,7 +3227,7 @@ button:focus-visible {
 }
 
 .no-patterns-message-title {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 8px;

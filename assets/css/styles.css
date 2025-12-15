@@ -7,8 +7,8 @@
 
 body {
     font-family: 'Figtree', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-    font-size: 16px;
-    line-height: 1.6;
+    font-size: var(--font-base);
+    line-height: var(--line-relaxed);
     color: #1a1a1a;
     background: #ffffff;
     -webkit-font-smoothing: antialiased;
@@ -17,6 +17,7 @@ body {
 
 /* Primary colors - Buzzoid-inspired Orange/Green theme */
 :root {
+    /* Colors */
     --primary: #ff6a3d;
     --primary-light: #ff8a65;
     --primary-dark: #e55a2d;
@@ -28,43 +29,73 @@ body {
     --text-primary: #1a1a2e;
     --text-secondary: #4a4a68;
     --text-muted: #8a8aa3;
+    
+    /* Typography Scale - Consistent Font Sizes */
+    --font-xs: 12px;      /* Small labels, metadata */
+    --font-sm: 14px;      /* Body text, buttons */
+    --font-base: 16px;    /* Base body size */
+    --font-md: 18px;      /* Emphasized text */
+    --font-lg: 20px;      /* Subheadings, stats */
+    --font-xl: 24px;      /* Section headings */
+    --font-2xl: 32px;     /* Page headings */
+    --font-3xl: 40px;     /* Hero headings */
+    --font-4xl: 48px;     /* Large hero text */
+    
+    /* Line Heights */
+    --line-tight: 1.2;
+    --line-normal: 1.5;
+    --line-relaxed: 1.6;
     --border: #e8e8f0;
     --bg-light: #f8f9fc;
 }
 
 /* Typography Hierarchy */
 h1 {
-    font-size: 48px;
+    font-size: var(--font-4xl);
     font-weight: 700;
-    line-height: 1.2;
+    line-height: var(--line-tight);
     letter-spacing: -0.02em;
     color: var(--text-primary);
 }
 
 h2 {
-    font-size: 36px;
+    font-size: var(--font-2xl);
     font-weight: 700;
-    line-height: 1.25;
+    line-height: var(--line-tight);
     letter-spacing: -0.01em;
     color: var(--text-primary);
 }
 
 h3 {
-    font-size: 24px;
+    font-size: var(--font-xl);
     font-weight: 600;
-    line-height: 1.3;
+    line-height: var(--line-normal);
     color: var(--text-primary);
 }
 
 h4 {
-    font-size: 18px;
+    font-size: var(--font-md);
     font-weight: 600;
-    line-height: 1.4;
+    line-height: var(--line-normal);
+    color: var(--text-primary);
+}
+
+h5 {
+    font-size: var(--font-base);
+    font-weight: 600;
+    line-height: var(--line-normal);
+    color: var(--text-primary);
+}
+
+h6 {
+    font-size: var(--font-sm);
+    font-weight: 600;
+    line-height: var(--line-normal);
     color: var(--text-primary);
 }
 
 p {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     line-height: 1.6;
     color: var(--text-secondary);
 }
@@ -117,7 +148,7 @@ p {
 }
 
 .promo-icon {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
 }
 
 .promo-text {
@@ -135,7 +166,7 @@ p {
     padding: 4px 14px;
     border-radius: 16px;
     font-weight: 700;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     text-decoration: none;
     margin-left: 6px;
     white-space: nowrap;
@@ -152,7 +183,7 @@ p {
     padding: 4px 14px;
     border-radius: 16px;
     font-weight: 700;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     margin-left: 6px;
     white-space: nowrap;
 }
@@ -178,7 +209,7 @@ p {
     display: flex;
     align-items: center;
     gap: 10px;
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 800;
     color: #1a1a1a;
     letter-spacing: -0.01em;
@@ -259,7 +290,7 @@ p {
 .nav-links a {
     text-decoration: none;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 500;
     transition: color 0.2s ease;
     /* Prevent link preview popups */
@@ -294,7 +325,7 @@ p {
 
 .btn-primary-large {
     padding: 16px 40px;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 600;
 }
 
@@ -323,7 +354,7 @@ p {
     border: 2px solid #e5e5e5;
     padding: 12px 24px;
     border-radius: 10px;
-    font-size: 15px;
+    font-size: var(--font-sm);
     font-weight: 600;
     cursor: pointer;
     width: 100%;
@@ -361,7 +392,7 @@ p {
 }
 
 .hero-subtitle {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     color: var(--text-secondary);
     margin-bottom: 32px;
     line-height: 1.7;
@@ -462,12 +493,12 @@ p {
 }
 
 .feature-icon {
-    font-size: 48px;
+    font-size: var(--font-4xl, 48px);
     margin-bottom: 20px;
 }
 
 .feature-card h3 {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     margin-bottom: 12px;
     color: #1a1a1a;
@@ -477,7 +508,7 @@ p {
 .feature-card p {
     color: #6a6a6a;
     line-height: 1.7;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
 }
 
 /* How It Works Section */
@@ -527,7 +558,7 @@ p {
 }
 
 .step h3 {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     margin-bottom: 8px;
     color: #1a1a1a;
@@ -593,7 +624,7 @@ p {
     color: white;
     padding: 6px 16px;
     border-radius: 20px;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -607,7 +638,7 @@ p {
 }
 
 .pricing-header h3 {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 700;
     margin-bottom: 16px;
     color: #1a1a1a;
@@ -623,7 +654,7 @@ p {
 }
 
 .price span {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     color: #6a6a6a;
     font-weight: 400;
     letter-spacing: 0;
@@ -662,7 +693,7 @@ p {
 }
 
 .cta h2 {
-    font-size: 48px;
+    font-size: var(--font-4xl, 48px);
     font-weight: 800;
     margin-bottom: 16px;
     color: #1a1a1a;
@@ -671,7 +702,7 @@ p {
 }
 
 .cta p {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     color: #6a6a6a;
     margin-bottom: 32px;
     line-height: 1.7;
@@ -700,7 +731,7 @@ p {
 
 .footer-brand p {
     color: #b0b0b0;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     line-height: 1.6;
     margin-top: 10px;
     max-width: 400px;
@@ -713,7 +744,7 @@ p {
 }
 
 .footer-links-group h4 {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     font-weight: 700;
     margin-bottom: 10px;
     color: white;
@@ -726,7 +757,7 @@ p {
     color: #b0b0b0;
     text-decoration: none;
     margin-bottom: 6px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     
 }
 
@@ -764,7 +795,7 @@ p {
 }
 
 .footer-logo-text {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 800;
     color: white;
     letter-spacing: -0.01em;
@@ -805,7 +836,7 @@ p {
     position: absolute;
     right: 24px;
     top: 24px;
-    font-size: 32px;
+    font-size: var(--font-2xl, 32px);
     font-weight: 300;
     color: #6a6a6a;
     cursor: pointer;
@@ -819,7 +850,7 @@ p {
 }
 
 .modal-content h2 {
-    font-size: 32px;
+    font-size: var(--font-2xl, 32px);
     font-weight: 800;
     margin-bottom: 8px;
     color: #1a1a1a;
@@ -830,7 +861,7 @@ p {
 .modal-subtitle {
     color: #6a6a6a;
     margin-bottom: 32px;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     line-height: 1.6;
 }
 
@@ -850,7 +881,7 @@ p {
 .form-group label {
     font-weight: 600;
     color: #1a1a1a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     line-height: 1.5;
 }
 
@@ -858,7 +889,7 @@ p {
     padding: 12px 16px;
     border: 2px solid #e5e5e5;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-family: inherit;
     transition: border-color 0.2s ease;
 }
@@ -895,7 +926,7 @@ p {
     align-items: center;
     gap: 8px;
     cursor: pointer;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #4a4a4a;
 }
 
@@ -909,7 +940,7 @@ p {
 .link {
     color: #ff6a3d;
     text-decoration: none;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     transition: color 0.2s ease;
 }
@@ -924,7 +955,7 @@ p {
     border: none;
     padding: 14px;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 600;
     cursor: pointer;
     width: 100%;
@@ -957,7 +988,7 @@ p {
     background: white;
     padding: 0 16px;
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .social-buttons {
@@ -977,7 +1008,7 @@ p {
     background: white;
     cursor: pointer;
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #1a1a1a;
     transition: border-color 0.2s ease, background 0.2s ease;
 }
@@ -990,7 +1021,7 @@ p {
 .form-footer {
     text-align: center;
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     margin-top: 8px;
 }
 
@@ -1001,7 +1032,7 @@ p {
     font-weight: 600;
     cursor: pointer;
     padding: 12px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     width: 100%;
     transition: color 0.2s ease;
 }
@@ -1031,11 +1062,11 @@ p {
 /* Responsive Design */
 @media (max-width: 968px) {
     .hero h1 {
-        font-size: 48px;
+        font-size: var(--font-4xl, 48px);
     }
 
     .section-title {
-        font-size: 40px;
+        font-size: var(--font-3xl, 40px);
     }
 
     .features-grid {
@@ -1077,7 +1108,7 @@ p {
     }
     
     .nav-links a {
-        font-size: 14px;
+        font-size: var(--font-sm, 14px);
     }
     
     .dashboard-header-actions {
@@ -1147,19 +1178,19 @@ p {
     
     .promo-content {
         gap: 8px;
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
         flex-direction: column;
         align-items: flex-start;
     }
     
     .promo-icon {
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     .promo-cta {
         margin-left: 0;
         padding: 6px 14px;
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
         width: 100%;
         text-align: center;
     }
@@ -1169,7 +1200,7 @@ p {
         top: 12px;
         width: 24px;
         height: 24px;
-        font-size: 14px;
+        font-size: var(--font-sm, 14px);
     }
     
     .converter-main {
@@ -1181,7 +1212,7 @@ p {
     }
     
     .logo-text {
-        font-size: 18px;
+        font-size: var(--font-md, 18px);
     }
     
     .logo-icon-wrapper {
@@ -1201,7 +1232,7 @@ p {
     }
     
     .mini-badge {
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
         padding: 6px 12px;
         width: 100%;
         text-align: center;
@@ -1303,7 +1334,7 @@ p {
     }
 
     .section-title {
-        font-size: 32px;
+        font-size: var(--font-2xl, 32px);
     }
 
     .features-grid {
@@ -1321,7 +1352,7 @@ p {
     }
 
     .modal-content h2 {
-        font-size: 24px;
+        font-size: var(--font-xl, 24px);
     }
 
     .social-buttons {
@@ -1372,7 +1403,7 @@ p {
     color: white;
     padding: 6px 16px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     margin-bottom: 16px;
     box-shadow: 0 4px 12px rgba(255, 106, 61, 0.3);
@@ -1386,7 +1417,7 @@ p {
 
 .demo-card > p {
     color: var(--text-secondary);
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     margin-bottom: 24px;
 }
 
@@ -1411,7 +1442,7 @@ p {
 }
 
 .demo-pdf-icon {
-    font-size: 48px;
+    font-size: var(--font-4xl, 48px);
     flex-shrink: 0;
 }
 
@@ -1422,13 +1453,13 @@ p {
 
 .demo-pdf-name {
     font-weight: 600;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     color: var(--text-primary);
     margin-bottom: 4px;
 }
 
 .demo-pdf-meta {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: var(--text-muted);
 }
 
@@ -1436,7 +1467,7 @@ p {
     width: 100%;
     max-width: 400px;
     padding: 16px 32px;
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 600;
     box-shadow: 0 4px 16px rgba(255, 106, 61, 0.3);
     transition: all 0.2s ease;
@@ -1453,7 +1484,7 @@ p {
     background: rgba(16, 185, 129, 0.1);
     border-radius: 8px;
     color: var(--text-secondary);
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     display: inline-block;
 }
 
@@ -1501,14 +1532,14 @@ p {
     background: linear-gradient(135deg, #FFF9E6 0%, #fff0eb 100%);
     padding: 10px 20px;
     border-radius: 25px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     color: #1a1a1a;
     border: 1.5px solid #FFE0B2;
 }
 
 .urgency-icon {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
 }
 
 /* Upload Section */
@@ -1544,7 +1575,7 @@ p {
     color: white;
     padding: 6px 16px;
     border-radius: 20px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     margin-bottom: 16px;
     box-shadow: 0 4px 12px rgba(255, 106, 61, 0.3);
@@ -1558,7 +1589,7 @@ p {
 
 .demo-card > p {
     color: #4a4a68;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     margin-bottom: 24px;
 }
 
@@ -1609,7 +1640,7 @@ p {
     align-items: center;
     gap: 8px;
     color: #8a8aa3;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     opacity: 0;
     transition: opacity 0.3s ease;
 }
@@ -1619,7 +1650,7 @@ p {
 }
 
 .drag-icon {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     color: #ff6a3d;
 }
 
@@ -1627,11 +1658,11 @@ p {
     text-align: center;
     margin-bottom: 16px;
     color: #4a4a68;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .demo-pdf-icon {
-    font-size: 48px;
+    font-size: var(--font-4xl, 48px);
     flex-shrink: 0;
 }
 
@@ -1642,13 +1673,13 @@ p {
 
 .demo-pdf-name {
     font-weight: 600;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     color: #1a1a2e;
     margin-bottom: 4px;
 }
 
 .demo-pdf-meta {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #8a8aa3;
 }
 
@@ -1656,7 +1687,7 @@ p {
     width: 100%;
     max-width: 400px;
     padding: 16px 32px;
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 600;
     box-shadow: 0 4px 16px rgba(255, 106, 61, 0.3);
     transition: all 0.2s ease;
@@ -1671,7 +1702,7 @@ p {
     text-align: center;
     margin-bottom: 16px;
     color: #4a4a68;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .demo-instructions strong {
@@ -1685,7 +1716,7 @@ p {
     background: rgba(16, 185, 129, 0.1);
     border-radius: 8px;
     color: #4a4a68;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     display: inline-block;
 }
 
@@ -1725,7 +1756,7 @@ p {
 }
 
 .upload-content h3 {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 600;
     margin-bottom: 8px;
     color: var(--text-primary);
@@ -1733,7 +1764,7 @@ p {
 }
 
 .upload-text {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     color: #6a6a6a;
     margin-bottom: 16px;
     line-height: 1.5;
@@ -1757,13 +1788,13 @@ p {
     background: #f8faf9;
     border-radius: 8px;
     color: #4a4a4a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     line-height: 1.5;
     font-weight: 500;
 }
 
 .security-icon {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
 }
 
 .security-note-enhanced {
@@ -1787,7 +1818,7 @@ p {
 
 .security-badge strong {
     display: block;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     color: #1a1a1a;
     margin-bottom: 4px;
     font-weight: 700;
@@ -1855,7 +1886,7 @@ p {
 }
 
 .file-list-header h3 {
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     font-weight: 800;
     color: #1a1a1a;
     display: flex;
@@ -1873,7 +1904,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 900;
     box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
 }
@@ -1893,7 +1924,7 @@ p {
 }
 
 .callout-title {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 800;
     color: #1a1a1a;
     margin-bottom: 8px;
@@ -1966,7 +1997,7 @@ p {
 }
 
 .file-icon {
-    font-size: 40px;
+    font-size: var(--font-3xl, 40px);
     width: 60px;
     height: 60px;
     display: flex;
@@ -1984,7 +2015,7 @@ p {
 }
 
 .file-name {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 4px;
@@ -1995,7 +2026,7 @@ p {
 .file-meta {
     display: flex;
     gap: 16px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #6a6a6a;
     line-height: 1.5;
 }
@@ -2025,7 +2056,7 @@ p {
     background: white;
     border: 1px solid #e5e5e5;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: #4a4a4a;
     font-weight: 500;
 }
@@ -2044,7 +2075,7 @@ p {
     padding: 10px 20px;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     cursor: pointer;
     border: none;
     transition: background 0.2s ease, box-shadow 0.2s ease;
@@ -2089,7 +2120,7 @@ p {
     padding: 10px 16px;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     cursor: pointer;
     transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
 }
@@ -2154,7 +2185,7 @@ p {
 }
 
 .feature-icon-small {
-    font-size: 40px;
+    font-size: var(--font-3xl, 40px);
     margin-bottom: 12px;
 }
 
@@ -2170,7 +2201,7 @@ p {
 }
 
 .feature-small h4 {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     font-weight: 700;
     margin-bottom: 8px;
     color: #1a1a1a;
@@ -2178,7 +2209,7 @@ p {
 }
 
 .feature-small p {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #6a6a6a;
     line-height: 1.6;
 }
@@ -2223,14 +2254,14 @@ p {
 }
 
 .trust-header h3 {
-    font-size: 32px;
+    font-size: var(--font-2xl, 32px);
     font-weight: 800;
     color: #1a1a1a;
     margin-bottom: 8px;
 }
 
 .trust-header p {
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     color: #6a6a6a;
 }
 
@@ -2269,7 +2300,7 @@ p {
 }
 
 .stat-item .stat-number {
-    font-size: 40px;
+    font-size: var(--font-3xl, 40px);
     font-weight: 800;
     color: #ff6a3d;
     margin-bottom: 8px;
@@ -2295,7 +2326,7 @@ p {
     padding: 16px 24px;
     border-radius: 8px;
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.15);
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 500;
     z-index: 3000;
     opacity: 0;
@@ -2364,7 +2395,7 @@ p {
     }
     
     .converter-subtitle {
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     .upload-area {
@@ -2385,7 +2416,7 @@ p {
     }
     
     .file-list-container::after {
-        font-size: 12px;
+        font-size: var(--font-xs, 12px);
         padding: 6px 16px;
     }
     
@@ -2397,13 +2428,13 @@ p {
     }
     
     .file-list-header h3 {
-        font-size: 20px;
+        font-size: var(--font-lg, 20px);
     }
     
     .file-list-header h3::before {
         width: 28px;
         height: 28px;
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     .conversion-controls {
@@ -2456,7 +2487,7 @@ p {
     background: white;
     border-radius: 8px;
     font-weight: 500;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: var(--text-primary);
     cursor: pointer;
     white-space: nowrap;
@@ -2481,7 +2512,7 @@ p {
     background: white;
     border-radius: 8px;
     font-weight: 600;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #1a1a1a;
     cursor: pointer;
     white-space: nowrap;
@@ -2531,7 +2562,7 @@ p {
     border: none;
     background: transparent;
     text-align: left;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     color: #dc2626;
     cursor: pointer;
@@ -2580,7 +2611,7 @@ p {
     position: absolute;
     right: 20px;
     top: 20px;
-    font-size: 32px;
+    font-size: var(--font-2xl, 32px);
     font-weight: 300;
     color: #6a6a6a;
     background: none;
@@ -2625,7 +2656,7 @@ p {
 
 .auth-input-group label {
     display: block;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 8px;
@@ -2637,7 +2668,7 @@ p {
     padding: 12px 16px;
     border: 2px solid #e5e5e5;
     border-radius: 8px;
-    font-size: 16px;
+    font-size: var(--font-base, 16px);
     font-family: inherit;
     transition: border-color 0.2s ease;
 }
@@ -2665,7 +2696,7 @@ p {
     color: #dc2626;
     padding: 12px;
     border-radius: 8px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     margin-bottom: 16px;
 }
 
@@ -2695,7 +2726,7 @@ p {
     background: white;
     padding: 0 16px;
     color: #6a6a6a;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
 }
 
 .btn-google {
@@ -2719,7 +2750,7 @@ p {
     background: none;
     border: none;
     color: #ff6a3d;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     cursor: pointer;
     display: flex;
@@ -2773,7 +2804,7 @@ p {
 
 .auth-resend-text {
     text-align: center;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #6a6a6a;
     margin-top: 16px;
 }
@@ -2813,7 +2844,7 @@ p {
     }
     
     .auth-modal-header h2 {
-        font-size: 24px;
+        font-size: var(--font-xl, 24px);
     }
     
     .nav-auth {
@@ -2853,7 +2884,7 @@ p {
 }
 
 .trust-rating-text {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     color: var(--text-primary);
 }
@@ -2877,7 +2908,7 @@ p {
     display: flex;
     align-items: center;
     gap: 8px;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: var(--text-secondary);
 }
 
@@ -2890,7 +2921,7 @@ p {
     align-items: center;
     justify-content: center;
     color: white;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
 }
 
 /* Live Delivery Counter - Buzzoid Style */
@@ -2941,7 +2972,7 @@ p {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 24px;
+    font-size: var(--font-xl, 24px);
     flex-shrink: 0;
 }
 
@@ -2950,14 +2981,14 @@ p {
 }
 
 .delivery-title {
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 700;
     color: var(--text-primary);
     margin-bottom: 2px;
 }
 
 .delivery-subtitle {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: var(--text-secondary);
 }
 
@@ -2994,7 +3025,7 @@ p {
 }
 
 .live-stat-label {
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     color: rgba(255, 255, 255, 0.7);
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -3016,7 +3047,7 @@ p {
     .delivery-icon {
         width: 40px;
         height: 40px;
-        font-size: 20px;
+        font-size: var(--font-lg, 20px);
     }
     
     .hero-trust {

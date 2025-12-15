@@ -93,7 +93,7 @@
     background: #e5e5e5;
     color: #6a6a6a;
     border-radius: 50%;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     font-weight: 700;
     cursor: help;
     margin-left: 6px;
@@ -184,7 +184,7 @@
     gap: 6px;
     padding: 4px 12px;
     border-radius: 12px;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
@@ -223,7 +223,7 @@
 }
 
 .btn-icon {
-    font-size: 18px;
+    font-size: var(--font-md, 18px);
     line-height: 1;
 }
 
@@ -250,7 +250,7 @@
 }
 
 .empty-state-title {
-    font-size: 20px;
+    font-size: var(--font-lg, 20px);
     font-weight: 700;
     color: #1a1a1a;
     margin-bottom: 8px;
@@ -283,7 +283,7 @@
     align-items: center;
     gap: 8px;
     padding: 12px 0;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     color: #6a6a6a;
 }
 
@@ -304,7 +304,7 @@
 
 .breadcrumb-separator {
     color: #d0d0d0;
-    font-size: 12px;
+    font-size: var(--font-xs, 12px);
 }
 
 .breadcrumb-item.active {
@@ -339,7 +339,7 @@
 
 .input-group label {
     display: block;
-    font-size: 14px;
+    font-size: var(--font-sm, 14px);
     font-weight: 600;
     color: #1a1a1a;
     margin-bottom: 8px;
@@ -410,7 +410,7 @@
     .btn-secondary,
     .btn-outline {
         padding: 14px 24px;
-        font-size: 16px;
+        font-size: var(--font-base, 16px);
     }
     
     /* Hide tooltips on mobile */
