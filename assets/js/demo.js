@@ -28,7 +28,7 @@ export function initializeDemo() {
             preventDefaults(e);
             uploadArea.classList.remove('drag-over');
             
-            // Handle demo PDF drop
+                // Handle demo PDF drop
             if (e.dataTransfer.getData('text/demo-pdf')) {
                 await handleDemoDrop();
             }
@@ -92,7 +92,7 @@ async function processDemoFile() {
         file.isDemoFile = true; // Mark for special handling
         
         console.log('✅ Sample PDF loaded:', file.size, 'bytes');
-        
+    
         // Add file to converter
         const fileInput = document.getElementById('fileInput');
         if (fileInput) {
@@ -112,7 +112,7 @@ async function processDemoFile() {
     } catch (error) {
         console.error('Error loading sample PDF:', error);
         throw error;
-    }
+}
 }
 
 
