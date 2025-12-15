@@ -617,10 +617,14 @@ html {
     font-size: var(--font-lg, 20px);
     font-weight: 700;
     color: #ff6a3d;
-    line-height: var(--line-tight, 1.2);
+    line-height: 1;
     font-variant-numeric: tabular-nums;
-    letter-spacing: -0.02em;
+    letter-spacing: 0;
     font-feature-settings: 'tnum' 1;
+    /* Force consistent rendering for numbers and symbols */
+    font-family: 'Figtree', system-ui, -apple-system, sans-serif;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
 }
 
 .optimizer-stat-amount {
