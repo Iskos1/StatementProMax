@@ -1834,13 +1834,13 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
     // Update current rate display
     const currentRateElement = document.getElementById('currentSavingsRate');
     if (currentRateElement) {
-        currentRateElement.textContent = currentSavingsRate.toFixed(1) + '%';
+        currentRateElement.innerHTML = `<span class="stat-number">${currentSavingsRate.toFixed(1)}</span><span class="stat-percent">%</span>`;
     }
     
     // Update maximum rate display
     const maxRateElement = document.getElementById('maxSavingsRate');
     if (maxRateElement) {
-        maxRateElement.textContent = maxPossibleSavingsRate.toFixed(1) + '%';
+        maxRateElement.innerHTML = `<span class="stat-number">${maxPossibleSavingsRate.toFixed(1)}</span><span class="stat-percent">%</span>`;
     }
     
     // Update slider max indicator position
@@ -4311,7 +4311,7 @@ function updateDashboard() {
     if (dom.totalIncome) dom.totalIncome.textContent = formatCurrency(income);
     if (dom.totalExpenses) dom.totalExpenses.textContent = formatCurrency(expenses);
     if (dom.netBalance) dom.netBalance.textContent = formatCurrency(netBalance);
-    if (dom.savingsRate) dom.savingsRate.textContent = savingsRate.toFixed(1) + '%';
+    if (dom.savingsRate) dom.savingsRate.innerHTML = `<span class="stat-number">${savingsRate.toFixed(1)}</span><span class="stat-percent">%</span>`;
     
     if (dom.incomeCount) dom.incomeCount.textContent = `${incomeCount} transaction${incomeCount !== 1 ? 's' : ''}`;
     if (dom.expenseCount) dom.expenseCount.textContent = `${expenseCount} transaction${expenseCount !== 1 ? 's' : ''}`;
@@ -4544,9 +4544,8 @@ function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
             const percentage = (Math.abs(transaction.amount) / totalIncome) * 100;
             const percentageSpan = document.createElement('span');
             percentageSpan.className = `percentage-badge ${transaction.type}`;
-            percentageSpan.textContent = transaction.type === 'income' 
-                ? '+' + percentage.toFixed(1) + '%'
-                : '-' + percentage.toFixed(1) + '%';
+            const sign = transaction.type === 'income' ? '+' : '-';
+            percentageSpan.innerHTML = `<span class="stat-number">${sign}${percentage.toFixed(1)}</span><span class="stat-percent">%</span>`;
             percentageCell.appendChild(percentageSpan);
         } else {
             percentageCell.textContent = 'N/A';
