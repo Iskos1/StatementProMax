@@ -614,12 +614,10 @@ html {
 }
 
 .optimizer-stat-value {
-    font-size: 18px !important;
+    font-size: 20px;
     font-weight: 700;
     color: #ff6a3d;
-    line-height: 1.2;
-    font-variant-numeric: lining-nums;
-    letter-spacing: 0.5px;
+    line-height: 1;
 }
 
 .optimizer-stat-amount {
