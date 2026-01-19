@@ -47,7 +47,6 @@ function setupAuth(db) {
     // Buttons
     const sendCodeBtn = document.getElementById('sendCodeBtn');
     const verifyCodeBtn = document.getElementById('verifyCodeBtn');
-    const googleSignInBtn = document.getElementById('googleSignIn');
     const backToEmailBtn = document.getElementById('backToEmailBtn');
     const resendCodeBtn = document.getElementById('resendCodeBtn');
     const signOutBtn = document.getElementById('signOutBtn');
@@ -324,22 +323,6 @@ function setupAuth(db) {
         } finally {
             resendCodeBtn.textContent = originalText;
             resendCodeBtn.disabled = false;
-        }
-    });
-
-    // Google Sign In
-    googleSignInBtn.addEventListener('click', async () => {
-        const originalText = googleSignInBtn.textContent;
-        googleSignInBtn.disabled = true;
-        googleSignInBtn.textContent = 'Connecting...';
-        
-        try {
-            await db.auth.signInWithGoogle();
-            // Redirect will happen automatically after auth state updates
-        } catch (error) {
-            showError(emailError, 'Failed to sign in with Google. Please try again.');
-            googleSignInBtn.disabled = false;
-            googleSignInBtn.textContent = originalText;
         }
     });
 
