@@ -1835,14 +1835,14 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
     const currentRateElement = document.getElementById('currentSavingsRate');
     if (currentRateElement) {
         const value = currentSavingsRate.toFixed(1);
-        currentRateElement.innerHTML = `${value}<span style="font-size: 0.75em;">%</span>`;
+        currentRateElement.innerHTML = `${value}<span class="percent-symbol">%</span>`;
     }
     
     // Update maximum rate display
     const maxRateElement = document.getElementById('maxSavingsRate');
     if (maxRateElement) {
         const value = maxPossibleSavingsRate.toFixed(1);
-        maxRateElement.innerHTML = `${value}<span style="font-size: 0.75em;">%</span>`;
+        maxRateElement.innerHTML = `${value}<span class="percent-symbol">%</span>`;
     }
     
     // Update slider max indicator position

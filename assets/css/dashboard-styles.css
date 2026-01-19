@@ -624,6 +624,15 @@ html {
     font-feature-settings: normal !important;
 }
 
+/* Percentage symbol styling for consistent appearance */
+.optimizer-stat-value .percent-symbol {
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    margin-left: 2px;
+    vertical-align: baseline;
+    display: inline-block;
+}
+
 .optimizer-stat-amount {
     color: #f59e0b;
 }
