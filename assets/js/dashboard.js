@@ -235,7 +235,8 @@ function cacheDOMElements() {
         recurringNoResults: safeGetElement('recurringNoResults'),
         incomeExpenseChart: safeGetElement('incomeExpenseChart'),
         categoryChart: safeGetElement('categoryChart'),
-        sortFilter: safeGetElement('sortFilter')
+        sortFilter: safeGetElement('sortFilter'),
+        categoryFilter: safeGetElement('categoryFilter')
     };
 }
 
@@ -1782,12 +1783,12 @@ function updateSliderHint(target, maxRate, currentRate) {
     
     if (target > maxRate) {
         hintElement.classList.add('warning');
-        hintText.textContent = `⚠️ Target ${target}% exceeds maximum ${maxRate.toFixed(1)}% - impossible to reach!`;
+        hintText.innerHTML = `⚠️ Target <div class="percent-display"><span class="number">${target}</span><span class="symbol">%</span></div> exceeds maximum <div class="percent-display"><span class="number">${maxRate.toFixed(1)}</span><span class="symbol">%</span></div> - impossible to reach!`;
     } else if (currentRate >= target) {
         hintElement.classList.add('success');
-        hintText.textContent = `✓ You're already at ${currentRate.toFixed(1)}% - above your ${target}% target!`;
+        hintText.innerHTML = `✓ You're already at <div class="percent-display"><span class="number">${currentRate.toFixed(1)}</span><span class="symbol">%</span></div> - above your <div class="percent-display"><span class="number">${target}</span><span class="symbol">%</span></div> target!`;
     } else {
-        hintText.textContent = `Target ${target}% is achievable. Maximum possible: ${maxRate.toFixed(1)}%`;
+        hintText.innerHTML = `Target <div class="percent-display"><span class="number">${target}</span><span class="symbol">%</span></div> is achievable. Maximum possible: <div class="percent-display"><span class="number">${maxRate.toFixed(1)}</span><span class="symbol">%</span></div>`;
     }
 }
 
@@ -1828,21 +1829,19 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
     // Update target savings rate display in header and subtitle
     const targetRateDisplay = document.getElementById('targetSavingsRateDisplay');
     const targetRateSubtitle = document.getElementById('targetSavingsRateSubtitle');
-    if (targetRateDisplay) targetRateDisplay.textContent = targetSavingsRate + '%';
+    if (targetRateDisplay) targetRateDisplay.textContent = targetSavingsRate;
     if (targetRateSubtitle) targetRateSubtitle.textContent = targetSavingsRate;
     
     // Update current rate display
     const currentRateElement = document.getElementById('currentSavingsRate');
     if (currentRateElement) {
-        const value = currentSavingsRate.toFixed(1);
-        currentRateElement.innerHTML = `${value}<span class="percent-symbol">%</span>`;
+        currentRateElement.textContent = currentSavingsRate.toFixed(1);
     }
     
     // Update maximum rate display
     const maxRateElement = document.getElementById('maxSavingsRate');
     if (maxRateElement) {
-        const value = maxPossibleSavingsRate.toFixed(1);
-        maxRateElement.innerHTML = `${value}<span class="percent-symbol">%</span>`;
+        maxRateElement.textContent = maxPossibleSavingsRate.toFixed(1);
     }
     
     // Update slider max indicator position
@@ -1862,10 +1861,10 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
             message.className = 'optimizer-message warning';
             message.innerHTML = `
                 <div style="margin-bottom: 12px;">
-                    <strong style="font-size: 16px;">⚠️ Target ${targetSavingsRate}% is Impossible to Reach!</strong>
+                    <strong style="font-size: 16px;">⚠️ Target <div class="percent-display"><span class="number">${targetSavingsRate}</span><span class="symbol">%</span></div> is Impossible to Reach!</strong>
                 </div>
                 <div style="margin-bottom: 12px;">
-                    <strong>Why:</strong> Your maximum achievable savings rate is only <strong>${maxPossibleSavingsRate.toFixed(1)}%</strong>.
+                    <strong>Why:</strong> Your maximum achievable savings rate is only <strong><div class="percent-display"><span class="number">${maxPossibleSavingsRate.toFixed(1)}</span><span class="symbol">%</span></div></strong>.
                 </div>
                 <div style="background: white; padding: 12px; border-radius: 8px; margin-bottom: 12px; border-left: 4px solid #f59e0b;">
                     <div style="font-weight: 700; margin-bottom: 8px; font-size: 14px;">📊 Expense Breakdown:</div>
@@ -1892,10 +1891,10 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
                 <div style="font-size: 13px; line-height: 1.6;">
                     <strong>Explanation:</strong> Even if you eliminate ALL ${formatCurrency(expenseBreakdown.cuttable)} in cuttable expenses, 
                     you still have ${formatCurrency(expenseBreakdown.essential)} in essential expenses (transfers, account payments, etc.). 
-                    This limits your maximum savings to ${maxPossibleSavingsRate.toFixed(1)}%.
+                    This limits your maximum savings to <div class="percent-display"><span class="number">${maxPossibleSavingsRate.toFixed(1)}</span><span class="symbol">%</span></div>.
                 </div>
                 <div style="margin-top: 12px; padding: 10px; background: #fef3c7; border-radius: 6px; font-size: 13px;">
-                    <strong>💡 Suggestions:</strong> Lower your target to ${maxPossibleSavingsRate.toFixed(0)}% or less, OR increase your income to raise the maximum possible savings rate.
+                    <strong>💡 Suggestions:</strong> Lower your target to <div class="percent-display"><span class="number">${maxPossibleSavingsRate.toFixed(0)}</span><span class="symbol">%</span></div> or less, OR increase your income to raise the maximum possible savings rate.
                 </div>
             `;
         }
@@ -1913,7 +1912,7 @@ function updateSavingsOptimizer(totalIncome, totalExpenses) {
         const message = document.getElementById('optimizerMessage');
         if (message) {
             message.className = 'optimizer-message';
-            message.innerHTML = `🎉 <strong>Congratulations!</strong> You're already saving ${currentSavingsRate.toFixed(1)}% of your income! Keep up the great work!`;
+            message.innerHTML = `🎉 <strong>Congratulations!</strong> You're already saving <div class="percent-display"><span class="number">${currentSavingsRate.toFixed(1)}</span><span class="symbol">%</span></div> of your income! Keep up the great work!`;
         }
         document.getElementById('optimizerRecommendations').innerHTML = '';
         document.getElementById('needToSave').textContent = '$0.00';
@@ -2054,7 +2053,10 @@ function displayOptimizerRecommendations(recommendations, needToSave, totalIncom
             </div>
             <div class="optimizer-amounts">
                 <div class="optimizer-amount">${formatCurrency(rec.amount)}</div>
-                <div class="optimizer-percentage">${rec.percentageOfIncome.toFixed(1)}% of income</div>
+                <div class="optimizer-percentage">
+                    <div class="percent-display"><span class="number">${rec.percentageOfIncome.toFixed(1)}</span><span class="symbol">%</span></div>
+                    of income
+                </div>
             </div>
             <button class="optimizer-remove-btn" title="Remove from recommendations">✕</button>
         `;
@@ -2184,11 +2186,15 @@ function displayOptimizerRecommendations(recommendations, needToSave, totalIncom
                 </div>
                 <div class="optimizer-summary-stat">
                     <div class="optimizer-summary-label">New Savings Rate</div>
-                    <div class="optimizer-summary-value">${finalSavingsRate.toFixed(1)}%</div>
+                    <div class="optimizer-summary-value">
+                        <div class="percent-display"><span class="number">${finalSavingsRate.toFixed(1)}</span><span class="symbol">%</span></div>
+                    </div>
                 </div>
                 <div class="optimizer-summary-stat">
                     <div class="optimizer-summary-label">Improvement</div>
-                    <div class="optimizer-summary-value">+${(finalSavingsRate - currentSavingsRate).toFixed(1)}%</div>
+                    <div class="optimizer-summary-value">
+                        <div class="percent-display"><span class="number">+${(finalSavingsRate - currentSavingsRate).toFixed(1)}</span><span class="symbol">%</span></div>
+                    </div>
                 </div>
             </div>
         `;
@@ -2259,12 +2265,12 @@ async function parseTransactions(data, providedYear = null) {
     ]);
     
     const descCol = findColumnIndex(headers, [
-        'description', 'memo', 'details', 'transaction', 'narration',
-        'transaction description', 'payee', 'merchant', 'name',
-        'transaction details', 'particulars', 'reference',
+        'description', 'transaction description', 'memo', 'details', 
+        'transaction', 'narration', 'payee', 'merchant', 
+        'transaction details', 'particulars', 
         'check or description', 'check / description',
-        // Wells Fargo specific
-        'number', 'check', 'ref'
+        // These should be last priority (only if "description" column doesn't exist)
+        'name', 'reference', 'number', 'check', 'ref'
     ]);
     
     const amountCol = findColumnIndex(headers, [
@@ -2293,9 +2299,14 @@ async function parseTransactions(data, providedYear = null) {
         'debits', 'debit amt'
     ]);
     
-    // Log detected columns
+    // Log detected columns with header names for debugging
     console.log('Detected columns:', {
-        dateCol, descCol, amountCol, balanceCol, creditCol, debitCol,
+        dateCol: `${dateCol} (${headers[dateCol] || 'N/A'})`,
+        descCol: `${descCol} (${headers[descCol] || 'N/A'})`,
+        amountCol: `${amountCol} (${headers[amountCol] || 'N/A'})`,
+        balanceCol: `${balanceCol} (${headers[balanceCol] || 'N/A'})`,
+        creditCol: `${creditCol} (${headers[creditCol] || 'N/A'})`,
+        debitCol: `${debitCol} (${headers[debitCol] || 'N/A'})`,
         hasAmountColumn: amountCol !== -1,
         hasSeparateColumns: creditCol !== -1 || debitCol !== -1
     });
@@ -3076,7 +3087,8 @@ function createReviewTransactionItem(transaction, index) {
                 ${sourceBadge}
             </div>
             <div class="review-confidence">
-                Confidence: ${confidencePercent}%
+                Confidence: 
+                <div class="percent-display"><span class="number">${confidencePercent}</span><span class="symbol">%</span></div>
                 <div class="confidence-bar">
                     <div class="confidence-bar-fill" style="width: ${confidencePercent}%"></div>
                 </div>
@@ -3128,7 +3140,9 @@ function createReviewTransactionItem(transaction, index) {
                             ${escapeHtml(s.transaction.description)}
                         </div>
                         <div style="font-size: 11px; color: #92400e;">
-                            ${formatCurrency(Math.abs(s.transaction.amount))} • ${simPercent}% match
+                            ${formatCurrency(Math.abs(s.transaction.amount))} • 
+                            <div class="percent-display"><span class="number">${simPercent}</span><span class="symbol">%</span></div>
+                            match
                         </div>
                     </div>
                     <button class="btn-not-similar" 
@@ -3688,7 +3702,9 @@ async function showFinalApprovalSummary() {
                             </div>
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; font-size: 13px; color: #6a6a6a;">
                                 <span><strong>${data.count}</strong> transaction(s) • Avg: ${formatCurrency(data.total / data.count)}</span>
-                                <span style="font-weight: 600; color: #3b82f6;">${Math.round(barWidth)}%</span>
+                                <span style="font-weight: 600; color: #3b82f6;">
+                                    <div class="percent-display"><span class="number">${Math.round(barWidth)}</span><span class="symbol">%</span></div>
+                                </span>
                             </div>
                             <div style="background: #e5e5e5; height: 6px; border-radius: 3px; overflow: hidden;">
                                 <div style="background: linear-gradient(90deg, #22c55e 0%, #16a34a 100%); height: 100%; width: ${barWidth}%; transition: width 0.5s ease;"></div>
@@ -4313,7 +4329,7 @@ function updateDashboard() {
     if (dom.totalIncome) dom.totalIncome.textContent = formatCurrency(income);
     if (dom.totalExpenses) dom.totalExpenses.textContent = formatCurrency(expenses);
     if (dom.netBalance) dom.netBalance.textContent = formatCurrency(netBalance);
-    if (dom.savingsRate) dom.savingsRate.textContent = savingsRate.toFixed(1) + '%';
+    if (dom.savingsRate) dom.savingsRate.textContent = savingsRate.toFixed(1);
     
     if (dom.incomeCount) dom.incomeCount.textContent = `${incomeCount} transaction${incomeCount !== 1 ? 's' : ''}`;
     if (dom.expenseCount) dom.expenseCount.textContent = `${expenseCount} transaction${expenseCount !== 1 ? 's' : ''}`;
@@ -4331,8 +4347,14 @@ function updateDashboard() {
     updateSavingsOptimizer(income, expenses);
     
     // Update transactions table
+    populateCategoryFilter();
+    
+    const activeFilterBtn = document.querySelector('.filter-btn.active');
+    const filterValue = activeFilterBtn ? activeFilterBtn.getAttribute('data-filter') : 'all';
     const sortValue = dom.sortFilter ? dom.sortFilter.value : 'date-desc';
-    updateTransactionsTable('all', sortValue);
+    const categoryValue = dom.categoryFilter ? dom.categoryFilter.value : 'all';
+    
+    updateTransactionsTable(filterValue, sortValue, categoryValue);
     
     // Setup filter buttons
     setupFilters();
@@ -4453,17 +4475,24 @@ function updateCharts(income, expenses) {
     }
 }
 
-function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
+function updateTransactionsTable(filter = 'all', sort = 'date-desc', category = 'all') {
     const transactionsBody = document.getElementById('transactionsBody');
     const transactionCount = document.getElementById('transactionCount');
     
     if (!transactionsBody) return;
     
     let filteredTransactions = transactions;
+    
+    // Apply type filter (income/expense)
     if (filter === 'income') {
-        filteredTransactions = transactions.filter(t => t.type === 'income');
+        filteredTransactions = filteredTransactions.filter(t => t.type === 'income');
     } else if (filter === 'expense') {
-        filteredTransactions = transactions.filter(t => t.type === 'expense');
+        filteredTransactions = filteredTransactions.filter(t => t.type === 'expense');
+    }
+    
+    // Apply category filter
+    if (category !== 'all') {
+        filteredTransactions = filteredTransactions.filter(t => t.category === category);
     }
     
     // Apply sorting
@@ -4516,6 +4545,9 @@ function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
         descCell.textContent = transaction.description;
         
         const categoryCell = document.createElement('td');
+        categoryCell.className = 'category-cell-clickable';
+        categoryCell.title = 'Click to change category';
+        
         const categorySpan = document.createElement('span');
         categorySpan.className = 'transaction-category';
         categorySpan.textContent = transaction.category;
@@ -4531,6 +4563,79 @@ function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
         }
         
         categoryCell.appendChild(categorySpan);
+
+        // Add click listener for inline editing
+        categoryCell.addEventListener('click', (e) => {
+            // Prevent multiple selects if already editing
+            if (categoryCell.querySelector('select')) return;
+            
+            const currentCategory = transaction.category;
+            const select = document.createElement('select');
+            select.className = 'inline-category-select';
+            
+            // Standard categories list
+            const categories = [
+                "Income", "Groceries", "Dining & Restaurants", "Transportation", 
+                "Shopping", "Utilities", "Internet & Phone", "Rent & Mortgage", 
+                "Insurance", "Entertainment", "Health & Medical", "Education", 
+                "Travel", "Fees & Charges", "Transfers & Payments", "Personal Care", 
+                "Pet Care", "Donations", "Other"
+            ];
+            
+            // Add current category if it's not in the list
+            if (!categories.includes(currentCategory)) {
+                categories.push(currentCategory);
+            }
+            
+            categories.sort().forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                if (cat === currentCategory) option.selected = true;
+                select.appendChild(option);
+            });
+            
+            // Clear cell and add select
+            categoryCell.innerHTML = '';
+            categoryCell.appendChild(select);
+            select.focus();
+            
+            // Handle category change
+            const handleUpdate = () => {
+                const newCategory = select.value;
+                if (newCategory !== currentCategory) {
+                    transaction.category = newCategory;
+                    transaction.isLearned = false; // Mark as user-corrected
+                    
+                    // Automatically update type if changed to/from Income
+                    if (newCategory === 'Income') {
+                        transaction.type = 'income';
+                    } else if (currentCategory === 'Income') {
+                        transaction.type = 'expense';
+                    }
+                    
+                    // Show notification
+                    showNotification(`Category updated to ${newCategory}`, 'success');
+                    
+                    // Trigger global refresh
+                    updateDashboard();
+                } else {
+                    // Just revert to span if no change
+                    updateTransactionsTable(filter, sort, category);
+                }
+            };
+            
+            select.addEventListener('change', handleUpdate);
+            select.addEventListener('blur', () => {
+                // If it wasn't already updated by change event
+                if (categoryCell.contains(select)) {
+                    updateTransactionsTable(filter, sort, category);
+                }
+            });
+            
+            // Prevent event bubbling to table row (if any)
+            e.stopPropagation();
+        });
         
         const amountCell = document.createElement('td');
         amountCell.className = `transaction-amount ${transaction.type}`;
@@ -4546,9 +4651,9 @@ function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
             const percentage = (Math.abs(transaction.amount) / totalIncome) * 100;
             const percentageSpan = document.createElement('span');
             percentageSpan.className = `percentage-badge ${transaction.type}`;
-            percentageSpan.textContent = transaction.type === 'income' 
-                ? '+' + percentage.toFixed(1) + '%'
-                : '-' + percentage.toFixed(1) + '%';
+            percentageSpan.innerHTML = transaction.type === 'income' 
+                ? `<div class="percent-display"><span class="number">+${percentage.toFixed(1)}</span><span class="symbol">%</span></div>`
+                : `<div class="percent-display"><span class="number">-${percentage.toFixed(1)}</span><span class="symbol">%</span></div>`;
             percentageCell.appendChild(percentageSpan);
         } else {
             percentageCell.textContent = 'N/A';
@@ -4627,6 +4732,35 @@ function updateTransactionsTable(filter = 'all', sort = 'date-desc') {
     }
 }
 
+function populateCategoryFilter() {
+    if (!dom.categoryFilter) return;
+    
+    // Get unique categories from all transactions
+    const categories = [...new Set(transactions.map(t => t.category))].sort();
+    
+    // Store current selection to restore it if possible
+    const currentSelection = dom.categoryFilter.value;
+    
+    // Reset dropdown
+    dom.categoryFilter.innerHTML = '<option value="all">All Categories</option>';
+    
+    // Add categories
+    categories.forEach(category => {
+        if (!category) return;
+        const option = document.createElement('option');
+        option.value = category;
+        option.textContent = category;
+        dom.categoryFilter.appendChild(option);
+    });
+    
+    // Restore selection if it still exists
+    if (categories.includes(currentSelection)) {
+        dom.categoryFilter.value = currentSelection;
+    } else {
+        dom.categoryFilter.value = 'all';
+    }
+}
+
 function setupFilters() {
     const filterBtns = document.querySelectorAll('.filter-btn');
     filterBtns.forEach(btn => {
@@ -4636,7 +4770,8 @@ function setupFilters() {
             
             const filter = btn.getAttribute('data-filter');
             const sortValue = dom.sortFilter ? dom.sortFilter.value : 'date-desc';
-            updateTransactionsTable(filter, sortValue);
+            const categoryValue = dom.categoryFilter ? dom.categoryFilter.value : 'all';
+            updateTransactionsTable(filter, sortValue, categoryValue);
         });
     });
     
@@ -4646,7 +4781,19 @@ function setupFilters() {
             const activeFilter = document.querySelector('.filter-btn.active');
             const filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
             const sortValue = dom.sortFilter.value;
-            updateTransactionsTable(filter, sortValue);
+            const categoryValue = dom.categoryFilter ? dom.categoryFilter.value : 'all';
+            updateTransactionsTable(filter, sortValue, categoryValue);
+        });
+    }
+
+    // Add category filter listener
+    if (dom.categoryFilter) {
+        dom.categoryFilter.addEventListener('change', () => {
+            const activeFilter = document.querySelector('.filter-btn.active');
+            const filter = activeFilter ? activeFilter.getAttribute('data-filter') : 'all';
+            const sortValue = dom.sortFilter ? dom.sortFilter.value : 'date-desc';
+            const categoryValue = dom.categoryFilter.value;
+            updateTransactionsTable(filter, sortValue, categoryValue);
         });
     }
 }
