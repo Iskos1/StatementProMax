@@ -23,6 +23,9 @@ const state = { files: [] };
 
 // Initialize when DOM is ready
 document.addEventListener('DOMContentLoaded', function() {
+    // Force scroll to top to prevent layout shift on load
+    window.scrollTo(0, 0);
+    
     try {
     initializeConverter();
     initializeYearModal();

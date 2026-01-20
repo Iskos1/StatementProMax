@@ -29,32 +29,28 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="nav">
+    <nav class="nav" id="mainNav">
         <div class="container">
             <div class="nav-content">
                 <a href="index.html" class="logo-link">
                     <div class="logo">
                         <div class="logo-icon-wrapper">
                             <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#ff6a3d"/>
-                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#ff8f5a"/>
-                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#ff6a3d"/>
-                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#ff8f5a"/>
-                                <path d="M2 24 L30 24" stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M6 18V14C6 12.8954 6.89543 12 8 12H10C11.1046 12 12 12.8954 12 14V18" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M14 18V10C14 8.89543 14.8954 8 16 8H18C19.1046 8 20 8.89543 20 10V18" stroke="#ff8f5a" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M22 18V12C22 10.8954 22.8954 10 24 10H26C27.1046 10 28 10.8954 28 12V18" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M4 22H28" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round"/>
                             </svg>
                         </div>
                         <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
                     </div>
                 </a>
-                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
+                
                 <div class="nav-links" id="navLinks">
                     <a href="index.html">Converter</a>
                     <a href="dashboard.html" class="active">Financial Dashboard</a>
                 </div>
+
                 <div class="nav-auth">
                     <button class="btn-auth" id="signInBtn">
                         <span id="authButtonText">Sign In</span>
@@ -69,6 +65,12 @@
                         </div>
                     </div>
                 </div>
+
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </nav>

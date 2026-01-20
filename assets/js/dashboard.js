@@ -491,6 +491,9 @@ let dashboardInitialized = false;
 
 // Start authentication check on page load
 window.addEventListener('DOMContentLoaded', () => {
+    // Force scroll to top to prevent layout shift on load
+    window.scrollTo(0, 0);
+
     // Disable automatic browser scroll restoration on refresh
     if ('scrollRestoration' in history) {
         history.scrollRestoration = 'manual';

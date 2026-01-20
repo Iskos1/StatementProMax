@@ -4,13 +4,25 @@
 // Scroll Progress Indicator
 function initScrollProgress() {
     const scrollIndicatorBar = document.getElementById('scrollIndicatorBar');
-    if (!scrollIndicatorBar) return;
-
+    const mainNav = document.getElementById('mainNav');
+    
     function updateScrollProgress() {
         const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
         const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
         const scrolled = (winScroll / height) * 100;
-        scrollIndicatorBar.style.width = scrolled + '%';
+        
+        if (scrollIndicatorBar) {
+            scrollIndicatorBar.style.width = scrolled + '%';
+        }
+
+        // Nav scroll effect
+        if (mainNav) {
+            if (winScroll > 10) {
+                mainNav.classList.add('scrolled');
+            } else {
+                mainNav.classList.remove('scrolled');
+            }
+        }
     }
 
     window.addEventListener('scroll', updateScrollProgress, { passive: true });

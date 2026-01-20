@@ -54,28 +54,22 @@
     </div>
 
     <!-- Navigation -->
-    <nav class="nav">
+    <nav class="nav" id="mainNav">
         <div class="container">
             <div class="nav-content">
                 <a href="../index.html" class="logo-link">
                     <div class="logo">
                         <div class="logo-icon-wrapper">
                             <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#ff6a3d"/>
-                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#ff8f5a"/>
-                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#ff6a3d"/>
-                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#ff8f5a"/>
-                                <path d="M2 24 L30 24" stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M6 18V14C6 12.8954 6.89543 12 8 12H10C11.1046 12 12 12.8954 12 14V18" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M14 18V10C14 8.89543 14.8954 8 16 8H18C19.1046 8 20 8.89543 20 10V18" stroke="#ff8f5a" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M22 18V12C22 10.8954 22.8954 10 24 10H26C27.1046 10 28 10.8954 28 12V18" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round"/>
+                                <path d="M4 22H28" stroke="#ff6a3d" stroke-width="2.5" stroke-linecap="round"/>
                             </svg>
                         </div>
                         <span class="logo-text">Statement<span class="logo-accent">ProMax</span></span>
                     </div>
                 </a>
-                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
-                </button>
                 <div class="nav-links" id="navLinks">
                     <a href="../index.html">Converter</a>
                     <a href="../dashboard.html">Dashboard</a>
@@ -97,104 +91,106 @@
                         </div>
                     </div>
                 </div>
+                <button class="mobile-menu-toggle" id="mobileMenuToggle" aria-label="Toggle menu">
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                </button>
             </div>
         </div>
     </nav>
 
     <!-- Hero Section -->
-    <section class="hero">
+    <section class="hero" style="padding: 140px 0 60px;">
         <div class="container">
             <div class="hero-content">
-                <h1>Contact Us</h1>
-                <p class="hero-subtitle">Have a question or need help? We're here to assist you.</p>
+                <h1 style="font-family: 'Figtree', sans-serif; font-size: 48px; font-weight: 800; letter-spacing: -0.02em;">Get in Touch</h1>
+                <p class="hero-subtitle" style="font-size: 18px; color: #6a6a6a; max-width: 600px; margin: 0 auto;">Have a question or need help? Our team is here to assist you with your financial data conversion.</p>
             </div>
         </div>
     </section>
 
     <!-- Contact Form Section -->
-    <section class="converter-main">
+    <section class="contact-section" style="padding: 40px 0 80px; background: #fafafa;">
         <div class="container">
-            <div class="upload-section">
-                <div class="upload-card" style="max-width: 700px; margin: 0 auto;">
-                    <h2>Send Us a Message</h2>
-                    <p style="color: #6a6a6a; margin-bottom: 32px;">Fill out the form below and we'll get back to you within 24 hours.</p>
+            <div class="contact-grid" style="display: grid; grid-template-columns: 1.5fr 1fr; gap: 40px; align-items: start;">
+                <!-- Form Card -->
+                <div class="contact-form-card" style="background: white; padding: 40px; border-radius: 20px; border: 1px solid #e5e5e5; box-shadow: 0 4px 20px rgba(0,0,0,0.05);">
+                    <h2 style="font-size: 24px; font-weight: 800; margin-bottom: 8px; color: #1a1a2e;">Send Us a Message</h2>
+                    <p style="color: #6a6a6a; margin-bottom: 32px; font-size: 15px;">Fill out the form below and we'll get back to you within 24 hours.</p>
                     
-                    <form class="auth-form" id="contactForm">
-                        <div class="form-group">
-                            <label for="name">Your Name</label>
-                            <input type="text" id="name" name="name" required placeholder="John Doe">
+                    <form class="auth-form" id="contactForm" style="display: flex; flex-direction: column; gap: 20px;">
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+                            <div class="form-group">
+                                <label for="name" style="font-weight: 600; font-size: 14px; color: #1a1a2e; margin-bottom: 8px; display: block;">Your Name</label>
+                                <input type="text" id="name" name="name" required placeholder="John Doe" style="width: 100%; padding: 12px 16px; border: 2px solid #e5e5e5; border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s;">
+                            </div>
+                            <div class="form-group">
+                                <label for="email" style="font-weight: 600; font-size: 14px; color: #1a1a2e; margin-bottom: 8px; display: block;">Email Address</label>
+                                <input type="email" id="email" name="email" required placeholder="john@example.com" style="width: 100%; padding: 12px 16px; border: 2px solid #e5e5e5; border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s;">
+                            </div>
                         </div>
                         
                         <div class="form-group">
-                            <label for="email">Email Address</label>
-                            <input type="email" id="email" name="email" required placeholder="john@example.com">
+                            <label for="subject" style="font-weight: 600; font-size: 14px; color: #1a1a2e; margin-bottom: 8px; display: block;">Subject</label>
+                            <input type="text" id="subject" name="subject" required placeholder="How can we help?" style="width: 100%; padding: 12px 16px; border: 2px solid #e5e5e5; border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s;">
                         </div>
                         
                         <div class="form-group">
-                            <label for="subject">Subject</label>
-                            <input type="text" id="subject" name="subject" required placeholder="How can we help?">
+                            <label for="message" style="font-weight: 600; font-size: 14px; color: #1a1a2e; margin-bottom: 8px; display: block;">Message</label>
+                            <textarea id="message" name="message" rows="6" required placeholder="Tell us more about your inquiry..." style="width: 100%; padding: 12px 16px; border: 2px solid #e5e5e5; border-radius: 10px; font-size: 15px; outline: none; transition: all 0.2s; resize: vertical; font-family: inherit;"></textarea>
                         </div>
                         
-                        <div class="form-group">
-                            <label for="message">Message</label>
-                            <textarea id="message" name="message" rows="6" required placeholder="Tell us more about your inquiry..." style="resize: vertical; font-family: inherit; padding: 12px 16px; border: 2px solid #e5e5e5; border-radius: 8px; font-size: 16px; transition: all 0.2s; width: 100%;"></textarea>
-                        </div>
-                        
-                        <button type="submit" class="btn-primary-full">Send Message</button>
+                        <button type="submit" class="btn-primary" style="padding: 16px; border-radius: 12px; font-size: 16px; width: 100%; justify-content: center;">Send Message →</button>
                     </form>
                 </div>
-            </div>
-            
-            <!-- Alternative Contact Methods -->
-            <div class="features-grid" style="margin-top: 60px;">
-                <div class="feature-card">
-                    <div class="feature-icon">📧</div>
-                    <h3>Email Us</h3>
-                    <p>support@statementpro.com</p>
-                    <p style="font-size: 14px; color: #8a8a8a;">Response time: 24 hours</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">💬</div>
-                    <h3>Live Chat</h3>
-                    <p>Available Monday-Friday</p>
-                    <p style="font-size: 14px; color: #8a8a8a;">9 AM - 5 PM EST</p>
-                </div>
-                
-                <div class="feature-card">
-                    <div class="feature-icon">📚</div>
-                    <h3>Help Center</h3>
-                    <p>Browse our documentation</p>
-                    <a href="blog.html" style="font-size: 14px; color: #ff6a3d; font-weight: 600;">Visit Help Center →</a>
+
+                <!-- Contact Info Column -->
+                <div class="contact-info-column" style="display: flex; flex-direction: column; gap: 20px;">
+                    <div class="info-card" style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #e5e5e5; transition: all 0.3s ease;">
+                        <div style="font-size: 24px; margin-bottom: 12px;">📧</div>
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 4px; color: #1a1a2e;">Email Us</h3>
+                        <p style="color: #6a6a6a; font-size: 14px; margin-bottom: 12px;">Our team is ready to help you.</p>
+                        <a href="mailto:support@statementpro.com" style="color: #ff6a3d; font-weight: 700; text-decoration: none;">support@statementpro.com</a>
+                    </div>
+
+                    <div class="info-card" style="background: white; padding: 24px; border-radius: 16px; border: 1px solid #e5e5e5; transition: all 0.3s ease;">
+                        <div style="font-size: 24px; margin-bottom: 12px;">💬</div>
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 4px; color: #1a1a2e;">Live Chat</h3>
+                        <p style="color: #6a6a6a; font-size: 14px; margin-bottom: 4px;">Available Monday-Friday</p>
+                        <span style="display: inline-block; padding: 4px 10px; background: #f0fdf4; color: #16a34a; border-radius: 100px; font-size: 12px; font-weight: 700;">9 AM - 5 PM EST</span>
+                    </div>
+
+                    <div class="info-card" style="background: #1a1a2e; padding: 24px; border-radius: 16px; color: white;">
+                        <div style="font-size: 24px; margin-bottom: 12px;">📚</div>
+                        <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 4px;">Help Center</h3>
+                        <p style="color: rgba(255,255,255,0.7); font-size: 14px; margin-bottom: 16px;">Find quick answers in our detailed guides.</p>
+                        <a href="blog.html" style="color: white; font-weight: 700; text-decoration: none; display: flex; align-items: center; gap: 8px;">Visit Guides →</a>
+                    </div>
                 </div>
             </div>
         </div>
     </section>
 
     <!-- FAQ Section -->
-    <section class="features">
+    <section class="faq-section" style="padding: 80px 0; background: white;">
         <div class="container">
-            <h2 class="section-title">Frequently Asked Questions</h2>
+            <h2 class="section-title" style="margin-bottom: 48px;">Common Questions</h2>
             
-            <div class="section-content" style="max-width: 800px; margin: 0 auto; text-align: left;">
-                <div style="margin-bottom: 32px;">
-                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">How long does it take to get a response?</h3>
-                    <p style="color: #6a6a6a; line-height: 1.6;">We typically respond to all inquiries within 24 hours during business days. For urgent matters, please indicate this in your subject line.</p>
+            <div style="max-width: 800px; margin: 0 auto; display: grid; gap: 24px;">
+                <div class="faq-item" style="padding: 24px; border-radius: 16px; background: #f8f9fa; border: 1px solid #e5e5e5;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e;">How long does it take to get a response?</h3>
+                    <p style="color: #6a6a6a; line-height: 1.6; font-size: 15px;">We typically respond to all inquiries within 24 hours during business days. For urgent matters, please indicate this in your subject line.</p>
                 </div>
                 
-                <div style="margin-bottom: 32px;">
-                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">Is my data secure when I contact you?</h3>
-                    <p style="color: #6a6a6a; line-height: 1.6;">Yes. All communication through our contact form is encrypted. We never share your information with third parties.</p>
+                <div class="faq-item" style="padding: 24px; border-radius: 16px; background: #f8f9fa; border: 1px solid #e5e5e5;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e;">Is my data secure when I contact you?</h3>
+                    <p style="color: #6a6a6a; line-height: 1.6; font-size: 15px;">Yes. All communication through our contact form is encrypted. We never share your information with third parties.</p>
                 </div>
                 
-                <div style="margin-bottom: 32px;">
-                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">Can I request a feature?</h3>
-                    <p style="color: #6a6a6a; line-height: 1.6;">Absolutely! We love hearing from our users. Please describe the feature you'd like to see and we'll consider it for future updates.</p>
-                </div>
-                
-                <div>
-                    <h3 style="color: #1a1a1a; margin-bottom: 12px;">Do you offer enterprise support?</h3>
-                    <p style="color: #6a6a6a; line-height: 1.6;">Yes, we offer dedicated support for enterprise customers. Contact us to learn more about our enterprise plans and support options.</p>
+                <div class="faq-item" style="padding: 24px; border-radius: 16px; background: #f8f9fa; border: 1px solid #e5e5e5;">
+                    <h3 style="font-size: 18px; font-weight: 700; margin-bottom: 12px; color: #1a1a2e;">Can I request a feature?</h3>
+                    <p style="color: #6a6a6a; line-height: 1.6; font-size: 15px;">Absolutely! We love hearing from our users. Please describe the feature you'd like to see and we'll consider it for future updates.</p>
                 </div>
             </div>
         </div>
@@ -228,11 +224,10 @@
             <div class="footer-brand">
                 <div class="footer-logo">
                     <svg class="footer-logo-icon" width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <rect x="4" y="8" width="4" height="16" rx="2" fill="#ff6a3d"/>
-                        <rect x="10" y="12" width="4" height="12" rx="2" fill="#ff8f5a"/>
-                        <rect x="16" y="6" width="4" height="18" rx="2" fill="#ff6a3d"/>
-                        <rect x="22" y="10" width="4" height="14" rx="2" fill="#ff8f5a"/>
-                        <path d="M2 24 L30 24" stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M6 18V14C6 12.8954 6.89543 12 8 12H10C11.1046 12 12 12.8954 12 14V18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M14 18V10C14 8.89543 14.8954 8 16 8H18C19.1046 8 20 8.89543 20 10V18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M22 18V12C22 10.8954 22.8954 10 24 10H26C27.1046 10 28 10.8954 28 12V18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
+                        <path d="M4 22H28" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
                     </svg>
                     <span class="footer-logo-text">Statement<span style="color: #ff6a3d;">ProMax</span></span>
                 </div>
@@ -249,26 +244,33 @@
     <script type="module" src="../assets/js/ui-interactions.js"></script>
     <script type="module" src="../assets/js/script.js"></script>
     <script>
+        // Scroll effect for navigation
+        window.addEventListener('scroll', function() {
+            const nav = document.getElementById('mainNav');
+            if (window.scrollY > 10) {
+                nav.classList.add('scrolled');
+            } else {
+                nav.classList.remove('scrolled');
+            }
+        });
+
         // Handle contact form submission
-        document.getElementById('contactForm').addEventListener('submit', function(e) {
+        document.getElementById('contactForm')?.addEventListener('submit', function(e) {
             e.preventDefault();
             
-            // Get form data
-            const formData = {
-                name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
-                subject: document.getElementById('subject').value,
-                message: document.getElementById('message').value
-            };
+            const btn = this.querySelector('button');
+            const originalText = btn.innerHTML;
             
-            // In a real application, you would send this to a server
-            // Form submission (console.log removed for production)
+            btn.disabled = true;
+            btn.innerHTML = 'Sending...';
             
-            // Show success message
-            alert('Thank you for your message! We\'ll get back to you within 24 hours.');
-            
-            // Reset form
-            this.reset();
+            // Simulate API call
+            setTimeout(() => {
+                alert('Thank you for your message! We\'ll get back to you within 24 hours.');
+                btn.disabled = false;
+                btn.innerHTML = originalText;
+                this.reset();
+            }, 1000);
         });
     </script>
 </body>
