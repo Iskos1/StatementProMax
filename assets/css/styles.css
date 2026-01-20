@@ -1269,14 +1269,22 @@ p {
     }
     
     /* Stack buttons vertically on mobile */
-    .file-actions,
     .conversion-controls,
     .review-actions-bar {
         flex-direction: column;
         gap: 8px;
     }
     
-    .file-actions button,
+    .file-actions {
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .file-actions button {
+        width: auto;
+        flex: 1;
+    }
+    
     .conversion-controls button {
         width: 100%;
     }
@@ -1878,35 +1886,79 @@ p {
     justify-content: space-between;
     align-items: center;
     margin-bottom: 24px;
-    padding-bottom: 20px;
-    border-bottom: 3px solid #22c55e;
+    padding-bottom: 16px;
+    border-bottom: 2px solid #22c55e;
     margin-top: 40px; /* Space for the "Files Ready" badge */
-    gap: 20px;
-    flex-wrap: wrap;
+    gap: 12px;
+    flex-wrap: nowrap;
 }
 
-.file-list-header h3 {
-    font-size: var(--font-xl, 24px);
-    font-weight: 800;
+.file-list-header .files-header {
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
     color: #1a1a1a;
     display: flex;
     align-items: center;
-    gap: 12px;
+    margin: 0;
+}
+
+.files-header span {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    color: inherit !important;
 }
 
 .file-list-header h3::before {
     content: '✓';
-    width: 32px;
-    height: 32px;
+    width: 40px !important;
+    height: 40px !important;
     background: linear-gradient(135deg, #22c55e 0%, #16a34a 100%);
     color: white;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--font-md, 18px);
+    font-size: 20px !important;
     font-weight: 900;
-    box-shadow: 0 2px 8px rgba(34, 197, 94, 0.3);
+    box-shadow: 0 2px 4px rgba(34, 197, 94, 0.2);
+    flex-shrink: 0;
+    margin-right: 16px !important;
+}
+
+.file-list-title {
+    display: inline-block;
+    line-height: 1;
+}
+
+.conversion-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.conversion-controls button {
+    min-width: 120px;
+    height: 40px;
+    padding: 0 16px;
+    font-size: 14px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+}
+
+.conversion-controls .btn-secondary {
+    background: white;
+    color: #4b5563;
+    border: 1px solid #e5e7eb;
+    box-shadow: none;
+}
+
+.conversion-controls .btn-secondary:hover {
+    background: #f9fafb;
+    border-color: #d1d5db;
+    color: #1f2937;
 }
 
 /* Callout Styles for File List */
@@ -2063,9 +2115,16 @@ p {
 
 .file-actions {
     display: flex;
-    gap: 8px;
-    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
     margin-top: 16px;
+}
+
+.action-buttons-row {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
 }
 
 .btn-convert,
@@ -2428,13 +2487,13 @@ p {
     }
     
     .file-list-header h3 {
-        font-size: var(--font-lg, 20px);
+        font-size: 30px !important;
     }
     
     .file-list-header h3::before {
-        width: 28px;
-        height: 28px;
-        font-size: var(--font-base, 16px);
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 16px !important;
     }
     
     .conversion-controls {
@@ -2448,11 +2507,13 @@ p {
     }
     
     .file-actions {
-        flex-direction: column;
+        flex-direction: row;
+        gap: 10px;
     }
     
     .file-actions button {
-        width: 100%;
+        width: auto;
+        flex: 1;
     }
     
     .notification {

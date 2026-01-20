@@ -221,12 +221,25 @@ html {
     border: 2px solid #e5e5e5;
 }
 
-.file-list h4 {
-    font-size: var(--font-base, 16px);
-    font-weight: 700;
+.files-header {
+    font-size: 1.4rem !important;
+    font-weight: 700 !important;
     margin-bottom: 12px;
     color: #1a1a1a;
     line-height: 1.4;
+}
+
+.files-header span {
+    font-size: inherit !important;
+    font-weight: inherit !important;
+    color: inherit !important;
+}
+
+.action-buttons-row {
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    align-items: center;
 }
 
 #fileListItems {

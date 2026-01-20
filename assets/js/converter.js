@@ -181,16 +181,14 @@ function updateFileList() {
     const wasHidden = fileListContainer.style.display === 'none';
     fileListContainer.style.display = 'block';
     if (uploadSection) uploadSection.style.display = 'block';
-    if (fileCount) fileCount.textContent = state.files.length;
+    if (fileCount) {
+        const remainingFiles = state.files.filter(f => f.status !== 'completed').length;
+        fileCount.textContent = remainingFiles;
+    }
     
     // Scroll to file list if just appeared
     if (wasHidden && state.files.length > 0) {
-        setTimeout(function() {
-            fileListContainer.scrollIntoView({ 
-                behavior: 'smooth', 
-                block: 'start'
-            });
-        }, 100);
+        // Auto-scrolling removed per user request
     }
 
     if (!fileItemsContainer) return;
@@ -261,6 +259,8 @@ function createFileItemHTML(fileData) {
                        '<button class="btn-remove" id="remove-' + fileData.id + '">Remove</button>';
     }
 
+    const actionButtonsRow = '<div class="action-buttons-row">' + actionButtons + '</div>';
+
     let errorHtml = '';
     if (fileData.error) {
         errorHtml = '<div class="file-error">' + escapeHtml(fileData.error) + '</div>';
@@ -281,7 +281,7 @@ function createFileItemHTML(fileData) {
            errorHtml +
            '</div>' +
            '</div>' +
-           '<div class="file-actions">' + actionButtons + '</div>' +
+           '<div class="file-actions">' + actionButtonsRow + '</div>' +
            '</div>';
 }
 

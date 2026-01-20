@@ -369,3 +369,8 @@ function setupAuth(db) {
 
 // Initialize smooth scrolling from utils.js
 initSmoothScrolling();
+
+// Disable automatic browser scroll restoration on refresh
+if ('scrollRestoration' in history) {
+    history.scrollRestoration = 'manual';
+}

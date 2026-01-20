@@ -382,23 +382,35 @@ small { font-size: var(--text-sm); }
     }
     
     .file-list-header {
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 16px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding-bottom: 12px;
     }
     
     .conversion-controls {
-        flex-direction: column;
-        width: 100%;
+        flex-direction: row;
+        width: auto;
+        gap: 8px;
     }
     
-    .conversion-controls button,
-    .file-actions button {
-        width: 100%;
+    .conversion-controls button {
+        width: auto;
+        padding: 8px 12px;
+        font-size: 13px;
+        height: 38px;
+        min-width: 100px;
     }
     
     .file-actions {
-        flex-direction: column;
+        flex-direction: row;
+        gap: 10px;
+    }
+    
+    .file-actions button {
+        width: auto;
+        flex: 1;
     }
 }
 

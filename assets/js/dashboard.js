@@ -491,6 +491,11 @@ let dashboardInitialized = false;
 
 // Start authentication check on page load
 window.addEventListener('DOMContentLoaded', () => {
+    // Disable automatic browser scroll restoration on refresh
+    if ('scrollRestoration' in history) {
+        history.scrollRestoration = 'manual';
+    }
+
     if (dashboardInitialized) {
         return;
     }
