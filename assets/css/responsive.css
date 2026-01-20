@@ -650,6 +650,140 @@ small { font-size: var(--text-sm); }
     }
 }
 
+/* ===== USER REQUESTED RESPONSIVE FIXES (768px) ===== */
+@media (max-width: 768px) {
+    /* 1. Stacking main flex-container rows */
+    .nav-content,
+    .steps,
+    .stats-grid,
+    .summary-grid,
+    .charts-grid,
+    .transaction-filters-container,
+    .footer-links-row,
+    .converter-features,
+    .promo-content,
+    .hero-content,
+    .hero-cta,
+    .hero-trust,
+    .upload-content,
+    .file-list-header,
+    .conversion-controls,
+    .file-actions,
+    .review-actions-bar,
+    .optimizer-header,
+    .optimizer-stats,
+    .recurring-header,
+    .recurring-summary,
+    .footer-content {
+        flex-direction: column !important;
+        display: flex !important;
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+        align-items: center !important;
+        text-align: center !important;
+    }
+
+    /* 2. Widths & Padding for main containers */
+    .container,
+    .card,
+    .main-wrapper,
+    .upload-card,
+    .insight-card,
+    .dashboard-container,
+    .converter-main,
+    .step-card,
+    .feature-card,
+    .feature-small,
+    .stat-item,
+    .pricing-card,
+    .testimonial,
+    .modal-content,
+    .auth-modal-content,
+    .year-modal-content,
+    .recategorize-modal-content,
+    .categorization-review-content {
+        width: 100% !important;
+        max-width: 100% !important;
+        padding-left: 1rem !important;
+        padding-right: 1rem !important;
+        margin-left: 0 !important;
+        margin-right: 0 !important;
+        box-sizing: border-box !important;
+    }
+
+    /* 3. Typography: Reduce large h1 font-size */
+    h1, .hero h1, .page-header h1, .converter-header h1 {
+        font-size: 1.75rem !important;
+        line-height: 1.2 !important;
+        text-align: center !important;
+        word-wrap: break-word !important;
+    }
+    
+    h2, .section-title { font-size: 1.5rem !important; }
+    h3 { font-size: 1.25rem !important; }
+
+    /* 4. Navbar Fixes */
+    .nav-content {
+        height: auto !important;
+        padding: 1rem !important;
+        justify-content: center !important;
+    }
+    
+    .nav-auth {
+        margin-top: 1rem !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+    
+    .btn-auth, #signInBtn, .user-menu-btn {
+        width: 100% !important;
+        max-width: 300px !important;
+        justify-content: center !important;
+    }
+    
+    .nav-links {
+        display: none !important; /* Hidden behind hamburger */
+    }
+    
+    .nav-links.mobile-open,
+    .nav-links.open {
+        display: flex !important;
+        width: 100% !important;
+        margin-top: 1rem !important;
+        position: static !important;
+        box-shadow: none !important;
+        transform: none !important;
+        opacity: 1 !important;
+        pointer-events: all !important;
+        background: transparent !important;
+        padding: 0 !important;
+        border: none !important;
+    }
+
+    /* 5. Table Responsiveness */
+    .transactions-table-container {
+        width: 100% !important;
+        overflow-x: auto !important;
+        -webkit-overflow-scrolling: touch !important;
+        margin-top: 1rem !important;
+        border: 1px solid #eee !important;
+        display: block !important;
+    }
+    
+    .transactions-table {
+        min-width: 700px !important; /* Force scrollable area */
+        width: auto !important;
+    }
+
+    /* Extra overflow prevention */
+    body, html {
+        overflow-x: hidden !important;
+        width: 100% !important;
+        position: relative !important;
+    }
+}
+
 /* ===== PROMO BANNER MOBILE ===== */
 @media (max-width: 640px) {
     .promo-banner {
