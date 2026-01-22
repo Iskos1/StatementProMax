@@ -229,8 +229,9 @@ p {
     transition: transform 0.2s ease;
 }
 
-.logo-link:hover {
-    transform: translateY(-1px);
+.logo-link {
+    text-decoration: none;
+    transition: none;
 }
 
 .logo {
@@ -249,31 +250,20 @@ p {
     border-radius: 12px;
     padding: 6px;
     box-shadow: 0 2px 10px rgba(255, 106, 61, 0.1);
-    transition: all 0.3s ease;
-}
-
-.logo-link:hover .logo-icon-wrapper {
-    background: linear-gradient(135deg, #ff6a3d 0%, #ff8f5a 100%);
-    box-shadow: 0 4px 15px rgba(255, 106, 61, 0.3);
 }
 
 .logo-icon-svg {
     width: 28px;
     height: 28px;
-    transition: all 0.3s ease;
-}
-
-.logo-link:hover .logo-icon-svg rect,
-.logo-link:hover .logo-icon-svg path {
-    fill: white;
-    stroke: white;
 }
 
 .logo-text {
     color: #1a1a2e;
     font-weight: 800;
-    font-size: 22px;
-    letter-spacing: -0.03em;
+    font-size: 24px;
+    letter-spacing: -0.02em;
+    display: flex;
+    align-items: center;
 }
 
 .logo-accent {
@@ -281,6 +271,7 @@ p {
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     font-weight: 800;
+    font-size: inherit;
 }
 
 /* Nav Links - Modern Pill Style */
@@ -900,6 +891,8 @@ p {
     font-weight: 800;
     color: white;
     letter-spacing: -0.01em;
+    display: flex;
+    align-items: center;
 }
 
 /* Modal Styles */
@@ -3183,3 +3176,8 @@ p {
     }
 }
 
+
+/* Mobile Menu Header - Hidden by default on desktop */
+.mobile-menu-header {
+    display: none;
+}

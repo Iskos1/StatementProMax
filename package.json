@@ -1,0 +1,27 @@
+{
+  "name": "bankstatementconverter",
+  "version": "1.0.0",
+  "description": "> Secure bank statement conversion and financial analysis platform",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Iskos1/StatementProMax.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/Iskos1/StatementProMax/issues"
+  },
+  "homepage": "https://github.com/Iskos1/StatementProMax#readme",
+  "dependencies": {
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.2.1",
+    "openai": "^6.16.0"
+  }
+}

@@ -12,6 +12,12 @@ import {
     safeSessionStorageRemove
 } from './utils.js';
 
+import { 
+    hasApiKey, 
+    saveApiKey, 
+    categorizeWithAI 
+} from './ai-categorizer.js';
+
 import { initializeYearModal, showYearModal } from './year-modal.js';
 
 // Transaction Database for Persistent Learning
@@ -23,8 +29,14 @@ import {
     getDBStats,
     saveFileHistory,
     getFileHistoryById,
-    getPendingAnalysisFile
+    getPendingAnalysisFile,
+    exportData as exportLocalData,
+    clearStore,
+    STORES,
+    setCloudSyncHook
 } from './transaction-db.js';
+
+import { profileManager } from './profile-manager.js';
 
 // Handle unhandled promise rejections
 window.addEventListener('unhandledrejection', (event) => {
@@ -155,6 +167,9 @@ async function initializeDashboard() {
         const APP_ID = '76a8365b-a4b6-48b0-a63b-d7a14d3587ec';
         const db = init({ appId: APP_ID });
         
+        // Initialize Profile Manager
+        await profileManager.init();
+        
         // Listen to auth state changes
         db.subscribeAuth((auth) => {
             const user = auth.user;
@@ -170,12 +185,26 @@ async function initializeDashboard() {
                 if (userMenu) userMenu.style.display = 'block';
                 if (userEmail) userEmail.textContent = user.email.split('@')[0];
                 
+                // Initialize profile manager for this user
+                profileManager.setUser(user);
+                
+                // Register cloud sync hook for patterns
+                setCloudSyncHook((type, data) => {
+                    if (type === 'pattern' && profileManager.isAuthenticated()) {
+                        profileManager.savePattern(data.merchantName, data.category, data.description, data.confidence);
+                    }
+                });
+                
                 // Initialize dashboard features
                 initializeDashboardFeatures();
             } else {
                 // User is NOT authenticated - show optional login prompt
                 if (signInBtn) signInBtn.style.display = 'block';
                 if (userMenu) userMenu.style.display = 'none';
+                
+                // Clear profile manager and cloud sync hook
+                profileManager.cleanup();
+                setCloudSyncHook(null);
                 
                 // Store current page for redirect after login
                 if (!sessionStorage.getItem('returnUrl')) {
@@ -483,7 +512,338 @@ function attachEventListeners() {
         exportToExcelBtn.addEventListener('click', exportToExcel);
     }
     
+    // Profile Modal event listeners
+    setupProfileModalListeners();
+    
     listenersAttached = true;
+}
+
+// ========================================
+// PROFILE MODAL
+// ========================================
+
+function setupProfileModalListeners() {
+    // My Profile button in dropdown
+    const myProfileBtn = document.getElementById('myProfileBtn');
+    if (myProfileBtn) {
+        myProfileBtn.addEventListener('click', () => {
+            // Close dropdown
+            const dropdown = document.getElementById('userDropdown');
+            if (dropdown) dropdown.classList.remove('show');
+            showProfileModal();
+        });
+    }
+    
+    // Close profile modal
+    const closeProfileBtn = document.getElementById('closeProfileModal');
+    if (closeProfileBtn) {
+        closeProfileBtn.addEventListener('click', hideProfileModal);
+    }
+    
+    // Click outside to close
+    const profileModal = document.getElementById('userProfileModal');
+    if (profileModal) {
+        profileModal.addEventListener('click', (e) => {
+            if (e.target === profileModal) {
+                hideProfileModal();
+            }
+        });
+    }
+    
+    // Profile tabs
+    const tabButtons = document.querySelectorAll('.profile-tab-btn');
+    tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+            const tab = btn.dataset.tab;
+            switchProfileTab(tab);
+        });
+    });
+    
+    // Settings: Save AI Key
+    const profileSaveAiKeyBtn = document.getElementById('profileSaveAiKeyBtn');
+    if (profileSaveAiKeyBtn) {
+        profileSaveAiKeyBtn.addEventListener('click', handleProfileSaveAiKey);
+    }
+    
+    // Settings: Export Data
+    const exportDataBtn = document.getElementById('exportDataBtn');
+    if (exportDataBtn) {
+        exportDataBtn.addEventListener('click', handleExportData);
+    }
+    
+    // Settings: Clear Local Data
+    const clearLocalDataBtn = document.getElementById('clearLocalDataBtn');
+    if (clearLocalDataBtn) {
+        clearLocalDataBtn.addEventListener('click', handleClearLocalData);
+    }
+    
+    // Setup profile manager callbacks
+    profileManager.onFileHistoryUpdate = updateProfileFileHistory;
+    profileManager.onProfileUpdate = updateProfileDisplay;
+}
+
+function showProfileModal() {
+    const modal = document.getElementById('userProfileModal');
+    if (!modal) return;
+    
+    // Update profile display
+    updateProfileDisplay();
+    updateProfileStats();
+    updateProfileFileHistory(profileManager.fileHistory);
+    
+    // Update AI key status
+    updateAiKeyStatus();
+    
+    // Show modal
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
+    
+    // Reset to first tab
+    switchProfileTab('history');
+}
+
+function hideProfileModal() {
+    const modal = document.getElementById('userProfileModal');
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = 'auto';
+    }
+}
+
+function switchProfileTab(tabName) {
+    // Update button states
+    const buttons = document.querySelectorAll('.profile-tab-btn');
+    buttons.forEach(btn => {
+        if (btn.dataset.tab === tabName) {
+            btn.style.background = '#ff6a3d';
+            btn.style.color = 'white';
+            btn.style.borderColor = '#ff6a3d';
+            btn.classList.add('active');
+        } else {
+            btn.style.background = 'white';
+            btn.style.color = '#4a4a4a';
+            btn.style.borderColor = '#e5e5e5';
+            btn.classList.remove('active');
+        }
+    });
+    
+    // Show/hide tab content
+    const historyTab = document.getElementById('profileHistoryTab');
+    const settingsTab = document.getElementById('profileSettingsTab');
+    const securityTab = document.getElementById('profileSecurityTab');
+    
+    if (historyTab) historyTab.style.display = tabName === 'history' ? 'block' : 'none';
+    if (settingsTab) settingsTab.style.display = tabName === 'settings' ? 'block' : 'none';
+    if (securityTab) securityTab.style.display = tabName === 'security' ? 'block' : 'none';
+}
+
+function updateProfileDisplay() {
+    const emailEl = document.getElementById('profileEmail');
+    if (emailEl && profileManager.user) {
+        emailEl.textContent = profileManager.user.email;
+    }
+}
+
+function updateProfileStats() {
+    const stats = profileManager.getStats();
+    
+    const filesCount = document.getElementById('profileFilesCount');
+    const transactionsCount = document.getElementById('profileTransactionsCount');
+    const patternsCount = document.getElementById('profilePatternsCount');
+    const totalIncome = document.getElementById('profileTotalIncome');
+    
+    if (filesCount) filesCount.textContent = stats.totalFiles;
+    if (transactionsCount) transactionsCount.textContent = stats.totalTransactions.toLocaleString();
+    if (patternsCount) patternsCount.textContent = stats.learnedPatterns;
+    if (totalIncome) totalIncome.textContent = formatCurrency(stats.totalIncome);
+}
+
+function updateProfileFileHistory(files) {
+    const fileList = document.getElementById('profileFileList');
+    const emptyState = document.getElementById('profileEmptyState');
+    
+    if (!fileList) return;
+    
+    if (!files || files.length === 0) {
+        if (emptyState) emptyState.style.display = 'block';
+        return;
+    }
+    
+    if (emptyState) emptyState.style.display = 'none';
+    
+    // Clear existing items (except empty state)
+    const existingItems = fileList.querySelectorAll('.profile-file-item');
+    existingItems.forEach(item => item.remove());
+    
+    // Add file items
+    files.forEach(file => {
+        const fileItem = createProfileFileItem(file);
+        fileList.insertBefore(fileItem, emptyState);
+    });
+}
+
+function createProfileFileItem(file) {
+    const item = document.createElement('div');
+    item.className = 'profile-file-item';
+    item.style.cssText = `
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 16px 20px;
+        background: white;
+        border: 2px solid #e5e5e5;
+        border-radius: 12px;
+        margin-bottom: 12px;
+        transition: all 0.2s;
+    `;
+    
+    item.onmouseenter = () => {
+        item.style.borderColor = '#ff6a3d';
+        item.style.boxShadow = '0 4px 12px rgba(255, 106, 61, 0.15)';
+    };
+    item.onmouseleave = () => {
+        item.style.borderColor = '#e5e5e5';
+        item.style.boxShadow = 'none';
+    };
+    
+    const uploadDate = new Date(file.uploadDate);
+    const formattedDate = uploadDate.toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+    });
+    
+    const income = file.summary?.totalIncome || 0;
+    const expenses = file.summary?.totalExpenses || 0;
+    const netBalance = income - expenses;
+    const netClass = netBalance >= 0 ? 'color: #22c55e' : 'color: #ef4444';
+    
+    item.innerHTML = `
+        <div style="flex: 1;">
+            <div style="font-weight: 700; font-size: 15px; color: #1a1a1a; margin-bottom: 4px;">
+                📁 ${escapeHtml(file.fileName)}
+            </div>
+            <div style="font-size: 13px; color: #6a6a6a;">
+                ${formattedDate} • ${file.transactionCount || 0} transactions ${file.year ? `• Year: ${file.year}` : ''}
+            </div>
+        </div>
+        <div style="text-align: right;">
+            <div style="font-size: 13px; color: #22c55e; font-weight: 600;">
+                +${formatCurrency(income)}
+            </div>
+            <div style="font-size: 13px; color: #ef4444; font-weight: 600;">
+                -${formatCurrency(expenses)}
+            </div>
+            <div style="font-size: 14px; ${netClass}; font-weight: 700; border-top: 1px solid #e5e5e5; padding-top: 4px; margin-top: 4px;">
+                ${netBalance >= 0 ? '+' : ''}${formatCurrency(netBalance)}
+            </div>
+        </div>
+    `;
+    
+    return item;
+}
+
+function updateAiKeyStatus() {
+    const input = document.getElementById('profileAiKeyInput');
+    const status = document.getElementById('profileAiKeyStatus');
+    
+    if (input) {
+        const currentKey = localStorage.getItem('openai_api_key');
+        if (currentKey) {
+            input.value = currentKey.substring(0, 7) + '...' + currentKey.substring(currentKey.length - 4);
+            input.placeholder = 'Key is set';
+        } else {
+            input.value = '';
+            input.placeholder = 'sk-...';
+        }
+    }
+    
+    if (status) {
+        if (hasApiKey()) {
+            status.innerHTML = '<span style="color: #22c55e;">✓ API key is configured</span> - Your key is stored securely and synced across your devices.';
+        } else {
+            status.textContent = 'Your API key is stored securely and synced across your devices.';
+        }
+    }
+}
+
+async function handleProfileSaveAiKey() {
+    const input = document.getElementById('profileAiKeyInput');
+    const key = input?.value?.trim();
+    
+    // Check if key looks like masked version (contains "...")
+    if (key && key.includes('...')) {
+        showNotification('Please enter a new key or leave as-is', 'info');
+        return;
+    }
+    
+    if (!key || !key.startsWith('sk-')) {
+        showNotification('Invalid API key. Must start with sk-', 'error');
+        return;
+    }
+    
+    // Save locally
+    if (saveApiKey(key)) {
+        // Also save to cloud profile
+        if (profileManager.isAuthenticated()) {
+            await profileManager.saveOpenAIKey(key);
+        }
+        
+        showNotification('API key saved successfully!', 'success');
+        updateAiKeyStatus();
+    } else {
+        showNotification('Failed to save API key', 'error');
+    }
+}
+
+async function handleExportData() {
+    try {
+        showNotification('Exporting your data...', 'info');
+        
+        const data = await exportLocalData();
+        
+        // Create downloadable JSON
+        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `flashconverter-backup-${new Date().toISOString().split('T')[0]}.json`;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+        
+        showNotification('Data exported successfully!', 'success');
+    } catch (error) {
+        console.error('Export failed:', error);
+        showNotification('Export failed: ' + error.message, 'error');
+    }
+}
+
+async function handleClearLocalData() {
+    if (!confirm('Are you sure you want to clear all local data?\n\nThis will remove:\n• Learned categorization patterns\n• File history\n• All cached data\n\nThis action cannot be undone!')) {
+        return;
+    }
+    
+    try {
+        await clearStore(STORES.PATTERNS);
+        await clearStore(STORES.TRANSACTIONS);
+        await clearStore(STORES.DISSIMILAR);
+        await clearStore(STORES.FILE_HISTORY);
+        
+        // Clear localStorage items
+        localStorage.removeItem('learnedCategorizations');
+        localStorage.removeItem('dissimilarPairs');
+        
+        showNotification('Local data cleared successfully!', 'success');
+        
+        // Update profile display
+        updateProfileStats();
+        updateProfileFileHistory([]);
+    } catch (error) {
+        console.error('Clear data failed:', error);
+        showNotification('Failed to clear data: ' + error.message, 'error');
+    }
 }
 
 // Prevent duplicate initialization
@@ -3002,6 +3362,12 @@ function showCategorizationReview(transactions) {
     
     // Update progress
     updateReviewProgress();
+
+    // Auto-trigger AI research if key is present
+    if (hasApiKey()) {
+        // Run quietly in background
+        setTimeout(() => handleAiSuggest(true), 500);
+    }
 }
 
 // Render review transaction items
@@ -3064,6 +3430,8 @@ function createReviewTransactionItem(transaction, index) {
         sourceBadge = '<span class="review-category-badge learned">🎓 Learned</span>';
     } else if (transaction.source === 'keyword') {
         sourceBadge = '<span class="review-category-badge keyword">🔍 Auto-detected</span>';
+    } else if (transaction.source === 'ai') {
+        sourceBadge = '<span class="review-category-badge learned" style="background-color: #d1fae5; color: #065f46; border: 1px solid #10a37f;">✨ AI Suggested</span>';
     } else {
         sourceBadge = '<span class="review-category-badge default">❓ Suggested</span>';
     }
@@ -3253,6 +3621,106 @@ function setupReviewModalListeners() {
     const finishBtn = document.getElementById('finishReviewBtn');
     if (finishBtn) {
         finishBtn.onclick = handleFinishReview;
+    }
+
+    // AI Suggest button
+    const aiSuggestBtn = document.getElementById('aiSuggestBtn');
+    if (aiSuggestBtn) {
+        aiSuggestBtn.onclick = handleAiSuggest;
+    }
+}
+
+// AI Handlers
+function handleShowAiKeyModal() {
+    const modal = document.getElementById('aiKeyModal');
+    if (modal) modal.style.display = 'flex';
+    
+    // Setup listeners for this modal
+    const closeBtn = document.getElementById('closeAiKeyModal');
+    if (closeBtn) closeBtn.onclick = handleCloseAiKeyModal;
+    
+    const saveBtn = document.getElementById('saveAiKeyBtn');
+    if (saveBtn) saveBtn.onclick = handleSaveAiKey;
+}
+
+function handleCloseAiKeyModal() {
+    const modal = document.getElementById('aiKeyModal');
+    if (modal) modal.style.display = 'none';
+}
+
+function handleSaveAiKey() {
+    const input = document.getElementById('aiKeyInput');
+    const key = input.value.trim();
+    
+    if (saveApiKey(key)) {
+        showNotification('AI Key saved successfully!', 'success');
+        handleCloseAiKeyModal();
+    } else {
+        showNotification('Invalid API Key. Must start with sk-', 'error');
+    }
+}
+
+async function handleAiSuggest(silent = false) {
+    if (!hasApiKey()) {
+        if (!silent) handleShowAiKeyModal();
+        return;
+    }
+    
+    // Filter transactions that need AI help (pending and not approved)
+    const candidates = pendingReview.filter(t => t.reviewStatus === 'pending');
+    
+    if (candidates.length === 0) {
+        if (!silent) showNotification('No pending transactions to categorize.', 'info');
+        return;
+    }
+    
+    if (!silent) showLoading();
+    
+    const msg = silent 
+        ? `🤖 AI is researching ${candidates.length} transactions...` 
+        : `Asking AI to categorize ${candidates.length} transactions...`;
+    showNotification(msg, 'info');
+    
+    try {
+        // Prepare data for AI
+        const aiInput = candidates.map(t => ({
+            id: t.reviewIndex,
+            description: t.description,
+            amount: t.amount
+        }));
+        
+        const results = await categorizeWithAI(aiInput);
+        
+        let updateCount = 0;
+        
+        // Apply results
+        Object.entries(results).forEach(([idStr, category]) => {
+            const index = parseInt(idStr);
+            const transaction = pendingReview[index];
+            
+            if (transaction && category !== 'Other') {
+                if (transaction.category !== category) {
+                    transaction.category = category;
+                    transaction.source = 'ai';
+                    transaction.confidence = 0.9;
+                    updateCount++;
+                }
+            }
+        });
+        
+        if (updateCount > 0) {
+            showNotification(`✨ AI updated ${updateCount} categories based on research!`, 'success');
+            renderReviewTransactions();
+            setupReviewModalListeners();
+        } else {
+            if (!silent) showNotification('AI finished but suggested no changes.', 'info');
+        }
+        
+    } catch (error) {
+        console.error(error);
+        if (!silent) showNotification('AI Error: ' + error.message, 'error');
+    } finally {
+        if (!silent) hideLoading();
     }
 }
 
@@ -3931,6 +4399,23 @@ async function processFinalApproval() {
                     expenseCount: expenseCount
                 }
             );
+            
+            // Also save to cloud profile (metadata only, no file content)
+            if (profileManager.isAuthenticated()) {
+                await profileManager.saveFileToHistory({
+                    fileName: fileName,
+                    fileSize: fileSize,
+                    transactionCount: allTransactions.length,
+                    year: currentFileYear,
+                    summary: {
+                        totalIncome: income,
+                        totalExpenses: expenses,
+                        netBalance: income - expenses,
+                        incomeCount: incomeCount,
+                        expenseCount: expenseCount
+                    }
+                });
+            }
             
             // File saved to history
         } catch (error) {
@@ -4827,8 +5312,8 @@ function hideLoading() {
     }
 }
 
-// Export to Excel with Charts
-function exportToExcel() {
+// Export Dashboard to Excel (Summary, Insights, Charts & Data)
+async function exportToExcel() {
     if (!transactions || transactions.length === 0) {
         showNotification('No data to export', 'warning');
         return;
@@ -4837,300 +5322,355 @@ function exportToExcel() {
     try {
         showLoading();
         
-        // Calculate summary metrics
-        const income = transactions
-            .filter(t => t.type === 'income')
-            .reduce((sum, t) => sum + t.amount, 0);
-        
-        const expenses = Math.abs(transactions
-            .filter(t => t.type === 'expense')
-            .reduce((sum, t) => sum + t.amount, 0));
-        
+        // Check if ExcelJS is loaded
+        if (typeof ExcelJS === 'undefined') {
+            throw new Error('ExcelJS library not loaded. Please refresh the page.');
+        }
+
+        // 1. Gather All Data
+        const income = transactions.filter(t => t.type === 'income').reduce((s, t) => s + t.amount, 0);
+        const expenses = Math.abs(transactions.filter(t => t.type === 'expense').reduce((s, t) => s + t.amount, 0));
         const netBalance = income - expenses;
-        const savingsRate = income > 0 ? ((netBalance / income) * 100) : 0;
+        const savingsRate = income > 0 ? (netBalance / income) : 0;
         
-        const incomeCount = transactions.filter(t => t.type === 'income').length;
-        const expenseCount = transactions.filter(t => t.type === 'expense').length;
+        // Get Recurring Payments (using existing logic)
+        const recurringData = typeof detectRecurringPayments === 'function' ? detectRecurringPayments() : [];
         
-        // Calculate category breakdown
+        // Get Category Data
         const categoryData = {};
-        transactions
-            .filter(t => t.type === 'expense')
-            .forEach(t => {
-                const cat = t.category;
-                categoryData[cat] = (categoryData[cat] || 0) + Math.abs(t.amount);
+        transactions.filter(t => t.type === 'expense').forEach(t => {
+            categoryData[t.category] = (categoryData[t.category] || 0) + Math.abs(t.amount);
             });
         
-        // Create workbook
-        const wb = XLSX.utils.book_new();
+        // --- Calculate Savings Optimizer Data (Replicated Logic) ---
+        const calculateOptimizerDataForExport = (totalIncome, totalExpenses) => {
+            if (totalIncome <= 0) return null;
+
+            const currentRateVal = ((totalIncome - totalExpenses) / totalIncome) * 100;
+            
+            // 1. Identify Cuttable Expenses (exclude essentials)
+            const cuttableExpenses = transactions.filter(t => {
+                if (t.type !== 'expense') return false;
+                const desc = t.description.toLowerCase();
+                const essentials = ['transfer', 'discover', 'zelle', 'amex', 'american express', 'atm', 'apple card', 'gsbank'];
+                return !essentials.some(e => desc.includes(e));
+            });
+            
+            const totalCuttable = cuttableExpenses.reduce((sum, t) => sum + Math.abs(t.amount), 0);
+            const maxPossibleSavings = (totalIncome - totalExpenses) + totalCuttable;
+            const maxRateVal = Math.min((maxPossibleSavings / totalIncome) * 100, 100);
         
-        // === SHEET 1: SUMMARY WITH KEY METRICS ===
-        const summaryData = [
-            ['FINANCIAL SUMMARY REPORT'],
-            [''],
-            ['Generated:', new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric', hour: '2-digit', minute: '2-digit' })],
-            ['File:', dom.fileName ? dom.fileName.textContent : 'Financial Data'],
-            ['Period:', getDateRange()],
-            [''],
-            ['KEY METRICS', ''],
-            ['Metric', 'Value'],
-            ['Total Income', income],
-            ['Total Expenses', expenses],
-            ['Net Balance', netBalance],
-            ['Savings Rate', savingsRate / 100],
-            ['Income Transactions', incomeCount],
-            ['Expense Transactions', expenseCount],
-            ['Total Transactions', transactions.length],
-            [''],
-            ['CATEGORY BREAKDOWN (Expenses)', ''],
-            ['Category', 'Amount']
+            // 2. Determine Target & Need
+            // Use global targetSavingsRate if available, else default 50
+            const targetRateVal = typeof targetSavingsRate !== 'undefined' ? targetSavingsRate : 50;
+            
+            // If goal achieved
+            if (currentRateVal >= targetRateVal) {
+                return {
+                    achieved: true,
+                    targetRate: targetRateVal,
+                    currentRate: currentRateVal,
+                    maxRate: maxRateVal,
+                    needToSave: 0,
+                    recommendations: []
+                };
+            }
+
+            // 3. Generate Recommendations to reach target
+            const targetAmount = totalIncome * (targetRateVal / 100);
+            const currentSavings = totalIncome - totalExpenses;
+            const amountNeeded = targetAmount - currentSavings;
+
+            // Sort largest expenses first
+            const potentialCuts = cuttableExpenses.sort((a, b) => Math.abs(b.amount) - Math.abs(a.amount));
+            const recommendations = [];
+            let cumulativeFound = 0;
+            
+            for (const t of potentialCuts) {
+                if (cumulativeFound >= amountNeeded) break;
+                const amount = Math.abs(t.amount);
+                cumulativeFound += amount;
+                recommendations.push({
+                    date: t.date,
+                    description: t.description,
+                    category: t.category,
+                    amount: amount
+                });
+            }
+
+            return {
+                achieved: false,
+                targetRate: targetRateVal,
+                currentRate: currentRateVal,
+                maxRate: maxRateVal,
+                needToSave: amountNeeded,
+                recommendations: recommendations
+            };
+        };
+
+        const optimizerData = calculateOptimizerDataForExport(income, expenses);
+
+
+        // 2. Create Workbook
+        const workbook = new ExcelJS.Workbook();
+        workbook.creator = 'FlashConverter';
+        workbook.created = new Date();
+
+        // ==========================================
+        // SHEET 1: DASHBOARD OVERVIEW
+        // ==========================================
+        const dashSheet = workbook.addWorksheet('Dashboard', { views: [{ showGridLines: false }] });
+
+        // Title Section
+        dashSheet.mergeCells('B2:E2');
+        const titleCell = dashSheet.getCell('B2');
+        titleCell.value = 'FINANCIAL DASHBOARD';
+        titleCell.font = { name: 'Arial', size: 18, bold: true, color: { argb: 'FF2c3e50' } };
+        
+        dashSheet.getCell('B3').value = `Generated: ${new Date().toLocaleDateString()}`;
+        dashSheet.getCell('B3').font = { italic: true, color: { argb: 'FF7f8c8d' } };
+
+        // Key Metrics Table
+        const metrics = [
+            ['Total Income', income, 'FF27ae60'],   // Green
+            ['Total Expenses', expenses, 'FFc0392b'], // Red
+            ['Net Balance', netBalance, netBalance >= 0 ? 'FF27ae60' : 'FFc0392b'],
+            ['Savings Rate', savingsRate, 'FF2980b9'] // Blue
         ];
         
-        // Add category data
-        Object.entries(categoryData)
-            .sort((a, b) => b[1] - a[1])
-            .forEach(([category, amount]) => {
-                summaryData.push([category, amount]);
+        // Draw Metrics Boxes
+        metrics.forEach((m, i) => {
+            const row = 5;
+            const col = 2 + i; // B, C, D, E
+            
+            // Label
+            dashSheet.getCell(row, col).value = m[0];
+            dashSheet.getCell(row, col).font = { bold: true, color: { argb: 'FF7f8c8d' } };
+            dashSheet.getCell(row, col).alignment = { horizontal: 'center' };
+            
+            // Value
+            const valCell = dashSheet.getCell(row + 1, col);
+            valCell.value = m[1];
+            valCell.numFmt = m[0] === 'Savings Rate' ? '0.0%' : '$#,##0.00';
+            valCell.font = { size: 14, bold: true, color: { argb: m[2] } };
+            valCell.alignment = { horizontal: 'center' };
+            
+            // Border around the "Card"
+            dashSheet.getCell(row, col).border = { top: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} };
+            valCell.border = { bottom: {style:'thin'}, left: {style:'thin'}, right: {style:'thin'} };
+        });
+
+        // Add Chart Images (Captures the current view)
+        const incomeChartCanvas = document.getElementById('incomeExpenseChart');
+        const categoryChartCanvas = document.getElementById('categoryChart');
+
+        if (incomeChartCanvas && categoryChartCanvas) {
+            dashSheet.mergeCells('B9:C9');
+            dashSheet.getCell('B9').value = 'INCOME vs EXPENSES';
+            dashSheet.getCell('B9').font = { bold: true };
+
+            const incomeImgId = workbook.addImage({
+                base64: incomeChartCanvas.toDataURL('image/png'),
+                extension: 'png',
+            });
+            dashSheet.addImage(incomeImgId, {
+                tl: { col: 1, row: 9 }, // B10
+                ext: { width: 400, height: 220 }
+            });
+
+            dashSheet.mergeCells('E9:F9');
+            dashSheet.getCell('E9').value = 'SPENDING BREAKDOWN';
+            dashSheet.getCell('E9').font = { bold: true };
+
+            const catImgId = workbook.addImage({
+                base64: categoryChartCanvas.toDataURL('image/png'),
+                extension: 'png',
+            });
+            dashSheet.addImage(catImgId, {
+                tl: { col: 4, row: 9 }, // E10
+                ext: { width: 400, height: 220 }
+            });
+        }
+
+        // Set column widths for Dashboard
+        dashSheet.getColumn(2).width = 20; // B
+        dashSheet.getColumn(3).width = 20; // C
+        dashSheet.getColumn(4).width = 5;  // D (Spacer)
+        dashSheet.getColumn(5).width = 20; // E
+        dashSheet.getColumn(6).width = 20; // F
+
+        // ==========================================
+        // SHEET 2: INSIGHTS & OPTIMIZER
+        // ==========================================
+        const insightSheet = workbook.addWorksheet('Insights');
+        
+        // --- Recurring Payments Section ---
+        const rHeader = insightSheet.getRow(1);
+        rHeader.getCell(1).value = 'RECURRING PAYMENTS DETECTED';
+        rHeader.font = { bold: true, size: 12, color: { argb: 'FF2c3e50' } };
+        
+        // Recurring Table Headers
+        const rCols = ['Merchant / Description', 'Frequency', 'Avg Amount', 'Est. Yearly Cost'];
+        const rHeaderRow = insightSheet.getRow(3);
+        rCols.forEach((h, i) => {
+            const cell = rHeaderRow.getCell(i + 1);
+            cell.value = h;
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF70AD47' } }; // Green
+            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        });
+        
+        // Recurring Data
+        let recEndRow = 4;
+        if (recurringData && recurringData.length > 0) {
+            recurringData.forEach((r, i) => {
+                const row = insightSheet.getRow(4 + i);
+                row.getCell(1).value = r.description;
+                row.getCell(2).value = r.frequency;
+                row.getCell(3).value = r.amount;
+                row.getCell(3).numFmt = '$#,##0.00';
+                
+                // Calculate Yearly
+                let mult = 12;
+                if (r.frequency === 'Weekly') mult = 52;
+                if (r.frequency === 'Bi-weekly') mult = 26;
+                if (r.frequency === 'Quarterly') mult = 4;
+                if (r.frequency === 'Yearly') mult = 1;
+                
+                row.getCell(4).value = r.amount * mult;
+                row.getCell(4).numFmt = '$#,##0.00';
+            });
+            recEndRow = 4 + recurringData.length;
+        } else {
+            insightSheet.getCell('A4').value = 'No recurring payments found.';
+            recEndRow = 5;
+        }
+
+        // --- Savings Optimizer Section ---
+        const optRow = recEndRow + 4; // Spacing
+        insightSheet.getCell(`A${optRow}`).value = 'SAVINGS OPTIMIZER';
+        insightSheet.getCell(`A${optRow}`).font = { bold: true, size: 14, color: { argb: 'FF2c3e50' } };
+        insightSheet.getCell(`A${optRow}`).border = { bottom: { style: 'thick', color: { argb: 'FF2c3e50' } } };
+
+        if (optimizerData) {
+            // Optimizer Metrics Table
+            const mStart = optRow + 2;
+            
+            const optMetrics = [
+                ['Target Savings Rate', optimizerData.targetRate / 100, '0.0%'],
+                ['Current Savings Rate', optimizerData.currentRate / 100, '0.0%'],
+                ['Max Possible Rate', optimizerData.maxRate / 100, '0.0%'],
+                ['Needed to Reach Goal', optimizerData.needToSave, '$#,##0.00']
+            ];
+
+            optMetrics.forEach((m, i) => {
+                const r = mStart + i;
+                // Label
+                insightSheet.getCell(`A${r}`).value = m[0];
+                insightSheet.getCell(`A${r}`).font = { bold: true, color: { argb: 'FF7f8c8d' } };
+                
+                // Value
+                const vCell = insightSheet.getCell(`B${r}`);
+                vCell.value = m[1];
+                vCell.numFmt = m[2];
+                vCell.font = { bold: true };
+                
+                // Color coding for current rate
+                if (m[0] === 'Current Savings Rate') {
+                     vCell.font = { bold: true, color: { argb: optimizerData.achieved ? 'FF27ae60' : 'FFc0392b' } };
+                }
             });
         
-        const ws_summary = XLSX.utils.aoa_to_sheet(summaryData);
-        
-        // Set column widths
-        ws_summary['!cols'] = [
-            { wch: 30 },
-            { wch: 20 }
-        ];
-        
-        // Format currency cells
-        const currencyFormat = '$#,##0.00';
-        const percentFormat = '0.00%';
-        
-        // Apply formats to summary sheet
-        if (ws_summary['B9']) ws_summary['B9'].z = currencyFormat;  // Total Income
-        if (ws_summary['B10']) ws_summary['B10'].z = currencyFormat; // Total Expenses
-        if (ws_summary['B11']) ws_summary['B11'].z = currencyFormat; // Net Balance
-        if (ws_summary['B12']) ws_summary['B12'].z = percentFormat;  // Savings Rate
-        
-        // Format category amounts
-        for (let i = 20; i < summaryData.length; i++) {
-            const cellRef = `B${i}`;
-            if (ws_summary[cellRef]) {
-                ws_summary[cellRef].z = currencyFormat;
+            // Recommendations Section
+            const recStart = mStart + 6;
+            if (optimizerData.recommendations.length > 0) {
+                insightSheet.getCell(`A${recStart}`).value = 'SUGGESTED CUTS TO REACH TARGET';
+                insightSheet.getCell(`A${recStart}`).font = { bold: true, size: 11, color: { argb: 'FFe67e22' } };
+
+                // Rec Headers
+                const recCols = ['Date', 'Description', 'Category', 'Amount'];
+                const rhRow = insightSheet.getRow(recStart + 1);
+                recCols.forEach((h, i) => {
+                    const cell = rhRow.getCell(i + 1);
+                    cell.value = h;
+                    cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+                    cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FFe67e22' } }; // Orange
+                });
+
+                // Rec Data
+                optimizerData.recommendations.forEach((rec, i) => {
+                    const r = recStart + 2 + i;
+                    insightSheet.getCell(r, 1).value = rec.date;
+                    insightSheet.getCell(r, 1).numFmt = 'mm/dd/yyyy';
+                    insightSheet.getCell(r, 2).value = rec.description;
+                    insightSheet.getCell(r, 3).value = rec.category;
+                    insightSheet.getCell(r, 4).value = rec.amount;
+                    insightSheet.getCell(r, 4).numFmt = '$#,##0.00';
+                });
+            } else if (optimizerData.achieved) {
+                insightSheet.getCell(`A${recStart}`).value = '🎉 Target Achieved! You are saving enough.';
+                insightSheet.getCell(`A${recStart}`).font = { italic: true, color: { argb: 'FF27ae60' } };
             }
         }
+
+        // Set widths for Insights
+        insightSheet.getColumn(1).width = 40;
+        insightSheet.getColumn(2).width = 15;
+        insightSheet.getColumn(3).width = 15;
+        insightSheet.getColumn(4).width = 20;
+
+        // ==========================================
+        // SHEET 3: ALL TRANSACTIONS
+        // ==========================================
+        const txSheet = workbook.addWorksheet('Transactions');
         
-        XLSX.utils.book_append_sheet(wb, ws_summary, 'Summary');
-        
-        // === SHEET 2: ALL TRANSACTIONS ===
-        const transactionsData = [
-            ['ALL TRANSACTIONS'],
-            [''],
-            ['Date', 'Description', 'Category', 'Type', 'Amount', '% of Income', 'Balance']
-        ];
-        
-        transactions
-            .sort((a, b) => b.date - a.date)
-            .forEach(t => {
-                const percentage = income > 0 ? (Math.abs(t.amount) / income) : 0;
-                transactionsData.push([
-                    t.date,
-                    t.description,
-                    t.category,
-                    t.type === 'income' ? 'Income' : 'Expense',
-                    t.amount,
-                    percentage,
-                    t.balance
-                ]);
-            });
-        
-        const ws_transactions = XLSX.utils.aoa_to_sheet(transactionsData);
-        
-        // Set column widths for transactions
-        ws_transactions['!cols'] = [
-            { wch: 12 },  // Date
-            { wch: 40 },  // Description
-            { wch: 20 },  // Category
-            { wch: 10 },  // Type
-            { wch: 15 },  // Amount
-            { wch: 12 },  // % of Income
-            { wch: 15 }   // Balance
-        ];
-        
-        // Format transactions data
-        for (let i = 4; i <= transactionsData.length; i++) {
-            // Amount column (E)
-            const amountCell = `E${i}`;
-            if (ws_transactions[amountCell]) {
-                ws_transactions[amountCell].z = currencyFormat;
-            }
-            
-            // Percentage column (F)
-            const pctCell = `F${i}`;
-            if (ws_transactions[pctCell]) {
-                ws_transactions[pctCell].z = percentFormat;
-            }
-            
-            // Balance column (G)
-            const balanceCell = `G${i}`;
-            if (ws_transactions[balanceCell]) {
-                ws_transactions[balanceCell].z = currencyFormat;
-            }
-        }
-        
-        XLSX.utils.book_append_sheet(wb, ws_transactions, 'Transactions');
-        
-        // === SHEET 3: CHART DATA (Structured for Easy Visualization) ===
-        const chartData = [
-            ['CHART DATA - Ready for Visualization'],
-            [''],
-            ['Income vs Expenses vs Net Balance'],
-            ['Metric', 'Value'],
-            ['Income', income],
-            ['Expenses', expenses],
-            ['Net Balance', netBalance],
-            [''],
-            ['Monthly Breakdown (if available)'],
-            ['Month', 'Income', 'Expenses', 'Net Balance', 'Savings Rate']
-        ];
-        
-        // Get monthly data
-        const monthlyData = getMonthlyBreakdown();
-        monthlyData.forEach(month => {
-            chartData.push([
-                month.month,
-                month.income,
-                month.expenses,
-                month.netBalance,
-                month.savingsRate / 100
+        const txCols = ['Date', 'Description', 'Category', 'Type', 'Amount'];
+        const txHeader = txSheet.getRow(1);
+        txCols.forEach((h, i) => {
+            const cell = txHeader.getCell(i + 1);
+            cell.value = h;
+            cell.fill = { type: 'pattern', pattern: 'solid', fgColor: { argb: 'FF4472C4' } };
+            cell.font = { bold: true, color: { argb: 'FFFFFFFF' } };
+        });
+
+        transactions.sort((a, b) => b.date - a.date).forEach(t => {
+            txSheet.addRow([
+                t.date,
+                t.description,
+                t.category,
+                t.type === 'income' ? 'Income' : 'Expense',
+                t.amount
             ]);
         });
         
-        chartData.push(['']);
-        chartData.push(['Category Breakdown (Top Expenses)']);
-        chartData.push(['Category', 'Amount', 'Percentage of Total Expenses']);
+        // Format Transaction Columns
+        txSheet.getColumn(1).width = 12; // Date
+        txSheet.getColumn(2).width = 40; // Desc
+        txSheet.getColumn(3).width = 20; // Cat
+        txSheet.getColumn(4).width = 12; // Type
+        txSheet.getColumn(5).width = 15; // Amount
+        txSheet.getColumn(5).numFmt = '$#,##0.00';
         
-        const totalExpenses = Object.values(categoryData).reduce((sum, val) => sum + val, 0);
-        Object.entries(categoryData)
-            .sort((a, b) => b[1] - a[1])
-            .slice(0, 10)  // Top 10 categories
-            .forEach(([category, amount]) => {
-                const percentage = totalExpenses > 0 ? amount / totalExpenses : 0;
-                chartData.push([category, amount, percentage]);
-            });
-        
-        chartData.push(['']);
-        chartData.push(['Key Performance Indicators']);
-        chartData.push(['KPI', 'Value', 'Target', 'Status']);
-        chartData.push(['Savings Rate', savingsRate / 100, 0.50, savingsRate >= 50 ? 'On Target' : 'Below Target']);
-        chartData.push(['Expense Ratio', expenses / income, 0.50, (expenses / income) <= 0.50 ? 'Good' : 'High']);
-        
-        const ws_charts = XLSX.utils.aoa_to_sheet(chartData);
-        
-        // Set column widths for chart data
-        ws_charts['!cols'] = [
-            { wch: 25 },
-            { wch: 18 },
-            { wch: 18 },
-            { wch: 18 },
-            { wch: 15 }
-        ];
-        
-        // Format chart data sheet
-        // Income vs Expenses section
-        if (ws_charts['B5']) ws_charts['B5'].z = currencyFormat;
-        if (ws_charts['B6']) ws_charts['B6'].z = currencyFormat;
-        if (ws_charts['B7']) ws_charts['B7'].z = currencyFormat;
-        
-        // Monthly breakdown
-        const monthlyStartRow = 11;
-        for (let i = 0; i < monthlyData.length; i++) {
-            const row = monthlyStartRow + i;
-            if (ws_charts[`B${row}`]) ws_charts[`B${row}`].z = currencyFormat;
-            if (ws_charts[`C${row}`]) ws_charts[`C${row}`].z = currencyFormat;
-            if (ws_charts[`D${row}`]) ws_charts[`D${row}`].z = currencyFormat;
-            if (ws_charts[`E${row}`]) ws_charts[`E${row}`].z = percentFormat;
-        }
-        
-        // Category breakdown
-        const categoryStartRow = monthlyStartRow + monthlyData.length + 4;
-        for (let i = 0; i < Math.min(10, Object.keys(categoryData).length); i++) {
-            const row = categoryStartRow + i;
-            if (ws_charts[`B${row}`]) ws_charts[`B${row}`].z = currencyFormat;
-            if (ws_charts[`C${row}`]) ws_charts[`C${row}`].z = percentFormat;
-        }
-        
-        // KPI section
-        const kpiStartRow = categoryStartRow + Math.min(10, Object.keys(categoryData).length) + 4;
-        if (ws_charts[`B${kpiStartRow}`]) ws_charts[`B${kpiStartRow}`].z = percentFormat;
-        if (ws_charts[`C${kpiStartRow}`]) ws_charts[`C${kpiStartRow}`].z = percentFormat;
-        if (ws_charts[`B${kpiStartRow + 1}`]) ws_charts[`B${kpiStartRow + 1}`].z = percentFormat;
-        if (ws_charts[`C${kpiStartRow + 1}`]) ws_charts[`C${kpiStartRow + 1}`].z = percentFormat;
-        
-        XLSX.utils.book_append_sheet(wb, ws_charts, 'Chart Data');
-        
-        // === SHEET 4: INSTRUCTIONS ===
-        const instructionsData = [
-            ['HOW TO CREATE CHARTS IN EXCEL'],
-            [''],
-            ['This Excel file contains your financial data organized into multiple sheets:'],
-            [''],
-            ['1. Summary - Overview of your financial metrics and category breakdown'],
-            ['2. Transactions - Detailed list of all transactions'],
-            ['3. Chart Data - Pre-formatted data ready for visualization'],
-            ['4. Instructions - This sheet'],
-            [''],
-            ['TO CREATE CHARTS:'],
-            [''],
-            ['Option 1: Quick Charts (Excel 2016+)'],
-            ['  1. Go to the "Chart Data" sheet'],
-            ['  2. Select the data range you want to visualize'],
-            ['  3. Click Insert > Recommended Charts'],
-            ['  4. Choose your preferred chart style'],
-            [''],
-            ['Option 2: Manual Chart Creation'],
-            ['  1. Go to the "Chart Data" sheet'],
-            ['  2. For Income vs Expenses chart:'],
-            ['     - Select cells A4:B7'],
-            ['     - Click Insert > Column Chart or Bar Chart'],
-            ['  3. For Monthly Trend:'],
-            ['     - Select the monthly data (including headers)'],
-            ['     - Click Insert > Line Chart'],
-            ['  4. For Category Breakdown:'],
-            ['     - Select category data with amounts'],
-            ['     - Click Insert > Pie Chart or Doughnut Chart'],
-            [''],
-            ['RECOMMENDED VISUALIZATIONS:'],
-            [''],
-            ['• Income vs Expenses vs Net Balance → Column Chart'],
-            ['• Monthly Breakdown → Line Chart or Combo Chart'],
-            ['• Category Breakdown → Pie Chart or Doughnut Chart'],
-            ['• Savings Rate Over Time → Line Chart with markers'],
-            [''],
-            ['TIP: Use conditional formatting on the Summary sheet to highlight'],
-            ['      important metrics and trends.'],
-            [''],
-            ['Questions? Visit: https://support.microsoft.com/en-us/office/create-a-chart']
-        ];
-        
-        const ws_instructions = XLSX.utils.aoa_to_sheet(instructionsData);
-        ws_instructions['!cols'] = [{ wch: 80 }];
-        
-        XLSX.utils.book_append_sheet(wb, ws_instructions, 'Instructions');
-        
-        // Generate filename
+        // ==========================================
+        // DOWNLOAD
+        // ==========================================
+        const buffer = await workbook.xlsx.writeBuffer();
         const fileName = dom.fileName ? dom.fileName.textContent : 'Financial_Report';
-        const date = new Date().toISOString().split('T')[0];
-        const filename = `${fileName.replace(/[^a-zA-Z0-9]/g, '_')}_${date}.xlsx`;
-        
-        // Write file
-        XLSX.writeFile(wb, filename);
+        const dateStr = new Date().toISOString().split('T')[0];
+        const finalName = `${fileName.replace(/[^a-zA-Z0-9]/g, '_')}_${dateStr}.xlsx`;
+
+        const blob = new Blob([buffer], { type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' });
+        const link = document.createElement('a');
+        link.href = URL.createObjectURL(blob);
+        link.download = finalName;
+        link.click();
         
         hideLoading();
-        showNotification('Excel file exported successfully! Open it to create charts.', 'success');
+        showNotification('Full Dashboard Exported Successfully!', 'success');
         
     } catch (error) {
+        console.error(error);
         hideLoading();
-        showNotification('Failed to export Excel file. Please try again.', 'error');
+        showNotification('Export failed: ' + error.message, 'error');
     }
 }
 

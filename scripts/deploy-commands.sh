@@ -1,7 +1,7 @@
 #!/bin/bash
-# StatementProMax - Git Deployment Commands
+# FlashConverter - Git Deployment Commands
 
-echo "🚀 Deploying StatementProMax..."
+echo "🚀 Deploying FlashConverter..."
 echo ""
 
 # Stage all changes
@@ -10,9 +10,9 @@ git add .
 
 # Commit
 echo "💾 Committing changes..."
-git commit -m "Deploy StatementProMax v1.0
+git commit -m "Deploy FlashConverter v1.0
 
-- Complete rebrand to StatementProMax
+- Complete rebrand to FlashConverter
 - Fixed 11 critical bugs (memory leaks, redundant code)
 - Added Buzzoid-inspired UI improvements
 - Optimized performance (~50% memory reduction)
@@ -28,7 +28,7 @@ else
     echo "⚠️  No remote repository found!"
     echo ""
     echo "Please create a GitHub repository and run:"
-    echo "git remote add origin https://github.com/YOUR_USERNAME/statementpromax.git"
+    echo "git remote add origin https://github.com/YOUR_USERNAME/flashconverter.git"
     echo "git push -u origin main"
     echo ""
 fi

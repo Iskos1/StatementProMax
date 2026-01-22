@@ -1,4 +1,4 @@
-# StatementProMax 📊
+# FlashConverter 📊
 
 > Secure bank statement conversion and financial analysis platform
 
@@ -6,7 +6,7 @@
 
 ```bash
 
-https://iskos1.github.io/StatementProMax/
+https://iskos1.github.io/FlashConverter/
 # Start local server (Python 3)
 python3 -m http.server 8080
 

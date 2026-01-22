@@ -1,7 +1,7 @@
 // Quick Start Guide Modal for First-Time Users
 // Provides a friendly onboarding experience
 
-const GUIDE_STORAGE_KEY = 'statementpromax_guide_shown';
+const GUIDE_STORAGE_KEY = 'flashconverter_guide_shown';
 
 // Check if user has seen the guide
 function hasSeenGuide() {
@@ -29,7 +29,7 @@ export function showQuickStartGuide() {
             <button class="auth-modal-close" onclick="this.closest('.auth-modal').remove(); localStorage.setItem('${GUIDE_STORAGE_KEY}', 'true');">&times;</button>
             
             <div class="auth-modal-header">
-                <h2>👋 Welcome to StatementProMax!</h2>
+                <h2>👋 Welcome to FlashConverter!</h2>
                 <p>Let's get you started in just 3 simple steps</p>
             </div>
             

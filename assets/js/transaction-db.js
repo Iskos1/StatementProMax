@@ -1,5 +1,8 @@
 // Transaction Database - IndexedDB for Persistent Categorization Learning
 // This module provides persistent storage for transaction categorization patterns
+// 
+// Cloud Sync: This module supports optional cloud syncing via hooks.
+// Use setCloudSyncHook() to register a callback that will be called when data is saved.
 
 const DB_NAME = 'TransactionCategorizationDB';
 const DB_VERSION = 2; // Incremented to add FILE_HISTORY store
@@ -11,6 +14,17 @@ const STORES = {
 };
 
 let dbInstance = null;
+
+// Cloud sync hook - can be set by external code (e.g., profileManager)
+let cloudSyncHook = null;
+
+/**
+ * Set a callback for cloud syncing when patterns are saved
+ * @param {Function} hook - Callback function(type, data) where type is 'pattern' or 'file'
+ */
+export function setCloudSyncHook(hook) {
+    cloudSyncHook = hook;
+}
 
 /**
  * Initialize the IndexedDB database
@@ -127,11 +141,22 @@ export async function saveCategorization(description, category, amount = null) {
     
     if (existing) {
         // Update existing pattern
-        return await updatePattern(existing.id, {
+        const result = await updatePattern(existing.id, {
             usageCount: existing.usageCount + 1,
             lastUsed: Date.now(),
             examples: [...(existing.examples || []), description].slice(-10) // Keep last 10 examples
         });
+        
+        // Trigger cloud sync hook if available
+        if (cloudSyncHook) {
+            try {
+                cloudSyncHook('pattern', { merchantName, category, description, confidence: existing.confidence || 0.8 });
+            } catch (e) {
+                console.warn('[TransactionDB] Cloud sync hook failed:', e);
+            }
+        }
+        
+        return result;
     }
     
     // Create new pattern
@@ -154,6 +179,14 @@ export async function saveCategorization(description, category, amount = null) {
         const request = store.add(pattern);
         
         request.onsuccess = () => {
+            // Trigger cloud sync hook if available
+            if (cloudSyncHook) {
+                try {
+                    cloudSyncHook('pattern', { merchantName, category, description, confidence: 0.7 });
+                } catch (e) {
+                    console.warn('[TransactionDB] Cloud sync hook failed:', e);
+                }
+            }
             resolve(request.result);
         };
         

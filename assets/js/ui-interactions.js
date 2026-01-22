@@ -313,12 +313,46 @@ function initMobileMenu() {
     
     if (!toggle || !navLinks) return;
     
-    toggle.addEventListener('click', () => {
+    // Internal Header Injection (Full-Screen Takeover)
+    if (!navLinks.querySelector('.mobile-menu-header')) {
+        const header = document.createElement('div');
+        header.className = 'mobile-menu-header';
+        
+        // Clone Logo
+        const originalLogoLink = document.querySelector('.logo-link');
+        if (originalLogoLink) {
+            const logoClone = originalLogoLink.cloneNode(true);
+            logoClone.removeAttribute('id');
+            // Ensure no duplicate IDs in SVG if any (simple fix)
+            header.appendChild(logoClone);
+        }
+        
+        // Create Close Button
+        const closeBtn = document.createElement('button');
+        closeBtn.className = 'mobile-menu-close-btn';
+        closeBtn.innerHTML = '✕';
+        closeBtn.ariaLabel = 'Close menu';
+        
+        closeBtn.addEventListener('click', (e) => {
+            e.stopPropagation(); // Prevent bubbling
+            toggle.classList.remove('active');
+            navLinks.classList.remove('mobile-open');
+        });
+        
+        header.appendChild(closeBtn);
+        
+        // Insert at the top
+        navLinks.insertBefore(header, navLinks.firstChild);
+    }
+    
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
         toggle.classList.toggle('active');
         navLinks.classList.toggle('mobile-open');
     });
     
     // Close menu when clicking a link
+    // Re-query to include the new logo link if needed, or just existing links
     const links = navLinks.querySelectorAll('a');
     links.forEach(link => {
         link.addEventListener('click', () => {
@@ -327,9 +361,9 @@ function initMobileMenu() {
         });
     });
     
-    // Close menu when clicking outside
-    document.addEventListener('click', (e) => {
-        if (!toggle.contains(e.target) && !navLinks.contains(e.target)) {
+    // Close on Escape key
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && navLinks.classList.contains('mobile-open')) {
             toggle.classList.remove('active');
             navLinks.classList.remove('mobile-open');
         }

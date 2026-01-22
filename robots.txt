@@ -6,5 +6,5 @@ Disallow: /api/
 Disallow: /auth/
 
 # Sitemap location
-Sitemap: https://statementpro.com/sitemap.xml
+Sitemap: https://flashconverter.com/sitemap.xml
 
