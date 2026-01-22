@@ -34,7 +34,6 @@ class ProfileManager {
             const { init } = await import('https://cdn.jsdelivr.net/npm/@instantdb/core@0.14.30/+esm');
             this.db = init({ appId: APP_ID });
             this.isInitialized = true;
-            console.log('[ProfileManager] Initialized');
             return this.db;
         } catch (error) {
             console.error('[ProfileManager] Failed to initialize:', error);
@@ -53,7 +52,6 @@ class ProfileManager {
         }
 
         this.user = user;
-        console.log('[ProfileManager] User set:', user.email);
 
         // Start subscriptions for user data
         this.subscribeToProfile();
@@ -147,7 +145,6 @@ class ProfileManager {
             const currentKey = localStorage.getItem('openai_api_key');
             if (currentKey !== this.profile.openaiKey) {
                 localStorage.setItem('openai_api_key', this.profile.openaiKey);
-                console.log('[ProfileManager] Synced OpenAI key from cloud');
             }
         }
     }
@@ -169,7 +166,6 @@ class ProfileManager {
                     updatedAt: Date.now()
                 })
             );
-            console.log('[ProfileManager] OpenAI key saved to cloud');
             return true;
         } catch (error) {
             console.error('[ProfileManager] Failed to save OpenAI key:', error);
@@ -183,7 +179,6 @@ class ProfileManager {
      */
     async saveFileToHistory(fileData) {
         if (!this.db || !this.user) {
-            console.log('[ProfileManager] Skipping cloud save - not authenticated');
             return null;
         }
 
@@ -211,7 +206,6 @@ class ProfileManager {
                 this.db.tx.fileHistory[fileId].update(record)
             );
             
-            console.log('[ProfileManager] File saved to cloud history:', fileData.fileName);
             return fileId;
         } catch (error) {
             console.error('[ProfileManager] Failed to save file to history:', error);
@@ -230,7 +224,6 @@ class ProfileManager {
             await this.db.transact(
                 this.db.tx.fileHistory[fileId].delete()
             );
-            console.log('[ProfileManager] File deleted from cloud history:', fileId);
             return true;
         } catch (error) {
             console.error('[ProfileManager] Failed to delete file:', error);
@@ -341,7 +334,6 @@ class ProfileManager {
         this.profile = null;
         this.fileHistory = [];
         this.patterns = [];
-        console.log('[ProfileManager] Cleaned up');
     }
 
     /**

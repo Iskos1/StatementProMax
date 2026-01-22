@@ -297,11 +297,8 @@ async function initializeDashboardFeatures() {
     // First, try IndexedDB (handles files > 5MB)
     try {
         pendingFile = await getPendingAnalysisFile();
-        if (pendingFile) {
-            console.log('Found pending file in IndexedDB:', pendingFile.name);
-        }
     } catch (error) {
-        console.log('IndexedDB pending file check failed:', error);
+        // Silent error
     }
     
     // Fallback to sessionStorage if IndexedDB didn't have the file
@@ -309,7 +306,6 @@ async function initializeDashboardFeatures() {
         const sessionData = safeSessionStorageGet('pendingAnalysisFile');
         if (sessionData) {
             pendingFile = sessionData;
-            console.log('Found pending file in sessionStorage:', pendingFile.name);
         }
     }
     
@@ -320,10 +316,7 @@ async function initializeDashboardFeatures() {
     if (pendingFile) {
         const dataAge = Date.now() - (pendingFile.timestamp || 0);
         if (dataAge < 10 * 60 * 1000) { // 10 minutes instead of 5
-            console.log('Loading pending analysis file:', pendingFile.name, 'age:', Math.round(dataAge/1000), 'seconds');
             loadConvertedFile(pendingFile.name, pendingFile.data, pendingFile.year || null);
-        } else {
-            console.log('Pending file too old, skipping:', Math.round(dataAge/1000/60), 'minutes');
         }
     }
 }
@@ -1232,14 +1225,6 @@ function processFile(file, providedYear = null) {
             return;
         }
         
-        console.log('Processing file:', {
-            name: file.name,
-            size: file.size,
-            type: file.type,
-            lastModified: file.lastModified,
-            providedYear: providedYear
-        });
-        
         const reader = new FileReader();
         
         // Add timeout for file reading
@@ -1256,10 +1241,6 @@ function processFile(file, providedYear = null) {
                 }
                 
                 const data = new Uint8Array(e.target.result);
-                console.log('File data loaded:', {
-                    dataLength: data.length,
-                    byteLength: e.target.result.byteLength
-                });
                 
                 if (!window.XLSX) {
                     throw new Error('XLSX library not loaded. Please refresh the page.');
@@ -1268,11 +1249,6 @@ function processFile(file, providedYear = null) {
                 let workbook;
                 try {
                     workbook = XLSX.read(data, { type: 'array' });
-                    console.log('XLSX.read result:', {
-                        status: 'success',
-                        sheetCount: workbook.SheetNames?.length || 0,
-                        sheetNames: workbook.SheetNames || []
-                    });
                 } catch (xlsxError) {
                     console.error('XLSX.read error:', {
                         error: xlsxError.message,
@@ -1289,30 +1265,12 @@ function processFile(file, providedYear = null) {
                 const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
                 const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
                 
-                // Log sheet data for diagnostics
-                console.log('Sheet data:', {
-                    rowCount: jsonData?.length || 0,
-                    firstFewRows: jsonData?.slice(0, 5).map(row => 
-                        row?.map(cell => String(cell || '').substring(0, 50)) || []
-                    )
-                });
-                
                 if (!jsonData || jsonData.length === 0) {
                     throw new Error('No data found in sheet');
                 }
                 
                 // Process transactions with optional year correction
                 const fileTransactions = await parseTransactions(jsonData, providedYear);
-                
-                console.log('Parsed transactions:', {
-                    transactionCount: fileTransactions?.length || 0,
-                    sampleTransaction: fileTransactions?.[0] ? {
-                        date: fileTransactions[0].date,
-                        description: fileTransactions[0].description?.substring(0, 50),
-                        amount: fileTransactions[0].amount,
-                        category: fileTransactions[0].category
-                    } : null
-                });
                 
                 if (!fileTransactions || fileTransactions.length === 0) {
                     throw new Error('No valid transactions found');
@@ -2614,14 +2572,6 @@ async function parseTransactions(data, providedYear = null) {
     
     const headers = data[headerRowIndex].map(h => String(h || '').toLowerCase().trim());
     
-    // Log headers for debugging
-    console.log('Parsed headers:', {
-        headerRowIndex: headerRowIndex,
-        dataStartIndex: dataStartIndex,
-        headers: headers,
-        rawHeaders: data[headerRowIndex]
-    });
-    
     // More flexible column detection - supports many bank formats including Wells Fargo
     // Wells Fargo specific headers: "Date", "Number", "Description", "Credit", "Debit"
     const dateCol = findColumnIndex(headers, [
@@ -2666,18 +2616,6 @@ async function parseTransactions(data, providedYear = null) {
         // Wells Fargo specific
         'debits', 'debit amt'
     ]);
-    
-    // Log detected columns with header names for debugging
-    console.log('Detected columns:', {
-        dateCol: `${dateCol} (${headers[dateCol] || 'N/A'})`,
-        descCol: `${descCol} (${headers[descCol] || 'N/A'})`,
-        amountCol: `${amountCol} (${headers[amountCol] || 'N/A'})`,
-        balanceCol: `${balanceCol} (${headers[balanceCol] || 'N/A'})`,
-        creditCol: `${creditCol} (${headers[creditCol] || 'N/A'})`,
-        debitCol: `${debitCol} (${headers[debitCol] || 'N/A'})`,
-        hasAmountColumn: amountCol !== -1,
-        hasSeparateColumns: creditCol !== -1 || debitCol !== -1
-    });
     
     // If we couldn't find columns, try auto-detection from data
     let autoDetected = false;
@@ -2782,19 +2720,7 @@ async function parseTransactions(data, providedYear = null) {
     // Sort by date (newest first)
     transactions.sort((a, b) => b.date - a.date);
     
-    // Log parsing results
     const autoCategorized = transactions.filter(t => t.isLearned && t.source === 'database').length;
-    
-    // Diagnostic log for parsing completion
-    console.log('Parsing complete:', {
-        totalParsed: transactions.length,
-        skippedRows: skippedRows,
-        autoCategorized: autoCategorized,
-        dateRange: transactions.length > 0 ? {
-            earliest: transactions[transactions.length - 1]?.date,
-            latest: transactions[0]?.date
-        } : null
-    });
     
     // If no transactions were parsed, log detailed error info
     if (transactions.length === 0) {

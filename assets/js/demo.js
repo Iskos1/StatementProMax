@@ -73,7 +73,6 @@ async function handleDemoDrop() {
 }
 
 async function processDemoFile() {
-    console.log('📄 Loading sample PDF...');
     
     try {
         // Fetch the sample PDF
@@ -91,7 +90,6 @@ async function processDemoFile() {
         });
         file.isDemoFile = true; // Mark for special handling
         
-        console.log('✅ Sample PDF loaded:', file.size, 'bytes');
     
         // Add file to converter
         const fileInput = document.getElementById('fileInput');
@@ -106,7 +104,6 @@ async function processDemoFile() {
             const fileList = document.getElementById('fileListContainer');
             if (fileList && fileList.style.display !== 'none') {
                 fileList.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                console.log('✨ Sample PDF added to converter!');
             }
         }
     } catch (error) {

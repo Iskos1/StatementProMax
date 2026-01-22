@@ -614,11 +614,6 @@ export async function exportData() {
         };
         
         transaction.oncomplete = () => {
-            console.log('Export data ready:', {
-                patterns: data.patterns.length,
-                transactions: data.transactions.length,
-                dissimilarPairs: data.dissimilarPairs.length
-            });
             resolve(data);
         };
         
@@ -877,7 +872,6 @@ export async function storePendingAnalysisFile(fileData) {
                 const putRequest = store.put(record);
                 
                 putRequest.onsuccess = () => {
-                    console.log('Pending analysis file stored in IndexedDB:', fileData.name);
                     resolve(true);
                 };
                 
@@ -931,7 +925,6 @@ export async function getPendingAnalysisFile() {
                     const deleteRequest = store.delete(PENDING_FILE_KEY);
                     
                     deleteRequest.onsuccess = () => {
-                        console.log('Retrieved and cleared pending analysis file:', record.fileName);
                         resolve({
                             name: record.fileName,
                             data: record.fileData,

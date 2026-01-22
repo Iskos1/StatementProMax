@@ -609,7 +609,6 @@ async function filterTransactionsPage(excelBlob) {
             type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet' 
         });
 
-        console.log('✅ Created formatted Excel with', cleanData.length - 1, 'transactions');
         return filteredBlob;
 
     } catch (error) {
@@ -629,7 +628,6 @@ function loadExcelJSLibrary() {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/exceljs@4.3.0/dist/exceljs.min.js';
         script.onload = function() {
-            console.log('✅ ExcelJS library loaded (formatting enabled)');
             resolve();
         };
         script.onerror = function() {
@@ -651,7 +649,6 @@ function loadXLSXLibrary() {
         const script = document.createElement('script');
         script.src = 'https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js';
         script.onload = function() {
-            console.log('✅ XLSX library loaded (for parsing)');
             resolve();
         };
         script.onerror = function() {
