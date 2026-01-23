@@ -6,7 +6,7 @@
 }
 
 body {
-    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
+    font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Helvetica Neue', Arial, sans-serif;
     font-size: var(--font-base);
     line-height: var(--line-relaxed);
     color: #1a1a1a;
@@ -420,30 +420,32 @@ button.logo-link {
     transform: translateY(-7px) rotate(-45deg);
 }
 
-/* Buttons - Clean style */
+/* Buttons - Clean style matching landing page */
 .btn-primary,
 .btn-primary-large {
-    background: var(--primary);
+    background: linear-gradient(135deg, var(--primary), #fb923c); /* Match landing */
     color: white;
     border: none;
     padding: 14px 28px;
-    border-radius: 8px;
+    border-radius: 12px; /* Increased radius */
     font-size: 15px;
-    font-weight: 600;
+    font-weight: 500; /* Adjusted weight */
     cursor: pointer;
     letter-spacing: -0.01em;
-    transition: background-color 0.2s ease;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(255, 106, 61, 0.25); /* Added glow */
 }
 
 .btn-primary:hover,
 .btn-primary-large:hover {
-    background: var(--primary-dark);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(255, 106, 61, 0.35);
 }
 
 .btn-primary-large {
     padding: 16px 40px;
     font-size: var(--font-base, 16px);
-    font-weight: 600;
+    font-weight: 500;
 }
 
 .btn-secondary {
@@ -451,38 +453,39 @@ button.logo-link {
     color: var(--primary);
     border: 2px solid var(--primary);
     padding: 14px 28px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: 15px;
-    font-weight: 700;
+    font-weight: 600;
     text-decoration: none;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-secondary:hover {
-    background: #ff6a3d;
+    background: var(--primary);
     color: white;
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.25);
+    transform: translateY(-1px);
 }
 
 .btn-outline {
     background: white;
     color: #1a1a1a;
-    border: 2px solid #e5e5e5;
+    border: 1px solid #e5e5e5; /* Thinner border */
     padding: 12px 24px;
-    border-radius: 10px;
+    border-radius: 12px;
     font-size: var(--font-sm);
-    font-weight: 600;
+    font-weight: 500;
     cursor: pointer;
     width: 100%;
-    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+    transition: all 0.2s ease;
 }
 
 .btn-outline:hover {
-    border-color: #ff6a3d;
+    border-color: var(--primary);
     background: #fff8f5;
-    color: #ff6a3d;
+    color: var(--primary);
 }
 
 /* Hero Section - Clean & Simple */
@@ -1609,22 +1612,29 @@ button.logo-link {
     box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06);
 }
 
+/* Converter Header adjustments to match Landing Hero */
 .converter-header h1 {
-    font-size: 44px;
-    font-weight: 700;
-    margin-bottom: 16px;
+    font-family: 'Instrument Serif', Georgia, serif;
+    font-size: clamp(48px, 10vw, 64px); /* Slightly smaller than landing to fit UI */
+    font-weight: 400;
+    line-height: 1.05;
+    letter-spacing: -0.03em;
+    margin-bottom: 24px;
     color: var(--text-primary);
-    letter-spacing: -0.02em;
-    line-height: 1.2;
+}
+
+.converter-header h1 em {
+    font-style: italic;
+    color: var(--primary);
 }
 
 .converter-subtitle {
-    font-size: 17px;
+    font-size: clamp(16px, 2vw, 20px);
     color: var(--text-secondary);
-    max-width: 540px;
-    margin: 0 auto 16px;
+    max-width: 600px;
+    margin: 0 auto 32px;
+    font-weight: 300;
     line-height: 1.6;
-    font-weight: 400;
 }
 
 .cta-urgency {
@@ -1828,31 +1838,39 @@ button.logo-link {
     margin: 0 auto 40px;
 }
 
+/* Upload Card - Refined to match Landing Cards */
 .upload-card {
     background: white;
-    border-radius: 12px;
-    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+    padding: 48px;
+    border-radius: 20px; /* Increased radius */
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -1px rgba(0, 0, 0, 0.03); /* Softer shadow */
+    text-align: center;
+    border: 1px solid rgba(0, 0, 0, 0.05); /* Subtle border */
+    transition: transform 0.2s ease;
 }
 
 .upload-area {
-    background: white;
-    border: 2px dashed var(--border);
-    border-radius: 12px;
-    padding: 48px 32px;
-    text-align: center;
+    border: 2px dashed #e2e8f0; /* Lighter dash */
+    border-radius: 16px; /* Increased radius */
+    padding: 60px 40px;
+    margin: 32px 0;
     cursor: pointer;
-    transition: border-color 0.2s ease, background-color 0.2s ease;
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    background: #fafafa; /* Subtle background */
     will-change: background-color, border-color;
+    text-align: center;
 }
 
 .upload-area:hover {
     border-color: var(--primary);
     background: #fff8f5;
+    transform: translateY(-2px); /* Lift effect */
 }
 
 .upload-area.drag-over {
     border-color: var(--primary);
     background: #fff0eb;
+    transform: scale(1.01);
 }
 
 .upload-icon-large {
