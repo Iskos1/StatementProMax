@@ -276,6 +276,10 @@
             
             <div class="review-actions-bar">
                 <button class="btn-outline" id="aiSuggestBtn" style="border-color: #10a37f; color: #10a37f;">✨ AI Suggest</button>
+                <span id="aiStatusIndicator" style="display: none; margin-left: 10px; color: #10a37f; font-weight: 600; align-items: center; gap: 6px;">
+                    <span class="spinner-small" style="width: 16px; height: 16px; border: 2px solid #e0e0e0; border-top-color: #10a37f; border-radius: 50%; animation: spin 1s linear infinite; display: inline-block;"></span>
+                    <span>AI is working...</span>
+                </span>
                 <button class="btn-outline" id="approveAllBtn">✓ Approve All</button>
                 <button class="btn-outline" id="skipBtn">Skip Review (Use As-Is)</button>
                 <button class="btn-primary" id="finishReviewBtn">Finish & Apply</button>

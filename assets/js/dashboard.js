@@ -3610,6 +3610,13 @@ async function handleAiSuggest(silent = false) {
         return;
     }
     
+    // Show local indicator in Review Modal (visible even if silent)
+    const aiStatusIndicator = document.getElementById('aiStatusIndicator');
+    const aiSuggestBtn = document.getElementById('aiSuggestBtn');
+    
+    if (aiStatusIndicator) aiStatusIndicator.style.display = 'inline-flex';
+    if (aiSuggestBtn) aiSuggestBtn.disabled = true;
+
     if (!silent) showLoading();
     
     // Timer for user feedback
@@ -3695,6 +3702,9 @@ async function handleAiSuggest(silent = false) {
     } finally {
         if (timerInterval) clearInterval(timerInterval);
         if (!silent) hideLoading();
+        
+        if (aiStatusIndicator) aiStatusIndicator.style.display = 'none';
+        if (aiSuggestBtn) aiSuggestBtn.disabled = false;
     }
 }
 
