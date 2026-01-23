@@ -100,7 +100,7 @@
 }
 
 .help-icon:hover {
-    background: #ff6a3d;
+    background: #0d9488;
     color: white;
 }
 
@@ -157,9 +157,9 @@
 }
 
 .progress-step.active .progress-step-circle {
-    border-color: #ff6a3d;
-    color: #ff6a3d;
-    box-shadow: 0 0 0 4px rgba(255, 107, 107, 0.1);
+    border-color: #0d9488;
+    color: #0d9488;
+    box-shadow: 0 0 0 4px rgba(13, 148, 136, 0.1);
 }
 
 .progress-step-label {
@@ -170,7 +170,7 @@
 }
 
 .progress-step.active .progress-step-label {
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 .progress-step.completed .progress-step-label {
@@ -229,7 +229,7 @@
 
 /* === Focus Visible for Accessibility === */
 *:focus-visible {
-    outline: 3px solid #ff6a3d;
+    outline: 3px solid #0d9488;
     outline-offset: 2px;
     border-radius: 4px;
 }
@@ -299,7 +299,7 @@
 }
 
 .breadcrumb-item a:hover {
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 .breadcrumb-separator {
@@ -359,8 +359,8 @@
 .input-group select:focus,
 .input-group textarea:focus {
     outline: none;
-    border-color: #ff6a3d;
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 .input-group.error input,

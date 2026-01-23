@@ -30,7 +30,7 @@
         }
 
         .blog-hero .highlight {
-            background: linear-gradient(135deg, #ff6a3d 0%, #ff8f5a 100%);
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
@@ -64,14 +64,14 @@
         }
 
         .category-tag:hover {
-            border-color: #ff6a3d;
-            color: #ff6a3d;
+            border-color: #0d9488;
+            color: #0d9488;
             transform: translateY(-2px);
         }
         
         .category-tag.active {
-            background: linear-gradient(135deg, #ff6a3d 0%, #ff8f5a 100%);
-            border-color: #ff6a3d;
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
+            border-color: #0d9488;
             color: white;
         }
 
@@ -106,12 +106,12 @@
         .blog-post-card:hover {
             transform: translateY(-4px);
             box-shadow: 0 8px 24px rgba(255, 107, 107, 0.15);
-            border-color: #ff6a3d;
+            border-color: #0d9488;
         }
 
         .post-image {
             height: 200px;
-            background: linear-gradient(135deg, #ff6a3d 0%, #ff8f5a 100%);
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
             position: relative;
             display: none; /* Hide emoji images for cleaner look */
         }
@@ -140,7 +140,7 @@
             display: inline-block;
             padding: 6px 16px;
             background: #FFF5F5;
-            color: #ff6a3d;
+            color: #0d9488;
             border-radius: 16px;
             font-size: 13px;
             font-weight: 600;
@@ -178,7 +178,7 @@
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            color: #ff6a3d;
+            color: #0d9488;
             text-decoration: none;
             font-weight: 600;
             font-size: 15px;
@@ -187,7 +187,7 @@
 
         .read-more:hover {
             gap: 12px;
-            color: #ff8f5a;
+            color: #14b8a6;
         }
 
         .sidebar {
@@ -241,7 +241,7 @@
         }
 
         .popular-posts a:hover {
-            color: #ff6a3d;
+            color: #0d9488;
         }
 
         .popular-posts .post-date {
@@ -269,13 +269,13 @@
         }
 
         .tag:hover {
-            background: #ff6a3d;
+            background: #0d9488;
             color: white;
             transform: scale(1.05);
         }
 
         .newsletter-box {
-            background: linear-gradient(135deg, #ff6a3d 0%, #ff8f5a 100%);
+            background: linear-gradient(135deg, #0d9488 0%, #14b8a6 100%);
             padding: 32px;
             border-radius: 12px;
             color: white;
@@ -333,7 +333,7 @@
 
         .newsletter-form button:hover {
             background: white;
-            color: #ff6a3d;
+            color: #0d9488;
             transform: scale(1.02);
         }
 
@@ -427,11 +427,14 @@
                     <div class="logo">
                         <div class="logo-icon-wrapper">
                             <svg class="logo-icon-svg" width="32" height="32" viewBox="0 0 32 32" fill="none">
-                                <rect x="4" y="8" width="4" height="16" rx="2" fill="#ff6a3d"/>
-                                <rect x="10" y="12" width="4" height="12" rx="2" fill="#ff8f5a"/>
-                                <rect x="16" y="6" width="4" height="18" rx="2" fill="#ff6a3d"/>
-                                <rect x="22" y="10" width="4" height="14" rx="2" fill="#ff8f5a"/>
-                                <path d="M2 24 L30 24" stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"/>
+                                <path d="M18 3L8 17h7l-2 12 12-16h-8l3-10z" fill="url(#flashGradientBlog)" stroke="#0d9488" stroke-width="1.5" stroke-linejoin="round"/>
+                                <path d="M22 22l4 4m0 0l-4 4m4-4H18" stroke="#14b8a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+                                <defs>
+                                    <linearGradient id="flashGradientBlog" x1="8" y1="3" x2="23" y2="29" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0%" stop-color="#0d9488"/>
+                                        <stop offset="100%" stop-color="#5eead4"/>
+                                    </linearGradient>
+                                </defs>
                             </svg>
                         </div>
                         <span class="logo-text">Flash<span class="logo-accent">Converter</span></span>
@@ -631,7 +634,7 @@
 
                     <!-- CTA Box -->
                     <div class="sidebar-section" style="background: linear-gradient(135deg, #FFF5F5 0%, #FFEBEB 100%); text-align: center; border: 2px solid #FFD6D6;">
-                        <h3 style="color: #ff6a3d;">Try Our Converter</h3>
+                        <h3 style="color: #0d9488;">Try Our Converter</h3>
                         <p style="margin-bottom: 20px; color: #4a4a4a;">Convert your bank statements to Excel in seconds.</p>
                         <a href="../index.html" class="btn-primary" style="display: inline-block; text-decoration: none;">Get Started Free</a>
                     </div>
@@ -668,11 +671,14 @@
             <div class="footer-brand">
                 <div class="footer-logo">
                     <svg class="footer-logo-icon" width="28" height="28" viewBox="0 0 32 32" fill="none">
-                        <rect x="4" y="8" width="4" height="16" rx="2" fill="#ff6a3d"/>
-                        <rect x="10" y="12" width="4" height="12" rx="2" fill="#ff8f5a"/>
-                        <rect x="16" y="6" width="4" height="18" rx="2" fill="#ff6a3d"/>
-                        <rect x="22" y="10" width="4" height="14" rx="2" fill="#ff8f5a"/>
-                        <path d="M2 24 L30 24" stroke="#ff6a3d" stroke-width="2" stroke-linecap="round"/>
+                        <path d="M18 3L8 17h7l-2 12 12-16h-8l3-10z" fill="url(#footerFlashGradientBlog)" stroke="#0d9488" stroke-width="1.5" stroke-linejoin="round"/>
+                        <path d="M22 22l4 4m0 0l-4 4m4-4H18" stroke="#14b8a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" opacity="0.9"/>
+                        <defs>
+                            <linearGradient id="footerFlashGradientBlog" x1="8" y1="3" x2="23" y2="29" gradientUnits="userSpaceOnUse">
+                                <stop offset="0%" stop-color="#0d9488"/>
+                                <stop offset="100%" stop-color="#5eead4"/>
+                            </linearGradient>
+                        </defs>
                     </svg>
                     <span class="footer-logo-text">Flash<span class="logo-accent">Converter</span></span>
                 </div>

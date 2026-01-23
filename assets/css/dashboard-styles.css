@@ -108,7 +108,7 @@ html {
 }
 
 .active {
-    color: #ff6a3d !important;
+    color: #0d9488 !important;
     font-weight: 600;
 }
 
@@ -149,8 +149,8 @@ html {
 }
 
 .upload-area:hover {
-    border-color: #ff6a3d;
-    background: #fff5f5;
+    border-color: #0d9488;
+    background: #f0fdfa;
 }
 
 .upload-area.drag-over {
@@ -200,9 +200,9 @@ html {
     gap: 8px;
     margin-top: 32px;
     padding: 16px;
-    background: #f0f8f5;
+    background: #f0fdfa;
     border-radius: 8px;
-    color: #ff6a3d;
+    color: #0d9488;
     font-size: var(--font-sm, 14px);
     font-weight: 500;
     line-height: 1.5;
@@ -325,13 +325,13 @@ html {
     right: 32px;
     width: 56px;
     height: 56px;
-    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     color: white;
     border: none;
     border-radius: 50%;
     font-size: var(--font-xl, 24px);
     cursor: pointer;
-    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -349,8 +349,8 @@ html {
 }
 
 .back-to-top:hover {
-    background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
-    box-shadow: 0 6px 20px rgba(255, 107, 107, 0.4);
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
+    box-shadow: 0 6px 20px rgba(13, 148, 136, 0.4);
     transform: scale(1.05) translateY(-2px);
 }
 
@@ -406,17 +406,17 @@ html {
 }
 
 .month-btn:hover {
-    border-color: #ff6a3d;
-    color: #ff6a3d;
+    border-color: #0d9488;
+    color: #0d9488;
     background: white;
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.15);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.15);
 }
 
 .month-btn.active {
-    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     color: white;
-    border-color: #ff6a3d;
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.3);
+    border-color: #0d9488;
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.3);
 }
 
 .month-btn-all {
@@ -424,7 +424,7 @@ html {
 }
 
 .month-btn-all.active {
-    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     color: white;
 }
 
@@ -486,7 +486,7 @@ html {
 
 #selectedMonthCount {
     font-weight: 700;
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 /* Quick Presets */
@@ -511,11 +511,11 @@ html {
 }
 
 .preset-btn:hover {
-    border-color: #ff6a3d;
-    color: #ff6a3d;
+    border-color: #0d9488;
+    color: #0d9488;
     background: white;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
 }
 
 .preset-btn:active {
@@ -524,13 +524,13 @@ html {
 
 /* Save/Load Buttons */
 .month-btn-save {
-    background: #fff8f5;
-    border-color: #ff6a3d;
-    color: #ff6a3d;
+    background: #f0fdfa;
+    border-color: #0d9488;
+    color: #0d9488;
 }
 
 .month-btn-save:hover {
-    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     color: white;
 }
 
@@ -547,20 +547,20 @@ html {
 
 /* Saved Selections Modal */
 .saved-selections-modal .btn-primary {
-    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     color: white;
     border: none;
     border-radius: 10px;
     font-weight: 700;
     cursor: pointer;
-    box-shadow: 0 3px 10px rgba(255, 107, 107, 0.25);
+    box-shadow: 0 3px 10px rgba(13, 148, 136, 0.25);
     transition: background 0.2s ease, transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .saved-selections-modal .btn-primary:hover {
-    background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
     transform: translateY(-2px);
-    box-shadow: 0 5px 16px rgba(255, 107, 107, 0.35);
+    box-shadow: 0 5px 16px rgba(13, 148, 136, 0.35);
 }
 
 .saved-selections-modal .btn-outline {
@@ -575,8 +575,8 @@ html {
 }
 
 .saved-selections-modal .btn-outline:hover {
-    border-color: #ff6a3d;
-    color: #ff6a3d;
+    border-color: #0d9488;
+    color: #0d9488;
 }
 
 /* Savings Optimizer Section - Simplified */
@@ -626,7 +626,7 @@ html {
 .optimizer-stat-value {
     font-size: 22px;
     font-weight: 800;
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 .optimizer-stat-amount {
@@ -858,7 +858,7 @@ html {
 .optimizer-target-value-display {
     font-size: 32px;
     font-weight: 800;
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 /* ========================================
@@ -950,14 +950,14 @@ html {
     border-radius: 50%;
     background: white;
     cursor: pointer;
-    border: 4px solid #ff6a3d;
+    border: 4px solid #0d9488;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .optimizer-slider::-webkit-slider-thumb:hover {
     transform: scale(1.2);
-    box-shadow: 0 4px 12px rgba(45, 122, 95, 0.4);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
 }
 
 .optimizer-slider::-webkit-slider-thumb:active {
@@ -970,14 +970,14 @@ html {
     border-radius: 50%;
     background: white;
     cursor: pointer;
-    border: 4px solid #ff6a3d;
+    border: 4px solid #0d9488;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
     transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .optimizer-slider::-moz-range-thumb:hover {
     transform: scale(1.2);
-    box-shadow: 0 4px 12px rgba(45, 122, 95, 0.4);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.4);
 }
 
 .optimizer-slider::-moz-range-thumb:active {
@@ -1099,9 +1099,9 @@ html {
 }
 
 .recurring-search-wrapper:focus-within {
-    border-color: #ff6a3d;
+    border-color: #0d9488;
     background: white;
-    box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 .search-icon {
@@ -1148,10 +1148,10 @@ html {
 .search-results-info {
     margin-top: 12px;
     padding: 8px 16px;
-    background: #f0f8f5;
+    background: #f0fdfa;
     border-radius: 8px;
     font-size: var(--font-sm, 14px);
-    color: #ff6a3d;
+    color: #0d9488;
     font-weight: 500;
 }
 
@@ -1189,7 +1189,7 @@ html {
 .recurring-stat-value {
     font-size: var(--font-lg, 20px);
     font-weight: 700;
-    color: #ff6a3d;
+    color: #0d9488;
     line-height: 1;
 }
 
@@ -1222,7 +1222,7 @@ html {
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(135deg, #ff6a3d 0%, #22c55e 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #22c55e 100%);
     opacity: 0;
 }
 
@@ -1231,9 +1231,9 @@ html {
 }
 
 .recurring-payment-item:hover {
-    border-color: #ff6a3d;
-    background: #fffafa;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.1);
+    border-color: #0d9488;
+    background: #f0fdfa;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.1);
 }
 
 .recurring-icon {
@@ -1272,8 +1272,8 @@ html {
 }
 
 .recurring-frequency {
-    background: #e8f0ed;
-    color: #ff6a3d;
+    background: #ccfbf1;
+    color: #0d9488;
     padding: 3px 10px;
     border-radius: 12px;
     font-weight: 600;
@@ -1345,7 +1345,7 @@ html {
 }
 
 .dashboard-file-badge {
-    background: #ff6a3d;
+    background: #0d9488;
     color: white;
     padding: 4px 12px;
     border-radius: 20px;
@@ -1382,7 +1382,7 @@ html {
 
 /* Small primary button */
 .btn-primary-sm {
-    background: linear-gradient(135deg, #ff6a3d 0%, #e55a2d 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #0f766e 100%);
     color: white;
     border: none;
     padding: 10px 16px;
@@ -1397,7 +1397,7 @@ html {
 }
 
 .btn-primary-sm:hover {
-    background: linear-gradient(135deg, #e55a2d 0%, #d14a1d 100%);
+    background: linear-gradient(135deg, #0f766e 0%, #115e59 100%);
 }
 
 /* Month Filter Bar - Top position */
@@ -1441,13 +1441,13 @@ html {
 
 .month-filter-bar .month-btn:hover {
     background: #f0f0f0;
-    border-color: #ff6a3d;
+    border-color: #0d9488;
 }
 
 .month-filter-bar .month-btn.active {
     background: white;
-    color: #ff6a3d;
-    border: 2px solid #ff6a3d;
+    color: #0d9488;
+    border: 2px solid #0d9488;
     font-weight: 600;
 }
 
@@ -1531,7 +1531,7 @@ html {
 }
 
 .savings-card {
-    border-left-color: #ff6a3d;
+    border-left-color: #0d9488;
 }
 
 /* Charts - Simplified */
@@ -1588,7 +1588,7 @@ html {
 
 .transaction-count span {
     font-weight: 700;
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 .transaction-filters-container {
@@ -1635,14 +1635,14 @@ html {
 
 .category-filter-select:hover,
 .sort-filter-select:hover {
-    border-color: #ff6a3d;
+    border-color: #0d9488;
 }
 
 .category-filter-select:focus,
 .sort-filter-select:focus {
     outline: none;
-    border-color: #ff6a3d;
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 .filter-btn {
@@ -1665,25 +1665,25 @@ html {
     left: 50%;
     width: 0;
     height: 3px;
-    background: linear-gradient(90deg, #ff6a3d 0%, #22c55e 100%);
+    background: linear-gradient(90deg, #0d9488 0%, #22c55e 100%);
     transform: translateX(-50%);
     border-radius: 2px;
     transition: width 0.2s ease;
 }
 
 .filter-btn:hover {
-    border-color: #ff6a3d;
-    color: #ff6a3d;
-    background: #fffafa;
+    border-color: #0d9488;
+    color: #0d9488;
+    background: #f0fdfa;
     transform: translateY(-2px);
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.15);
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.15);
 }
 
 .filter-btn.active {
     background: white;
-    color: #ff6a3d;
-    border-color: #ff6a3d;
-    box-shadow: 0 4px 12px rgba(255, 107, 107, 0.2);
+    color: #0d9488;
+    border-color: #0d9488;
+    box-shadow: 0 4px 12px rgba(13, 148, 136, 0.2);
 }
 
 .filter-btn.active::after {
@@ -1747,7 +1747,7 @@ html {
     top: 0;
     bottom: 0;
     width: 4px;
-    background: linear-gradient(135deg, #ff6a3d, #22c55e);
+    background: linear-gradient(135deg, #0d9488, #22c55e);
     opacity: 0;
     transition: opacity 0.2s ease;
     z-index: 1;
@@ -1802,25 +1802,25 @@ html {
 }
 
 .category-cell-clickable:hover {
-    background: #fff8f5;
+    background: #f0fdfa;
 }
 
 .inline-category-select {
     width: 100%;
     padding: 4px 8px;
-    border: 2px solid #ff6a3d;
+    border: 2px solid #0d9488;
     border-radius: 8px;
     font-size: 13px;
     font-weight: 600;
     color: #1a1a1a;
     background: white;
     cursor: pointer;
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.15);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.15);
 }
 
 .inline-category-select:focus {
     outline: none;
-    border-color: #ff6a3d;
+    border-color: #0d9488;
 }
 
 .confidence-badge {
@@ -1906,11 +1906,11 @@ html {
 
 /* Enhanced Button Styles for Dashboard */
 .btn-primary {
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
 }
 
 .btn-primary:hover {
-    box-shadow: 0 4px 16px rgba(255, 107, 107, 0.3);
+    box-shadow: 0 4px 16px rgba(13, 148, 136, 0.3);
 }
 
 .btn-outline {
@@ -1929,7 +1929,7 @@ input:focus {
 }
 
 button:focus-visible {
-    outline: 3px solid rgba(255, 107, 107, 0.3);
+    outline: 3px solid rgba(13, 148, 136, 0.3);
     outline-offset: 2px;
 }
 
@@ -1956,11 +1956,11 @@ button:focus-visible {
     width: 60px;
     height: 60px;
     border: 4px solid #f0f0f0;
-    border-top-color: #ff6a3d;
+    border-top-color: #0d9488;
     border-right-color: #22c55e;
     border-radius: 50%;
     margin: 0 auto 24px;
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.2);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.2);
     animation: spin 1s linear infinite;
 }
 
@@ -2253,13 +2253,13 @@ button:focus-visible {
 }
 
 .year-select-dropdown:hover {
-    border-color: #ff6a3d;
+    border-color: #0d9488;
 }
 
 .year-select-dropdown:focus {
     outline: none;
-    border-color: #ff6a3d;
-    box-shadow: 0 0 0 3px rgba(45, 122, 95, 0.1);
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 .year-quick-buttons {
@@ -2282,14 +2282,14 @@ button:focus-visible {
 }
 
 .year-quick-btn:hover {
-    border-color: #ff6a3d;
-    background: #f0f7f4;
+    border-color: #0d9488;
+    background: #f0fdfa;
 }
 
 .year-quick-btn.selected {
-    border-color: #ff6a3d;
+    border-color: #0d9488;
     background: white;
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 .year-modal-footer {
@@ -2468,20 +2468,20 @@ button:focus-visible {
 }
 
 .category-select-dropdown:hover {
-    border-color: #ff6a3d;
+    border-color: #0d9488;
 }
 
 .category-select-dropdown:focus {
     outline: none;
-    border-color: #ff6a3d;
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 .similar-transactions-section {
-    background: #fff8f5;
+    background: #f0fdfa;
     padding: 20px;
     border-radius: 12px;
-    border: 2px solid #FFE5E5;
+    border: 2px solid #ccfbf1;
 }
 
 .checkbox-label {
@@ -2501,7 +2501,7 @@ button:focus-visible {
 }
 
 .checkbox-label strong {
-    color: #ff6a3d;
+    color: #0d9488;
 }
 
 .similar-list {
@@ -2629,7 +2629,7 @@ button:focus-visible {
     content: '';
     width: 4px;
     height: 24px;
-    background: linear-gradient(135deg, #ff6a3d 0%, #22c55e 100%);
+    background: linear-gradient(135deg, #0d9488 0%, #22c55e 100%);
     border-radius: 2px;
 }
 
@@ -2679,7 +2679,7 @@ button:focus-visible {
 
 .review-actions-bar .btn-primary {
     margin-left: 8px;
-    box-shadow: 0 2px 8px rgba(255, 107, 107, 0.25);
+    box-shadow: 0 2px 8px rgba(13, 148, 136, 0.25);
 }
 
 .review-actions-bar .btn-outline {
@@ -2917,13 +2917,13 @@ button:focus-visible {
 }
 
 .review-actions select:hover {
-    border-color: #ff6a3d;
+    border-color: #0d9488;
 }
 
 .review-actions select:focus {
     outline: none;
-    border-color: #ff6a3d;
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.15);
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.15);
 }
 
 .review-actions button {
@@ -2966,7 +2966,7 @@ button:focus-visible {
 .learned-patterns-link button {
     background: none;
     border: none;
-    color: #ff6a3d;
+    color: #0d9488;
     font-weight: 600;
     text-decoration: underline;
     cursor: pointer;
@@ -2974,7 +2974,7 @@ button:focus-visible {
 }
 
 .learned-patterns-link button:hover {
-    color: #e55555;
+    color: #0f766e;
 }
 
 @media (max-width: 768px) {
@@ -3197,8 +3197,8 @@ button:focus-visible {
 
 .learned-search-input:focus {
     outline: none;
-    border-color: #ff6a3d;
-    box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+    border-color: #0d9488;
+    box-shadow: 0 0 0 3px rgba(13, 148, 136, 0.1);
 }
 
 .btn-danger {
