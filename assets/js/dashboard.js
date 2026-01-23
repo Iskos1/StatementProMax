@@ -3579,7 +3579,17 @@ function handleSaveAiKey() {
     const key = input.value.trim();
     
     if (saveApiKey(key)) {
-        showNotification('AI Key saved successfully!', 'success');
+        showNotification('AI Key saved locally!', 'success');
+        
+        // Also save to profile if authenticated
+        if (profileManager && profileManager.isAuthenticated()) {
+            profileManager.saveOpenAIKey(key).then(success => {
+                if (success) {
+                    showNotification('AI Key synced to profile!', 'success');
+                }
+            });
+        }
+        
         handleCloseAiKeyModal();
     } else {
         showNotification('Invalid API Key. Must start with sk-', 'error');
