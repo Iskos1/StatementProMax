@@ -543,8 +543,8 @@ function setupProfileModalListeners() {
         });
     }
     
-    // Profile tabs
-    const tabButtons = document.querySelectorAll('.profile-tab-btn');
+    // Profile tabs (supports both old and new class names)
+    const tabButtons = document.querySelectorAll('.profile-nav-btn, .profile-tab-btn');
     tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
             const tab = btn.dataset.tab;
@@ -604,36 +604,60 @@ function hideProfileModal() {
 }
 
 function switchProfileTab(tabName) {
-    // Update button states
-    const buttons = document.querySelectorAll('.profile-tab-btn');
+    // Update button states (supports both old and new class names)
+    const buttons = document.querySelectorAll('.profile-nav-btn, .profile-tab-btn');
     buttons.forEach(btn => {
         if (btn.dataset.tab === tabName) {
-            btn.style.background = '#ff6a3d';
-            btn.style.color = 'white';
-            btn.style.borderColor = '#ff6a3d';
             btn.classList.add('active');
         } else {
-            btn.style.background = 'white';
-            btn.style.color = '#4a4a4a';
-            btn.style.borderColor = '#e5e5e5';
             btn.classList.remove('active');
         }
     });
     
-    // Show/hide tab content
+    // Show/hide tab content using CSS classes
     const historyTab = document.getElementById('profileHistoryTab');
     const settingsTab = document.getElementById('profileSettingsTab');
     const securityTab = document.getElementById('profileSecurityTab');
     
-    if (historyTab) historyTab.style.display = tabName === 'history' ? 'block' : 'none';
-    if (settingsTab) settingsTab.style.display = tabName === 'settings' ? 'block' : 'none';
-    if (securityTab) securityTab.style.display = tabName === 'security' ? 'block' : 'none';
+    // Remove active class and hide all tabs
+    [historyTab, settingsTab, securityTab].forEach(tab => {
+        if (tab) {
+            tab.classList.remove('active');
+            tab.style.display = 'none';
+        }
+    });
+    
+    // Show the selected tab
+    const activeTab = tabName === 'history' ? historyTab : tabName === 'settings' ? settingsTab : securityTab;
+    if (activeTab) {
+        activeTab.classList.add('active');
+        activeTab.style.display = 'block';
+    }
 }
 
 function updateProfileDisplay() {
-    const emailEl = document.getElementById('profileEmail');
-    if (emailEl && profileManager.user) {
-        emailEl.textContent = profileManager.user.email;
+    const emailEl = document.getElementById('profileEmailDisplay');
+    const avatarEl = document.getElementById('profileAvatarInitials');
+    const memberSinceEl = document.getElementById('memberSinceDate');
+
+    if (profileManager.user) {
+        const email = profileManager.user.email;
+        if (emailEl) emailEl.textContent = email;
+        
+        if (avatarEl) {
+            const initial = email.charAt(0).toUpperCase();
+            avatarEl.textContent = initial;
+        }
+
+        if (memberSinceEl) {
+             const stats = profileManager.getStats();
+             if (stats.memberSince) {
+                 const date = new Date(stats.memberSince);
+                 memberSinceEl.textContent = date.getFullYear();
+             } else {
+                 memberSinceEl.textContent = new Date().getFullYear();
+             }
+        }
     }
 }
 
@@ -649,6 +673,29 @@ function updateProfileStats() {
     if (transactionsCount) transactionsCount.textContent = stats.totalTransactions.toLocaleString();
     if (patternsCount) patternsCount.textContent = stats.learnedPatterns;
     if (totalIncome) totalIncome.textContent = formatCurrency(stats.totalIncome);
+
+    // Render Top Categories
+    const categoriesContainer = document.getElementById('profileTopCategories');
+    if (categoriesContainer) {
+        categoriesContainer.innerHTML = '';
+        if (stats.topCategories && stats.topCategories.length > 0) {
+            stats.topCategories.forEach(cat => {
+                const el = document.createElement('div');
+                el.className = 'category-chip';
+                el.innerHTML = `
+                    <span class="chip-name">${escapeHtml(cat.category)}</span>
+                    <span class="chip-amount">${formatCurrency(cat.amount)}</span>
+                `;
+                categoriesContainer.appendChild(el);
+            });
+        } else {
+            categoriesContainer.innerHTML = `
+                <div class="empty-state" style="padding: 24px;">
+                    <div class="empty-subtitle">Upload files to see spending categories</div>
+                </div>
+            `;
+        }
+    }
 }
 
 function updateProfileFileHistory(files) {
@@ -677,60 +724,26 @@ function updateProfileFileHistory(files) {
 
 function createProfileFileItem(file) {
     const item = document.createElement('div');
-    item.className = 'profile-file-item';
-    item.style.cssText = `
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        padding: 16px 20px;
-        background: white;
-        border: 2px solid #e5e5e5;
-        border-radius: 12px;
-        margin-bottom: 12px;
-        transition: all 0.2s;
-    `;
-    
-    item.onmouseenter = () => {
-        item.style.borderColor = '#ff6a3d';
-        item.style.boxShadow = '0 4px 12px rgba(255, 106, 61, 0.15)';
-    };
-    item.onmouseleave = () => {
-        item.style.borderColor = '#e5e5e5';
-        item.style.boxShadow = 'none';
-    };
+    item.className = 'file-item';
     
     const uploadDate = new Date(file.uploadDate);
     const formattedDate = uploadDate.toLocaleDateString('en-US', {
-        year: 'numeric',
         month: 'short',
         day: 'numeric'
     });
     
-    const income = file.summary?.totalIncome || 0;
-    const expenses = file.summary?.totalExpenses || 0;
-    const netBalance = income - expenses;
-    const netClass = netBalance >= 0 ? 'color: #22c55e' : 'color: #ef4444';
+    const transCount = file.transactionCount || 0;
     
     item.innerHTML = `
-        <div style="flex: 1;">
-            <div style="font-weight: 700; font-size: 15px; color: #1a1a1a; margin-bottom: 4px;">
-                📁 ${escapeHtml(file.fileName)}
-            </div>
-            <div style="font-size: 13px; color: #6a6a6a;">
-                ${formattedDate} • ${file.transactionCount || 0} transactions ${file.year ? `• Year: ${file.year}` : ''}
-            </div>
-        </div>
-        <div style="text-align: right;">
-            <div style="font-size: 13px; color: #22c55e; font-weight: 600;">
-                +${formatCurrency(income)}
-            </div>
-            <div style="font-size: 13px; color: #ef4444; font-weight: 600;">
-                -${formatCurrency(expenses)}
-            </div>
-            <div style="font-size: 14px; ${netClass}; font-weight: 700; border-top: 1px solid #e5e5e5; padding-top: 4px; margin-top: 4px;">
-                ${netBalance >= 0 ? '+' : ''}${formatCurrency(netBalance)}
+        <div class="file-icon">📄</div>
+        <div class="file-info">
+            <h4 class="file-name">${escapeHtml(file.fileName)}</h4>
+            <div class="file-meta">
+                <span>${formattedDate}</span>
+                <span>${transCount} txns</span>
             </div>
         </div>
+        <span class="file-arrow">→</span>
     `;
     
     return item;
@@ -753,9 +766,11 @@ function updateAiKeyStatus() {
     
     if (status) {
         if (hasApiKey()) {
-            status.innerHTML = '<span style="color: #22c55e;">✓ API key is configured</span> - Your key is stored securely and synced across your devices.';
+            status.innerHTML = '✓ API key is configured';
+            status.classList.add('status-saved');
         } else {
-            status.textContent = 'Your API key is stored securely and synced across your devices.';
+            status.textContent = 'Your key stays on this device only';
+            status.classList.remove('status-saved');
         }
     }
 }
@@ -4363,6 +4378,20 @@ async function processFinalApproval() {
             const incomeCount = allTransactions.filter(t => t.type === 'income').length;
             const expenseCount = allTransactions.filter(t => t.type === 'expense').length;
             
+            // Calculate category breakdown for profile stats
+            const categoryBreakdown = {};
+            allTransactions.filter(t => t.type === 'expense').forEach(t => {
+                if (t.category) {
+                    categoryBreakdown[t.category] = (categoryBreakdown[t.category] || 0) + Math.abs(t.amount);
+                }
+            });
+
+            // Get top 5 categories
+            const topCategories = Object.entries(categoryBreakdown)
+                .sort(([, a], [, b]) => b - a)
+                .slice(0, 5)
+                .reduce((obj, [k, v]) => ({ ...obj, [k]: v }), {});
+            
             // Get file name from display or use default
             const fileName = dom.fileName ? dom.fileName.textContent : 'uploaded-file.xlsx';
             
@@ -4397,7 +4426,8 @@ async function processFinalApproval() {
                         netBalance: income - expenses,
                         incomeCount: incomeCount,
                         expenseCount: expenseCount
-                    }
+                    },
+                    categoryBreakdown: topCategories
                 });
             }
             

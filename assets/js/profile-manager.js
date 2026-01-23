@@ -199,7 +199,8 @@ class ProfileManager {
                     netBalance: fileData.summary?.netBalance || 0,
                     incomeCount: fileData.summary?.incomeCount || 0,
                     expenseCount: fileData.summary?.expenseCount || 0
-                }
+                },
+                categoryBreakdown: fileData.categoryBreakdown || {}
             };
 
             await this.db.transact(
@@ -290,6 +291,21 @@ class ProfileManager {
         );
         const learnedPatterns = this.patterns.length;
 
+        // Calculate top categories across all files
+        const categoryTotals = {};
+        this.fileHistory.forEach(file => {
+            if (file.categoryBreakdown) {
+                Object.entries(file.categoryBreakdown).forEach(([category, amount]) => {
+                    categoryTotals[category] = (categoryTotals[category] || 0) + amount;
+                });
+            }
+        });
+
+        const topCategories = Object.entries(categoryTotals)
+            .sort(([, a], [, b]) => b - a)
+            .slice(0, 5)
+            .map(([category, amount]) => ({ category, amount }));
+
         return {
             totalFiles,
             totalTransactions,
@@ -297,7 +313,8 @@ class ProfileManager {
             totalExpenses,
             netBalance: totalIncome - totalExpenses,
             learnedPatterns,
-            memberSince: this.profile?.createdAt || this.user?.createdAt || null
+            memberSince: this.profile?.createdAt || this.user?.createdAt || null,
+            topCategories
         };
     }
 
