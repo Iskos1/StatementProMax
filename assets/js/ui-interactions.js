@@ -437,7 +437,7 @@ function initMobileMenu() {
     
     // Close menu when clicking a link (using delegation)
     navLinks.addEventListener('click', (e) => {
-        if (e.target.closest('a')) {
+        if (e.target.closest('a') || e.target.closest('button')) {
             toggle.classList.remove('active');
             navLinks.classList.remove('mobile-open');
         }

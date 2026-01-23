@@ -111,6 +111,12 @@
             gap: 10px;
             text-decoration: none;
             color: var(--text-primary);
+            /* Reset button styles if needed, though this is a class, the button needs resets */
+            background: transparent;
+            border: none;
+            padding: 0;
+            font-family: inherit;
+            cursor: pointer;
         }
 
         .logo-icon {
@@ -167,6 +173,9 @@
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
+            font-family: inherit;
+            cursor: pointer;
+            text-align: left;
         }
 
         .nav-link::before {
@@ -702,7 +711,7 @@
     <!-- Navigation -->
     <nav>
         <div class="container nav-content">
-            <a href="landing.html" class="logo">
+            <button onclick="window.location.href='landing.html'" class="logo">
                 <div class="logo-icon">
                     <svg width="24" height="24" viewBox="0 0 32 32" fill="none">
                         <path d="M6 18V14C6 12.8954 6.89543 12 8 12H10C11.1046 12 12 12.8954 12 14V18" stroke="white" stroke-width="2.5" stroke-linecap="round"/>
@@ -712,20 +721,20 @@
                     </svg>
                 </div>
                 <span class="logo-text">Flash<span class="logo-accent">Converter</span></span>
-            </a>
+            </button>
             
             <!-- Bold Navigation Links -->
             <div class="nav-links" id="navLinks">
-                <a href="index.html" class="nav-link">
+                <button onclick="window.location.href='index.html'" class="nav-link">
                     <span class="nav-link-icon">⚡</span>
                     <span class="nav-link-text">Converter</span>
                     <span class="nav-link-arrow">→</span>
-                </a>
-                <a href="dashboard.html" class="nav-link primary">
+                </button>
+                <button onclick="window.location.href='dashboard.html'" class="nav-link primary">
                     <span class="nav-link-icon">📊</span>
                     <span class="nav-link-text">Financial Dashboard</span>
                     <span class="nav-link-arrow">→</span>
-                </a>
+                </button>
             </div>
 
             <button class="mobile-menu-btn" id="mobileMenuBtn" aria-label="Toggle menu">
