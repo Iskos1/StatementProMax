@@ -116,7 +116,9 @@ p {
     position: sticky;
     top: 0;
     z-index: 1000;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Optimize transition: target specific properties */
+    transition: background-color 0.3s ease, box-shadow 0.3s ease, padding 0.3s ease;
+    will-change: background-color, padding;
 }
 
 .nav.scrolled {
@@ -137,7 +139,7 @@ p {
     justify-content: space-between;
     align-items: center;
     padding: 16px 0;
-    transition: all 0.3s ease;
+    transition: padding 0.3s ease, height 0.3s ease;
     height: 72px; /* Fixed height to prevent layout shift */
 }
 
@@ -169,6 +171,7 @@ p {
 
 .promo-icon {
     font-size: 16px;
+    /* Paused animation by default if not needed, or keep minimal */
     animation: bounce 2s infinite;
 }
 
@@ -189,11 +192,12 @@ p {
     font-weight: 700;
     font-size: 12px;
     text-decoration: none;
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    will-change: transform;
 }
 
 .promo-cta:hover {
@@ -292,7 +296,8 @@ p {
     font-weight: 600;
     padding: 10px 20px;
     border-radius: 100px;
-    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    /* Specific properties */
+    transition: color 0.2s ease, background-color 0.2s ease, box-shadow 0.2s ease;
     position: relative;
 }
 
@@ -323,8 +328,9 @@ p {
     font-weight: 600;
     font-size: 14px;
     cursor: pointer;
-    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    transition: transform 0.2s ease, background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
     box-shadow: 0 4px 12px rgba(26, 26, 46, 0.15);
+    will-change: transform;
 }
 
 .btn-auth:hover {
@@ -347,7 +353,7 @@ p {
     font-size: 14px;
     color: #1a1a2e;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .user-menu-btn:hover {
@@ -368,7 +374,7 @@ p {
     border: none;
     border-radius: 10px;
     cursor: pointer;
-    transition: all 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .mobile-menu-toggle:hover {
@@ -382,6 +388,7 @@ p {
     background: #1a1a2e;
     border-radius: 2px;
     transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+    will-change: transform, opacity;
 }
 
 .mobile-menu-toggle.active span:nth-child(1) {
@@ -408,6 +415,7 @@ p {
     font-weight: 600;
     cursor: pointer;
     letter-spacing: -0.01em;
+    transition: background-color 0.2s ease;
 }
 
 .btn-primary:hover,
@@ -432,6 +440,7 @@ p {
     text-decoration: none;
     cursor: pointer;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    transition: background-color 0.2s ease, color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-secondary:hover {
@@ -450,6 +459,7 @@ p {
     font-weight: 600;
     cursor: pointer;
     width: 100%;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-outline:hover {
@@ -539,6 +549,7 @@ p {
 .features {
     padding: 70px 0;
     background: #FAFCFC;
+    content-visibility: auto; /* Optimization for off-screen rendering */
 }
 
 .section-title {
@@ -577,6 +588,7 @@ p {
     border-radius: 12px;
     border: 1px solid #e5e5e5;
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    will-change: box-shadow;
 }
 
 .feature-card:hover {
@@ -627,6 +639,7 @@ p {
     border: 2px solid #fff0eb;
     box-shadow: 0 4px 12px rgba(255, 107, 107, 0.08);
     transition: box-shadow 0.2s ease, border-color 0.2s ease;
+    will-change: box-shadow;
 }
 
 .step-card:hover {
@@ -692,6 +705,7 @@ p {
     border: 2px solid #e5e5e5;
     position: relative;
     transition: box-shadow 0.2s ease, transform 0.2s ease;
+    will-change: transform, box-shadow;
 }
 
 .pricing-card:hover {
@@ -805,6 +819,7 @@ p {
     background: linear-gradient(180deg, #2C2C2C 0%, #1a1a1a 100%);
     color: white;
     padding: 28px 0 16px;
+    content-visibility: auto;
 }
 
 .footer-links-row {
@@ -850,7 +865,7 @@ p {
     text-decoration: none;
     margin-bottom: 6px;
     font-size: var(--font-sm, 14px);
-    
+    transition: color 0.2s ease;
 }
 
 .footer-links-group a:hover {
@@ -924,6 +939,7 @@ p {
     overflow-y: auto;
     position: relative;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+    will-change: transform, opacity;
 }
 
 .close-modal {
@@ -937,6 +953,7 @@ p {
     background: none;
     border: none;
     line-height: 1;
+    transition: color 0.2s ease;
 }
 
 .close-modal:hover {
@@ -985,7 +1002,7 @@ p {
     border-radius: 8px;
     font-size: var(--font-base, 16px);
     font-family: inherit;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .form-group input:focus {
@@ -1053,7 +1070,7 @@ p {
     font-weight: 600;
     cursor: pointer;
     width: 100%;
-    transition: background 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-primary-full:hover {
@@ -1104,7 +1121,7 @@ p {
     font-weight: 600;
     font-size: var(--font-sm, 14px);
     color: #1a1a1a;
-    transition: border-color 0.2s ease, background 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .btn-social:hover {
@@ -1173,10 +1190,6 @@ p {
 
     .pricing-grid {
         grid-template-columns: 1fr;
-    }
-
-    .pricing-card.featured {
-        
     }
 
     .hero-stats {
@@ -1507,6 +1520,9 @@ p {
     background: #f8f9fc;
     border-radius: 8px;
     border: 1px solid #e8e8f0;
+    /* Optimize drag feedback */
+    transition: transform 0.2s ease, opacity 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease;
+    will-change: transform, opacity;
 }
 
 .demo-pdf-icon {
@@ -1538,7 +1554,8 @@ p {
     font-size: var(--font-md, 18px);
     font-weight: 600;
     box-shadow: 0 4px 16px rgba(255, 106, 61, 0.3);
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    will-change: transform;
 }
 
 .btn-demo:hover {
@@ -1684,8 +1701,9 @@ p {
     border-radius: 8px;
     border: 2px dashed #e8e8f0;
     cursor: move;
-    transition: all 0.3s ease;
+    transition: border-color 0.3s ease, background-color 0.3s ease, box-shadow 0.3s ease;
     position: relative;
+    will-change: transform, opacity;
 }
 
 .demo-pdf-preview:hover {
@@ -1758,7 +1776,7 @@ p {
     font-size: var(--font-md, 18px);
     font-weight: 600;
     box-shadow: 0 4px 16px rgba(255, 106, 61, 0.3);
-    transition: all 0.2s ease;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-demo:hover {
@@ -1806,6 +1824,8 @@ p {
     padding: 48px 32px;
     text-align: center;
     cursor: pointer;
+    transition: border-color 0.2s ease, background-color 0.2s ease;
+    will-change: background-color, border-color;
 }
 
 .upload-area:hover {
@@ -2197,7 +2217,7 @@ p {
     font-size: var(--font-sm, 14px);
     cursor: pointer;
     border: none;
-    transition: background 0.2s ease, box-shadow 0.2s ease;
+    transition: background-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .btn-convert,
@@ -2241,7 +2261,7 @@ p {
     font-weight: 600;
     font-size: var(--font-sm, 14px);
     cursor: pointer;
-    transition: border-color 0.2s ease, background 0.2s ease, color 0.2s ease;
+    transition: border-color 0.2s ease, background-color 0.2s ease, color 0.2s ease;
 }
 
 .btn-remove:hover {
@@ -2265,6 +2285,7 @@ p {
     border-radius: 4px;
     box-shadow: 0 2px 4px rgba(255, 107, 107, 0.2);
     transition: width 0.3s ease;
+    will-change: width;
 }
 
 /* Add More Section */
@@ -2452,6 +2473,7 @@ p {
     transform: translateX(400px);
     max-width: 400px;
     transition: opacity 0.3s ease, transform 0.3s ease;
+    will-change: transform, opacity;
 }
 
 .notification.show {
@@ -2687,7 +2709,7 @@ p {
     font-weight: 600;
     color: #dc2626;
     cursor: pointer;
-    transition: background 0.2s ease;
+    transition: background-color 0.2s ease;
 }
 
 .user-dropdown-btn:hover {
@@ -2791,7 +2813,7 @@ p {
     border-radius: 8px;
     font-size: var(--font-base, 16px);
     font-family: inherit;
-    transition: border-color 0.2s ease;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .auth-input:focus {
@@ -3065,6 +3087,7 @@ p {
     opacity: 0;
     transform: translateX(-100%);
     animation: slideIn 0.4s ease forwards;
+    will-change: transform, opacity;
 }
 
 .delivery-notification.fade-out {
