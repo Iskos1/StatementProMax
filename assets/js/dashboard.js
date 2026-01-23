@@ -3612,6 +3612,31 @@ async function handleAiSuggest(silent = false) {
     
     if (!silent) showLoading();
     
+    // Timer for user feedback
+    let seconds = 0;
+    let timerInterval = null;
+    
+    if (!silent) {
+        // Find the loading text element and update it
+        timerInterval = setInterval(() => {
+            seconds++;
+            const overlay = document.getElementById('loadingOverlay');
+            if (overlay) {
+                const subtext = overlay.querySelector('.loading-subtext');
+                if (subtext) {
+                    // Changing messages based on time to keep user engaged
+                    if (seconds < 5) {
+                        subtext.textContent = `Analyzing ${candidates.length} transactions... (${seconds}s)`;
+                    } else if (seconds < 10) {
+                        subtext.textContent = `Identifying merchants and categories... (${seconds}s)`;
+                    } else {
+                        subtext.textContent = `Almost done! Applying AI logic... (${seconds}s)`;
+                    }
+                }
+            }
+        }, 1000);
+    }
+    
     const msg = silent 
         ? `🤖 AI is researching ${candidates.length} transactions...` 
         : `Asking AI to categorize ${candidates.length} transactions...`;
@@ -3656,6 +3681,7 @@ async function handleAiSuggest(silent = false) {
         console.error(error);
         if (!silent) showNotification('AI Error: ' + error.message, 'error');
     } finally {
+        if (timerInterval) clearInterval(timerInterval);
         if (!silent) hideLoading();
     }
 }
