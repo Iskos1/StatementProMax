@@ -3618,11 +3618,15 @@ async function handleAiSuggest(silent = false) {
     
     if (!silent) {
         // Find the loading text element and update it
-        timerInterval = setInterval(() => {
-            seconds++;
+        // Note: The timer starts immediately, not after 1s
+        const updateLoadingText = () => {
             const overlay = document.getElementById('loadingOverlay');
             if (overlay) {
                 const subtext = overlay.querySelector('.loading-subtext');
+                const text = overlay.querySelector('.loading-text');
+                
+                if (text && seconds === 0) text.textContent = "AI is thinking...";
+
                 if (subtext) {
                     // Changing messages based on time to keep user engaged
                     if (seconds < 5) {
@@ -3634,6 +3638,14 @@ async function handleAiSuggest(silent = false) {
                     }
                 }
             }
+        };
+
+        // Initial update
+        updateLoadingText();
+
+        timerInterval = setInterval(() => {
+            seconds++;
+            updateLoadingText();
         }, 1000);
     }
     
